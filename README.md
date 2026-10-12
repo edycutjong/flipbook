@@ -77,7 +77,7 @@ The judged path uses **four platform surfaces**, plus Amazon's reference BIF ser
 |---|---|
 | W3C `VideoPlayer` (`@amazon-devices/react-native-w3cmedia`) | playback; `currentTime` set by the jump |
 | KUI `SeekBar` | blind/highlights seek bar: `markers` prop for ticks, `displayAboveThumb` overlay masking the score area; `partialDisablingConfiguration` hands ⏩/⏪ to Flipbook |
-| TV input and focus (`useTVEventHandler`, `TVFocusGuideView`) | skip keys, calibration (arrows move, SELECT toggles resize, PLAY/PAUSE or BACK confirms, MENU opens the panel) |
+| TV input and focus (`useTVEventHandler`, `TVFocusGuideView`) | `useTVEventHandler`: skip keys and calibration (arrows move, SELECT toggles resize, PLAY/PAUSE or BACK confirms, MENU opens the panel); `TVFocusGuideView`: keeps focus on the seek bar |
 | Vega Virtual Device + CLI | build, run, on-device logs and recordings |
 | Amazon's BIF service in the sample (`src/services/bif/*`) | downloads the BIF; one added call (`getBifFile`) hands Flipbook the same bytes, which its own validated parser reads (`src/flipbook/core/bifIndex.ts`); its header and parser defects are entries 6–7 of [`FRICTION_LOG.md`](FRICTION_LOG.md) (11 entries in all) |
 

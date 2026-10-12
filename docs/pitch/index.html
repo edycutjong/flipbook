@@ -70,9 +70,9 @@ aside.speaker-notes{display:none}
 .brandrow{display:flex;align-items:center;gap:34px;margin-top:58px}
 .brandrow img{width:132px;height:132px;filter:drop-shadow(0 0 34px rgba(217,164,65,.28))}
 .brandrow .wm{font:900 196px/.82 var(--font-display);letter-spacing:.01em}
-.tagline{font:800 88px/.95 var(--font-display);text-transform:uppercase;margin-top:44px}
+.tagline{font:800 88px/.95 var(--font-display);text-transform:uppercase;margin-top:36px}
 .tagline em{font-style:normal;display:block;background:linear-gradient(90deg,var(--rule) 10%,var(--amber-hi) 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.one{margin-top:30px;font-size:32px;color:var(--paper);max-width:30ch}
+.one{margin-top:16px;font-size:32px;color:var(--paper);max-width:30ch}
 .termcard{margin-top:150px;background:var(--sprocket);border-radius:8px;box-shadow:0 0 0 1px var(--hair2),0 30px 70px -30px #000;overflow:hidden}
 .termcard header{display:flex;gap:10px;align-items:center;padding:16px 22px;border-bottom:1px solid var(--hair);font:500 18px/1 var(--font-data);color:var(--muted)}
 .termcard header i{width:12px;height:12px;border-radius:50%;background:var(--before)}.termcard header i:first-child{background:var(--rule)}
@@ -105,15 +105,15 @@ aside.speaker-notes{display:none}
 /* 03 sheet (frozen) */
 .s3 h2{max-width:none}
 .s3 h2{font-size:88px}
-.sheetwrap{position:relative;margin-top:28px;width:1060px;background:var(--sprocket);padding:18px;border-radius:4px;box-shadow:0 0 0 1px var(--hair)}
+.sheetwrap{position:relative;margin-top:48px;width:1020px;background:var(--sprocket);padding:18px;border-radius:4px;box-shadow:0 0 0 1px var(--hair)}
 .sheetwrap .plate{position:relative}
 .sheetwrap svg.loops{position:absolute;inset:0;width:100%;height:100%}
 .sheetwrap .plate>img{filter:saturate(.52) sepia(.14)}
 .band img{filter:saturate(.62) sepia(.12)}
-.s3 .side{position:absolute;right:120px;top:262px;width:400px;display:grid;gap:40px}
+.s3 .side{position:absolute;right:120px;top:300px;width:400px;display:grid;gap:40px}
 .stat b{display:block;font:900 92px/.9 var(--font-display);letter-spacing:.01em}
 .stat span{font:500 21px/1.35 var(--font-data);color:var(--muted)}
-.seek3{position:relative;width:1060px;height:12px;margin-top:70px;background:#3A342E;border-radius:6px}
+.seek3{position:relative;width:1020px;height:12px;margin-top:70px;background:#3A342E;border-radius:6px}
 .seek3 .tick{position:absolute;top:-14px;width:8px;height:40px;margin-left:-4px;background:var(--after);border-radius:3px;transform:rotate(5deg)}
 .seek3 .tick em,.seek3 .land em{position:absolute;top:50px;left:50%;transform:translateX(-50%);font:500 22px/1 var(--font-data);font-style:normal;color:var(--rule);white-space:nowrap}
 .seek3 .land{position:absolute;top:50%;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:#FFC266;transform:translateY(-50%);box-shadow:0 0 0 5px rgba(20,17,16,.7);z-index:1}
@@ -146,7 +146,7 @@ aside.speaker-notes{display:none}
 .legend6{display:grid;gap:22px;margin-top:6px}
 .legend6 div{display:grid;grid-template-columns:52px 1fr;gap:18px;align-items:center;font-size:27px;color:var(--paper)}
 .legend6 .call{position:static}
-.note6{margin-top:30px;font:500 19px/1.4 var(--font-data);color:var(--muted)}
+.note6{margin-top:18px;font:500 19px/1.4 var(--font-data);color:var(--muted)}
 
 /* 07 evidence */
 .s7 .chart{margin-top:36px;background:rgba(11,9,8,.6);border-radius:6px;padding:20px 26px 10px;box-shadow:0 0 0 1px var(--hair)}
@@ -277,7 +277,7 @@ body.debug-contrast .slide :is(h2,p,li,span,b,em,code,figcaption,time,div.call){
     <figcaption class="cap">17:00 · development match · BELMONT 0 WINCHESTER 1</figcaption>
   </figure>
   <div class="foot"><span class="wm">FLIP<i>BOOK</i></span><span>pre-release · 02 / 10</span></div>
-  <aside class="speaker-notes">This is the problem in one picture: the scrub thumbnail at 17:00 already shows the goal's result. For many lower-division, women's and local matches no event feed is published, so there are no chapters — the viewer scrubs, and the score arrives before the goal.</aside>
+  <aside class="speaker-notes">This is the problem in one picture: the scrub thumbnail at 17:00 already shows the goal's result. A lower-division, women's or amateur match may have no published event feed, so there are no chapters — the viewer scrubs, and the score arrives before the goal.</aside>
 </section>
 
 <!-- 03 THE CONTACT SHEET (frozen) -->
@@ -400,7 +400,7 @@ body.debug-contrast .slide :is(h2,p,li,span,b,em,code,figcaption,time,div.call){
     <div><b>4,085<small>ms</small></b><span>pass 1 on the VVD · detector v1 · Amazon's BIF</span></div>
   </div>
   <div class="foot"><span class="wm">FLIP<i>BOOK</i></span><span>pre-release · 07 / 10</span></div>
-  <aside class="speaker-notes">The chart is the change distance at every one of the 517 frames: two spikes above the threshold, nothing else above twelve. A plain frame differ needs 237 false markers to find the same two goals. These come from a development match we labelled ourselves; the held-out result needs a human's labels.</aside>
+  <aside class="speaker-notes">The chart is the change distance at every one of the 517 frames: two spikes above the threshold; outside those two spikes, nothing above twelve. A plain frame differ needs 237 false markers to find the same two goals. These come from a development match we labelled ourselves; the held-out result needs a human's labels.</aside>
 </section>
 
 <!-- 08 BUILT ON VEGA -->
