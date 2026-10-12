@@ -79,11 +79,11 @@ The judged path uses **four platform surfaces**, plus Amazon's reference BIF ser
 | KUI `SeekBar` | blind/highlights seek bar: `markers` prop for ticks, `displayAboveThumb` overlay masking the score area; `partialDisablingConfiguration` hands ⏩/⏪ to Flipbook |
 | TV input and focus (`useTVEventHandler`, `TVFocusGuideView`) | `useTVEventHandler`: skip keys and calibration (arrows move, SELECT toggles resize, PLAY/PAUSE or BACK confirms, MENU opens the panel); `TVFocusGuideView`: keeps focus on the seek bar |
 | Vega Virtual Device + CLI | build, run, on-device logs and recordings |
-| Amazon's BIF service in the sample (`src/services/bif/*`) | downloads the BIF; one added call (`getBifFile`) hands Flipbook the same bytes, which its own validated parser reads (`src/flipbook/core/bifIndex.ts`); its header and parser defects are entries 6–7 of [`FRICTION_LOG.md`](FRICTION_LOG.md) (11 entries in all) |
+| Amazon's BIF service in the sample (`src/services/bif/*`) | downloads the BIF; one added call (`getBifFile`) hands Flipbook the same bytes, which its own validated parser reads (`src/flipbook/core/bifIndex.ts`); its header and parser defects are entries 6–7 of [`FRICTION_LOG.md`](FRICTION_LOG.md) (15 entries in all) |
 
 Found while verifying: Amazon's own `tv-webinar-hd.bif` has 428 frames at 240×180 and a timestamp-multiplier field of `0xFFFFD8F0`, so a binary search by `positionMillis` would break Amazon's file. Flipbook sanity-checks the header and falls back to a 10 s interval.
 
-The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core/bifWriter.ts` and their tests (18) headless (see the commit history). A `kirocrew run` attempt produced nothing (approval policy and rate limits); that is recorded, not claimed.
+The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core/bifWriter.ts` and their tests (18) headless (see the commit history). A `kirocrew run` attempt produced nothing (approval policy and rate limits); that is recorded, not claimed. The Amazon Devices Builder Tools MCP was installed into Kiro (`init-context --agent kiro`) and Kiro called its `list_documents`, `set_project_context` and `search_documentation` tools to return the SeekBar `markers` and `partialDisablingConfiguration` docs; no perfetto trace was analysed (the VVD has not booted since the host screen locked). All 15 friction-log entries are in [`FRICTION_LOG.md`](FRICTION_LOG.md).
 
 ## 📊 Engineering Rigor
 
