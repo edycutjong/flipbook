@@ -67,7 +67,7 @@
     "@amazon-devices/vega-carousel": "~1.0.0",
     "@jest/globals": "^29.7.0",
     "@react-native-async-storage/async-storage": "npm:@amazon-devices/react-native-async-storage__async-storage@~2.1.0",
-    "@reduxjs/toolkit": "~2.2.4",
+    "@reduxjs/toolkit": "~2.13.0",
     "@shopify/flash-list": "~2.1.0",
     "@types/react-test-renderer": "^19.1.0",
     "base-64": "1.0.0",
