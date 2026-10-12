@@ -54,7 +54,7 @@ opensource-codeofconduct@amazon.com with any additional questions or comments.
 
 ## Security issue notifications
 
-If you discover a potential security issue in Flipbook, follow [SECURITY.md](SECURITY.md) (GitHub private vulnerability reporting). Please do **not** create a public GitHub issue. Issues in Amazon's original sample code (`AmazonAppDev/vega-video-sample`) go to [AWS/Amazon Security](http://aws.amazon.com/security/vulnerability-reporting/).
+If you discover a potential security issue in Flipbook, follow [SECURITY.md](SECURITY.md) (GitHub private vulnerability reporting). Please do **not** put details in a public GitHub issue. Issues in Amazon's original sample code (`AmazonAppDev/vega-video-sample`) go to [AWS/Amazon Security](http://aws.amazon.com/security/vulnerability-reporting/).
 
 ## Licensing
 

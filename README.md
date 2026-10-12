@@ -114,7 +114,7 @@ Always read pass 1 and pass 2 together: pass 1 reads 14.9 % of frames only to pu
 
 ### Prerequisites
 
-- [Vega Developer Tools](https://developer.amazon.com/docs/vega/latest/install-vega-sdk.html), Node 20, JDK 21, Python 3 (the Shaka postinstall needs them)
+- [Vega Developer Tools](https://developer.amazon.com/docs/vega/latest/install-vega-sdk.html), Node 20 (what the on-device build was verified with; CI runs Node 22, `engines` is `>=22`), JDK 21, Python 3 (the Shaka postinstall needs them)
 - Never build from a path that contains a directory named `assets` (the packager embeds host paths and breaks)
 
 ### Installation

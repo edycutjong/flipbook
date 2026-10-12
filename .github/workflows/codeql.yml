@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
   schedule:
     - cron: '41 4 * * 2'
 
@@ -29,6 +30,8 @@ jobs:
               - src/w3cmedia/shakaplayer/dist
               - shaka-setup
               - coverage
+              # human-only ground-truth labelling page: a local blob: URL set on a <video>, not shipped in the app
+              - tools/label
       # Code scanning upload needs GitHub Advanced Security on private repos. While the repo is private the
       # analysis still runs and the SARIF is kept as an artifact; once the repo is public it uploads normally.
       - uses: github/codeql-action/analyze@v3
