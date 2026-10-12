@@ -8,6 +8,7 @@
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { guardHeldOut } from './bench';
 import { DEFAULT_PARAMS, DetectorParams, FrameOracle, frameAtMs, makeSigSource, readBif, runToEnd, sprocketPass, windowStep } from '../src/flipbook/core';
 
 const arg = (n: string) => {
@@ -16,6 +17,7 @@ const arg = (n: string) => {
 };
 const file = process.argv[2];
 const [x, y, w, h] = (arg('rect') || '').split(',').map(Number);
+guardHeldOut(file, arg('labels'));
 const labels = JSON.parse(fs.readFileSync(arg('labels')!, 'utf8')) as { changes: { graphicMs: number; kind: string }[] };
 const p: DetectorParams = { ...DEFAULT_PARAMS, ...(arg('params') ? JSON.parse(arg('params')!) : {}) };
 const b = fs.readFileSync(file);

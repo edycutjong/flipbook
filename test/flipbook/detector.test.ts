@@ -59,10 +59,23 @@ describe('detector — change and hold (v2: masked top-K distance, 3-frame media
   it('finds a change across a long absent run (half-time) when reach covers it', () => {
     const sigs = seq([[0, 100], ['absent', 60], [1, 60]]);
     const o = oracleFor(sigs, P.tauAbs);
-    const p = { ...P, reach: 90 }; // scanBif sets reach = 15 min ÷ interval (90 frames at 10 s)
-    runToEnd(sprocketPass(o, p));
-    const r = runToEnd(sequentialPass(o, p));
+    runToEnd(sprocketPass(o, P)); // pass 1: short reach, cannot see across 60 absent frames
+    const r = runToEnd(sequentialPass(o, { ...P, reach: 90 })); // pass 2: scanBif sets 15 min ÷ interval = 90
     expect(r.markers.map(m => [m.anchorIndex, m.frameIndex])).toEqual([[99, 160]]);
+  });
+
+  it('pass 2 reads ahead one frame per step: no step decodes a burst through a long absent run', () => {
+    const sigs = seq([[0, 100], ['absent', 80], [1, 60]]);
+    const o = oracleFor(sigs, P.tauAbs);
+    runToEnd(sprocketPass(o, P));
+    const gen = sequentialPass(o, { ...P, reach: 90 });
+    let last = o.decodes;
+    let maxBurst = 0;
+    for (let r = gen.next(); !r.done; r = gen.next()) {
+      maxBurst = Math.max(maxBurst, o.decodes - last);
+      last = o.decodes;
+    }
+    expect(maxBurst).toBeLessThanOrEqual(1);
   });
 
   it('absent frames (ads, half-time) never produce a change', () => {

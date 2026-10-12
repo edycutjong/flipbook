@@ -54,6 +54,8 @@ export interface ScanResult {
   absentFraction: number;
   jpegDecodes: number;
   params: DetectorParams;
+  /** Reach used by pass 2, frames (15 min ÷ interval). */
+  pass2Reach: number;
   /** Flipbook only ever decodes BIF thumbnail JPEGs. */
   videoBytesDecoded: 0;
   cancelled: boolean;
@@ -122,9 +124,10 @@ export function makeSigSource(buffer: ArrayBuffer, index: BifIndex, rect: NormRe
 }
 
 export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
-  const base: DetectorParams = { ...DEFAULT_PARAMS, ...(opts.params || {}) };
-  // Reach is a time, not a frame count: look across up to 15 min of graphic-absent frames (half-time, long replays).
-  const params: DetectorParams = { ...base, reach: Math.max(base.reach, Math.ceil(REACH_MS / Math.max(1, opts.index.intervalMs))) };
+  const params: DetectorParams = { ...DEFAULT_PARAMS, ...(opts.params || {}) };
+  // Pass 2 reach is a time, not a frame count: across up to 15 min of graphic-absent frames (half-time, long
+  // replays). Pass 1 keeps the short reach so it never reads long runs; pass 2 adds what pass 1 could not see.
+  const params2: DetectorParams = { ...params, reach: Math.max(params.reach, Math.ceil(REACH_MS / Math.max(1, opts.index.intervalMs))) };
   const now = opts.now || defaultNow;
   const yieldFn = opts.yieldFn || defaultYield;
   // Small batches: one decode is ~20 ms on the VVD, so 8 keeps each JS turn under ~200 ms.
@@ -197,14 +200,16 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
   let lost = 0;
   let skippedAbsent = 0;
   if (!cancelled && !opts.pass1Only) {
-    const p2 = sequentialPass(oracle, params);
+    const p2 = sequentialPass(oracle, params2);
     const p2res = await drive(p2, step => {
       opts.onProgress?.({ pass: 2, readToMs: index.timeMs[step.readTo], decodes: src.jpegDecodes(), frames: n, markers: emitted });
     });
     if (p2res) {
       const merged = mergePasses(pass1Markers, p2res.markers);
       // Pass 2 can only ADD: a pass-1 marker it did not reproduce is kept (and counted), never dropped.
-      finalMarkers = [...merged.merged, ...merged.lostFromPass1].sort((a, b) => a.frameIndex - b.frameIndex);
+      // …unless pass 2 placed the same change a few frames away (then pass 2's placement wins).
+      const kept = merged.lostFromPass1.filter(m => !merged.merged.some(x => Math.abs(x.frameIndex - m.frameIndex) <= params.window));
+      finalMarkers = [...merged.merged, ...kept].sort((a, b) => a.frameIndex - b.frameIndex);
       added = merged.added;
       lost = merged.lostFromPass1.length;
       if (lost) {
@@ -245,6 +250,7 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
     absentFraction: n ? skippedAbsent / n : 0,
     jpegDecodes: src.jpegDecodes(),
     params,
+    pass2Reach: params2.reach,
     videoBytesDecoded: 0,
     cancelled,
   };

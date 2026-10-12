@@ -89,9 +89,13 @@ describe('Seekbar ↔ KUI SeekBar wiring for Flipbook titles', () => {
   it('while calibrating / in the panel the SeekBar ignores EVERY key (KUI ignores `disabled` once a partial config exists)', () => {
     render({ ...base, phase: 'calibrating', capturesKeys: true });
     const p = mockCaptured.partialDisablingConfiguration;
-    for (const k of ['back', 'playPause', 'skipForward', 'skipBackward', 'left', 'right', 'select']) {
+    for (const k of ['back', 'playPause', 'skipForward', 'skipBackward', 'left', 'right']) {
       expect(p[k]).toBe(true);
     }
+    // select stays focusable; its handlers are removed instead
+    expect(p.select).toBeUndefined();
+    expect(mockCaptured.onPress).toBeUndefined();
+    expect(mockCaptured.onPlayPause).toBeUndefined();
   });
 
   it('thumbnails are disabled (not skipping) and stretched; the above-thumb renderer carries the mask', () => {

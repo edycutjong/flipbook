@@ -33,7 +33,8 @@ export interface DetectorParams {
   movingKeptMin: number;
   /** Pass-1 sampling stride, frames. */
   stride: number;
-  /** How far (frames) to look for the W present neighbours on each side. scanBif raises it to cover 15 min. */
+  /** How far (frames) to look for the W present neighbours on each side. scanBif uses this for pass 1 and
+   *  raises it to cover 15 min (REACH_MS) for pass 2, which reads every frame anyway. */
   reach: number;
 }
 
@@ -46,7 +47,7 @@ export const DEFAULT_PARAMS: DetectorParams = {
   jitterMax: 2.5,
   movingKeptMin: 0.4,
   stride: 8,
-  reach: 30,
+  reach: 12,
 };
 
 /** Detector output. `ms`/`changeMs` hold frame INDICES inside the passes; `scan.ts` converts them to ms. */
@@ -173,8 +174,9 @@ export function confirmAt(o: FrameOracle, c: number, p: DetectorParams): { c: nu
   return ws2 && ws2.d > p.tau ? { c: first, d: ws2.d } : null;
 }
 
-function markerAt(o: FrameOracle, c: number, d: number, pass: 1 | 2): Marker {
-  const prev = presentBefore(o, c, 1, Number.MAX_SAFE_INTEGER);
+function markerAt(o: FrameOracle, c: number, d: number, pass: 1 | 2, reach: number): Marker {
+  // E1 walk-back over the absent run, bounded by reach (pass 2's reach covers 15 min; pass 1 stays short).
+  const prev = presentBefore(o, c, 1, reach);
   const anchor = prev.length ? prev[0] : c;
   return { ms: anchor, changeMs: c, frameIndex: c, anchorIndex: anchor, delta: d, pass };
 }
@@ -283,7 +285,7 @@ export function* sprocketPass(
       }
       const found = confirmAt(o, hi, p);
       if (found && !markers.some(m => Math.abs(m.frameIndex - found.c) <= p.window)) {
-        const m = markerAt(o, found.c, found.d, 1);
+        const m = markerAt(o, found.c, found.d, 1, p.reach);
         markers.push(m);
         sink?.(m);
       }
@@ -304,13 +306,25 @@ export function* sequentialPass(
   const markers: Marker[] = [];
   let absent = 0;
   let skipUntil = -1;
+  let prefetched = -1;
   for (let i = 0; i < o.n; i++) {
+    // Read ahead one frame per step, so the look-ahead below (up to `reach` frames through a long graphic-absent
+    // run) never decodes a burst inside a single step: the JS thread gets a turn every few decodes.
+    const want = Math.min(o.n - 1, i + p.reach);
+    while (prefetched < want) {
+      prefetched++;
+      const fresh = !o.has(prefetched);
+      o.sig(prefetched);
+      if (fresh) {
+        yield { pass: 2, readTo: Math.max(0, i - 1), decodes: o.decodes };
+      }
+    }
     if (!o.present(i)) {
       absent++;
     } else if (i > skipUntil) {
       const found = confirmAt(o, i, p);
       if (found) {
-        markers.push(markerAt(o, found.c, found.d, 2));
+        markers.push(markerAt(o, found.c, found.d, 2, p.reach));
         // Leave the window that straddles this change before testing again.
         const after = presentFrom(o, found.c, p.window, p.reach);
         skipUntil = after.length ? after[after.length - 1] - 1 : found.c;

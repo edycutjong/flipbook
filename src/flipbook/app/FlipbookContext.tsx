@@ -275,6 +275,7 @@ export const FlipbookProvider = ({
                 log(`box moving: ${(p.maskKept * 100).toFixed(0)}% of cells steady`);
                 if (config) {
                   AsyncStorage.removeItem(rectKey(config.source)).catch(() => {});
+                  setPersistence(null);
                 }
               }
             }

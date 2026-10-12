@@ -18,8 +18,9 @@
     "jitterMax": 2.5,
     "movingKeptMin": 0.4,
     "stride": 8,
-    "reach": 30
+    "reach": 12
   },
+  "pass2Reach": 90,
   "maskKept": 0.3625,
   "markers": [
     {
@@ -53,12 +54,12 @@
     "label": "Node (tsx) on Apple M-series — NOT device timings",
     "runs": 5,
     "pass1Ms": {
-      "p50": 157.6,
-      "p95": 212.9
+      "p50": 155.5,
+      "p95": 209.5
     },
     "pass2Ms": {
-      "p50": 913.1,
-      "p95": 933.6
+      "p50": 910.9,
+      "p95": 917.8
     }
   },
   "labels": {

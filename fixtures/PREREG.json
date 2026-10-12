@@ -10,9 +10,9 @@
     "jitterMax": 2.5,
     "movingKeptMin": 0.4,
     "stride": 8,
-    "reach": 30
+    "reach": 12
   },
-  "detectorParamsSha256": "39afe3f53684abb0c13ce6aabc8544228d019346c7c56332ab7cad3addb0dbae",
+  "detectorParamsSha256": "6f21e4171cb880792624c1a032599dfebec389257ef213cbe509bef62f3995e3",
   "leadInMs": {
     "default": 30000,
     "rule": "tuned on match A only from {20000, 30000, 45000, 60000} ms as the smallest value where every labelled goal jump lands before playMs; frozen before match B is run"
@@ -39,5 +39,10 @@
   },
   "disclosure": "To place the boxes, the detector's author (agent) looked at one frame of each match at 2:00. Match A's graphic at that frame reads 'BELMONT 0 WOBURN 1, 1st, 40:00' (game clock not yet running); match B's reads 0-0. No other frame of A or B was viewed and no detector, bench or visibility run has been made on A or B.",
   "matchTolerance": "a marker matches a labelled change when |changeMs - graphicMs| <= BIF interval (10 s) + label precision",
-  "headlineRule": "claimed only as k/N goal jumps landing before the play on match B, with a Clopper-Pearson 95% interval; never as a bare rate"
+  "headlineRule": "claimed only as k/N goal jumps landing before the play on match B, with a Clopper-Pearson 95% interval; never as a bare rate",
+  "detectorParamsSha256Recipe": "python3: hashlib.sha256(json.dumps(detectorParams, sort_keys=True).encode()).hexdigest()",
+  "pass2Reach": "ceil(15 min / BIF interval) frames (90 at 10 s) \u2014 scan.ts REACH_MS",
+  "revisions": [
+    "2026-10-13 ~01:00 WIB: reach split (pass 1 = 12 frames, pass 2 = 15 min) after QA round 2 for responsiveness; no A/B data had been seen or run."
+  ]
 }

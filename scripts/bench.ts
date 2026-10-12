@@ -15,7 +15,7 @@ import * as path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { performance } from 'node:perf_hooks';
 
-import { DEFAULT_PARAMS, DetectorParams, formatClock, readBif, scanBif, ScanResult, TimedMarker } from '../src/flipbook/core';
+import { DetectorParams, formatClock, readBif, scanBif, ScanResult, TimedMarker } from '../src/flipbook/core';
 
 type Change = { graphicMs: number; playMs?: number; kind: 'goal' | 'correction' | 'period'; note?: string };
 type Labels = { match?: string; status?: string; precisionMs?: number; changes: Change[] };
@@ -68,11 +68,14 @@ export function clopperPearson(k: number, n: number, alpha = 0.05): [number, num
 }
 
 /** Held-out matches (match-*.bif) are scored only against a committed human truth file. */
-function guardHeldOut(bifPath: string, labelsPath: string | undefined) {
+export function guardHeldOut(bifPath: string, labelsPath: string | undefined) {
   if (!/^match-/.test(path.basename(bifPath))) return;
   if (!labelsPath) throw new Error(`${path.basename(bifPath)} is a held-out match: a committed human truth file is required (--labels fixtures/<match>.truth.json)`);
   const doc = JSON.parse(fs.readFileSync(labelsPath, 'utf8'));
-  if (!/GROUND TRUTH/.test(doc.status || '') || !doc.labelledBy) throw new Error('labels file is not a human ground-truth file');
+  if (!/GROUND TRUTH/.test(doc.status || '') || !doc.labelledBy || /</.test(JSON.stringify(doc))) {
+    throw new Error('labels file is not a filled-in human ground-truth file');
+  }
+  if (!(doc.changes || []).some((c: Change) => c.graphicMs > 0)) throw new Error('truth file has no labelled change');
   let committed = '';
   try {
     committed = execFileSync('git', ['log', '--format=%H', '--', labelsPath], { encoding: 'utf8' }).trim();
@@ -80,6 +83,11 @@ function guardHeldOut(bifPath: string, labelsPath: string | undefined) {
     committed = '';
   }
   if (!committed) throw new Error(`truth file ${labelsPath} is not committed: commit it before any detector run (independence rule)`);
+  try {
+    execFileSync('git', ['diff', '--quiet', 'HEAD', '--', labelsPath]);
+  } catch {
+    throw new Error(`truth file ${labelsPath} has uncommitted changes`);
+  }
 }
 
 async function scan(buf: ArrayBuffer, rect: { x: number; y: number; w: number; h: number }, params: Partial<DetectorParams>) {
@@ -200,7 +208,8 @@ async function main() {
     intervalMs: res.intervalMs,
     intervalSource: res.intervalSource,
     rect,
-    params: { ...DEFAULT_PARAMS, ...params },
+    params: res.params,
+    pass2Reach: res.pass2Reach,
     maskKept: res.maskKept,
     markers: res.markers.map(m => ({ changeAt: formatClock(m.changeMs), anchorAt: formatClock(m.ms), changeMs: m.changeMs, anchorMs: m.ms, D: +m.delta.toFixed(1), pass: m.pass })),
     pass1: { decodes: res.pass1.decodes, decodeFraction: +(res.pass1.decodes / res.frames).toFixed(3) },

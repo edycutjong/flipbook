@@ -80,6 +80,14 @@ const Seekbar = ({
           flipbook.geometry.height,
         )
       : null;
+  // Give TV focus back to the seek bar when Flipbook's calibration / panel releases the keys.
+  const wasCapturing = useRef(false);
+  useEffect(() => {
+    if (wasCapturing.current && !flipbook.capturesKeys) {
+      (seekBarRef?.current as { requestTVFocus?: () => void } | null)?.requestTVFocus?.();
+    }
+    wasCapturing.current = flipbook.capturesKeys;
+  }, [flipbook.capturesKeys, seekBarRef]);
   const maskLogged = useRef(false);
   const logMaskShown = useCallback(() => {
     if (!maskLogged.current && thumbMask) {
@@ -432,8 +440,8 @@ const Seekbar = ({
             onSlidingEnd={handleOnSlidingEnd}
             onFastForwardPress={onFastForwardPressHandler}
             onRewindPress={onRewindPressHandler}
-            onPress={onPressSelectButtonHandler}
-            onPlayPause={onPressPlayPauseButtonHandler}
+            onPress={flipbook.capturesKeys ? undefined : onPressSelectButtonHandler}
+            onPlayPause={flipbook.capturesKeys ? undefined : onPressPlayPauseButtonHandler}
             testID={testID || 'kui-seekbar'}
           />
         </TVFocusGuideView>
