@@ -52,7 +52,7 @@ const RW_KEYS = new Set(['skip_backward', 'rewind']);
 const PANEL_ITEMS = ['mode', 'box', 'log', 'close'] as const;
 export type PanelItem = (typeof PANEL_ITEMS)[number];
 
-const STEP = 0.005; // box nudge, fraction of the picture
+const STEP = 0.01; // box nudge, fraction of the picture
 const PREVIEW_FRAMES = 60;
 const LOG_LINES = 8;
 

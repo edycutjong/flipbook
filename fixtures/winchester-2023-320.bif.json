@@ -1,0 +1,13 @@
+{
+  "source": "devC.mp4",
+  "sourceSha256": "115d933eb5147311fc1a82f0346f6b191d750af4be1d9256d55a4df3342d5a55",
+  "intervalMs": 10000,
+  "width": 320,
+  "height": 180,
+  "mode": "scale",
+  "quality": 5,
+  "frames": 517,
+  "frameTimeRule": "frame k = k*interval s (ffmpeg fps filter)",
+  "bifSha256": "9a0a732fda346281a24ab68729e95697a88464feaaf3cf10b656c0f793af243b",
+  "ffmpegVersion": "ffmpeg version 8.1.1 Copyright (c) 2000-2026 the FFmpeg developers"
+}

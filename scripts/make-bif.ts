@@ -108,6 +108,29 @@ function die(msg: string): never {
 // Helpers
 // ---------------------------------------------------------------------------
 
+/** ffmpeg/ffprobe from PATH, or FFMPEG / FFPROBE env overrides. */
+const FFMPEG = process.env.FFMPEG || 'ffmpeg';
+const FFPROBE = process.env.FFPROBE || 'ffprobe';
+
+/** SHA-256 of a file, streamed (match videos are 0.5–1 GB). */
+function sha256File(file: string): string {
+  const h = createHash('sha256');
+  const fd = fs.openSync(file, 'r');
+  const chunk = Buffer.alloc(8 * 1024 * 1024);
+  try {
+    for (;;) {
+      const n = fs.readSync(fd, chunk, 0, chunk.length, null);
+      if (n <= 0) {
+        break;
+      }
+      h.update(chunk.subarray(0, n));
+    }
+  } finally {
+    fs.closeSync(fd);
+  }
+  return h.digest('hex');
+}
+
 function sha256Hex(data: Buffer | Uint8Array): string {
   return createHash('sha256').update(data).digest('hex');
 }
@@ -133,7 +156,7 @@ function buildVfFilter(
 /** Run ffmpeg synchronously and return stdout+stderr combined as a string. */
 function runFfmpeg(args: string[]): void {
   try {
-    execFileSync('/Users/edycu/homebrew/bin/ffmpeg', args, { stdio: 'pipe' });
+    execFileSync(FFMPEG, args, { stdio: 'pipe' });
   } catch (err: unknown) {
     const execErr = err as { stderr?: Buffer; message?: string };
     const stderr = execErr.stderr ? execErr.stderr.toString() : String(execErr.message ?? err);
@@ -144,7 +167,7 @@ function runFfmpeg(args: string[]): void {
 /** Get ffmpeg version string (first line). */
 function getFfmpegVersion(): string {
   try {
-    const result = execFileSync('/Users/edycu/homebrew/bin/ffmpeg', ['-version'], {
+    const result = execFileSync(FFMPEG, ['-version'], {
       stdio: 'pipe',
     });
     return result.toString().split('\n')[0].trim();
@@ -159,7 +182,7 @@ function probeVideoDimensions(
 ): { width: number; height: number } | null {
   try {
     const result = execFileSync(
-      path.join(path.dirname('/Users/edycu/homebrew/bin/ffmpeg'), 'ffprobe'),
+      FFPROBE,
       [
         '-v', 'error',
         '-select_streams', 'v:0',
@@ -194,8 +217,7 @@ async function main(): Promise<void> {
   }
 
   // Compute source SHA-256 (for the sidecar JSON).
-  const sourceBuffer = fs.readFileSync(video);
-  const sourceSha256 = sha256Hex(sourceBuffer);
+  const sourceSha256 = sha256File(video);
 
   // Create a temp directory for extracted frames.
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'make-bif-'));
@@ -254,7 +276,8 @@ async function main(): Promise<void> {
     // Write the sidecar JSON.
     const ffmpegVersion = getFfmpegVersion();
     const sidecar = {
-      source: video,
+      // File name only: the sidecar is committed, local paths are not.
+      source: path.basename(video),
       sourceSha256,
       intervalMs,
       width: actualWidth,

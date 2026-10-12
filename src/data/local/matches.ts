@@ -33,9 +33,14 @@ export const getMatches = (): TitleData[] => [
     rentAmount: '0',
     flipbook: {
       source: 'belmont-media-center-2023',
-      defaultRect: { x: 0.03, y: 0.03, w: 0.3, h: 0.08 },
+      // Generic lower-third start; the viewer moves it onto this broadcaster's score graphic once.
+      defaultRect: { x: 0.1, y: 0.8, w: 0.5, h: 0.08 },
     },
   },
+];
+
+/** Amazon's own BIF-backed title from the sample — the witness that the scan reads a BIF Flipbook did not make. */
+export const getWitness = (): TitleData[] => [
   {
     id: 'fb-witness-tv-webinar',
     title: 'Witness: Amazon’s own BIF',
@@ -61,7 +66,8 @@ export const getMatches = (): TitleData[] => [
       source: 'witness-amazon-tv-webinar',
       // Whole slide area; every frame counts as "present", so each held slide change is a chapter.
       defaultRect: { x: 0.05, y: 0.05, w: 0.9, h: 0.9 },
-      params: { tauAbs: 256 },
+      // Slides change everywhere: keep every cell, average the 40 largest changes, everything counts as present.
+      params: { tauAbs: 256, jitterMax: 256, topK: 40 },
     },
   },
 ];

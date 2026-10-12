@@ -74,13 +74,8 @@ import {
 
 // Constants and data sources
 import { LoginStatus } from '../constants';
-import { getClassics } from '../data/local/classics';
-import { getLatestHits } from '../data/local/latestHits';
-import { getNewHits } from '../data/local/newHits';
-import { getPremiumCollection } from '../data/local/premiumCollection';
-import { getRecommendations } from '../data/local/recommendations';
+import { getMatches, getWitness } from '../data/local/matches';
 import { getRotator } from '../data/local/rotator';
-import { getTrends } from '../data/local/trends';
 import { tileData } from '../data/tileData';
 
 // Live TV functionality
@@ -114,34 +109,14 @@ const AutoRotatorData = getRotator();
  */
 const data: MovieGridData[] = [
   {
-    heading: 'Latest Hits',
-    testID: 'latest_hits',
-    data: getLatestHits,
+    heading: 'Matches',
+    testID: 'matches',
+    data: getMatches,
   },
   {
-    heading: 'Classics',
-    testID: 'classics',
-    data: getClassics,
-  },
-  {
-    heading: 'Recommendation',
-    testID: 'recommendations',
-    data: getRecommendations,
-  },
-  {
-    heading: 'Premium Collection',
-    testID: 'premium_collection',
-    data: getPremiumCollection,
-  },
-  {
-    heading: 'New hits',
-    testID: 'new_hits',
-    data: getNewHits,
-  },
-  {
-    heading: 'Trends',
-    testID: 'trends',
-    data: getTrends,
+    heading: 'Witness — a BIF Flipbook did not make',
+    testID: 'witness',
+    data: getWitness,
   },
 ];
 
