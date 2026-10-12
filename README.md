@@ -39,7 +39,7 @@ Running on the **Vega Virtual Device** (Apple M-series Mac). These stills use Am
 You come home to a full-match replay of a game you haven't seen (a lower-division, women's or amateur match). The seek bar has no chapters. Scrubbing shows you the score on every thumbnail, so you spoil the result while you hunt for the goals.
 
 ### The Solution
-Every streaming player that offers scrub previews already downloads a **BIF** (trickplay) file: one small JPEG per ~10 s of the match. Flipbook reads that file instead of the video:
+A player that shows scrub previews from BIF trickplay — as Amazon's Vega video sample does — already downloads a **BIF** file: one small JPEG per ~10 s of the match. Flipbook reads that file instead of the video:
 
 1. **Calibrate once** — draw a box around the broadcaster's score graphic (it is remembered per broadcaster).
 2. **Scan** — a two-pass change-and-hold detector compares the box across thumbnails. Pass 1 samples sparse frames so the first ticks appear fast; pass 2 reads every frame to fill gaps and refine. Only a change that *holds* counts, so a replay or a brief graphic dropout does not.
@@ -79,7 +79,7 @@ The judged path uses **four platform surfaces**, plus Amazon's reference BIF ser
 | KUI `SeekBar` | blind/highlights seek bar: `markers` prop for ticks, `displayAboveThumb` overlay masking the score area; `partialDisablingConfiguration` hands ⏩/⏪ to Flipbook |
 | TV input and focus (`useTVEventHandler`, `TVFocusGuideView`) | skip keys, calibration (arrows move, SELECT toggles resize, PLAY/PAUSE or BACK confirms, MENU opens the panel) |
 | Vega Virtual Device + CLI | build, run, on-device logs and recordings |
-| Amazon's BIF service in the sample (`src/services/bif/*`) | downloads the BIF; one added call (`getBifFile`) hands Flipbook the same bytes, which its own validated parser reads (`src/flipbook/core/bifIndex.ts`); the sample's defects are in [`FRICTION_LOG.md`](FRICTION_LOG.md) (11 entries) |
+| Amazon's BIF service in the sample (`src/services/bif/*`) | downloads the BIF; one added call (`getBifFile`) hands Flipbook the same bytes, which its own validated parser reads (`src/flipbook/core/bifIndex.ts`); its header and parser defects are entries 6–7 of [`FRICTION_LOG.md`](FRICTION_LOG.md) (11 entries in all) |
 
 Found while verifying: Amazon's own `tv-webinar-hd.bif` has 428 frames at 240×180 and a timestamp-multiplier field of `0xFFFFD8F0`, so a binary search by `positionMillis` would break Amazon's file. Flipbook sanity-checks the header and falls back to a 10 s interval.
 
