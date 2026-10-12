@@ -29,6 +29,16 @@ jobs:
               - src/w3cmedia/shakaplayer/dist
               - shaka-setup
               - coverage
+      # Code scanning upload needs GitHub Advanced Security on private repos. While the repo is private the
+      # analysis still runs and the SARIF is kept as an artifact; once the repo is public it uploads normally.
       - uses: github/codeql-action/analyze@v3
         with:
           category: /language:javascript-typescript
+          output: sarif-results
+          upload: ${{ github.event.repository.private && 'never' || 'always' }}
+      - name: Keep SARIF while the repo is private
+        if: github.event.repository.private
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif
+          path: sarif-results
