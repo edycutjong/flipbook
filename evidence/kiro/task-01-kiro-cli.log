@@ -1,0 +1,84 @@
+[tool] Creating task list: Create BIF writer, CLI script, and round-trip Jest test f...
+[tool] status: Completed
+Let me start by reading the parser files and TypeScript configuration simultaneously.
+[tool] Finding src/services/bif/**/*.ts
+[tool] Finding tsconfig*.json
+[tool] status: Completed
+[tool] status: Completed
+[tool] Reading BifFileParser.ts:1, BifFrameImageSource.ts:1, FrameImageSource.ts:1, FrameImageOffset.ts:1, tsconfig.json:1
+[tool] status: Completed
+[tool] status: Failed
+[tool] Reading bifService.ts:1, package.json:1
+[tool] status: Completed
+[tool] Finding jest*.{js,ts,json}
+[tool] status: Completed
+[tool] Reading jest.config.json:1, jest.setup.ts:1
+[tool] status: Completed
+Now I have a thorough understanding of the codebase. Let me analyze the key parser logic before writing:
+
+**Key observations:**
+1. Parser reads `numberOfImages` from bytes 12-15, `timestampMultiplier` from bytes 16-19 (0 → 1000ms)
+2. Index entries start at byte 64: each is `[timestamp uint32][absolute offset uint32]`
+3. Parser iterates `i = 1 to numberOfImages` (so it reads exactly `numberOfImages` entries)
+4. Terminator: `0xffffffff` + `endOffset`
+5. `BifFrameImageSource.getEndIndex(p)`: `p=0 → 1`; `p>0 → ceil(p/1000/10) + 1` = `ceil(p/10000) + 1`
+6. `getImageData(p)` uses `endIndex` and `startIndex = endIndex - 1`, so for `p=0`: startIndex=0, endIndex=1 → frame 0
+
+Now let me create all three files:
+[tool] Completing #1, #2
+[tool] status: Completed
+[tool] Creating bifWriter.ts
+[tool] status: Completed
+[tool] Completing #3
+[tool] status: Completed
+Now create `scripts/make-bif.ts`:
+[tool] Creating make-bif.ts
+[tool] status: Completed
+[tool] Completing #4
+[tool] status: Completed
+Now let me carefully think through the test before writing it.
+
+**Key lookup logic re-analysis:**
+- `getEndIndex(p=0)` → `1` → `startIndex=0, endIndex=1` → frame 0 bytes ✓
+- `getEndIndex(p=10000)` → `ceil(10000/1000/10)+1 = ceil(1)+1 = 2` → startIndex=1, endIndex=2 → frame 1 ✓
+- `getEndIndex(p=15000)` → `ceil(15000/10000)+1 = ceil(1.5)+1 = 2+1 = 3` → startIndex=2, endIndex=3 → frame 2 ✓
+- `getEndIndex(p=110000)` → `ceil(110000/10000)+1 = ceil(11)+1 = 12` → startIndex=11, endIndex=12 → frame 11 ✓
+
+**Regression fixture notes:**
+- 428 frames, `firstTimestamp=1`, `rawMultiplier=0xFFFFD8F0`
+- Multiplier at bytes 16-19: `0xFFFFD8F0` as uint32 LE
+- Parser reads this as `timestampMultiplier = 0xFFFFD8F0` (non-zero, so used directly)
+- Index entry for frame 0: timestamp=1, then frame 1: timestamp=2, …, frame 427: timestamp=428
+- For `getImageData(0)`: endIndex=1 → frame at offsetBytes[0]..offsetBytes[1] → frame 0 ✓
+- For `getImageData(30000)`: `ceil(30000/10000)+1 = 3+1 = 4` → endIndex=4 → startIndex=3 → frame 3 ✓
+
+**Important**: The parser loop runs `i = 1 to numberOfImages` (not 0 to N-1), creating `numberOfImages` entries. Then it adds the terminator as a final entry with `positionMillis = Number.MAX_VALUE`. So `imageOffsets` has length `numberOfImages + 1`.
+
+For `getImageData(p)`, it uses `endIndex` and `startIndex = endIndex - 1`. When `p = 0`, `endIndex = 1`, so we need `imageOffsets[1]` to exist — and it does since length ≥ 2 (numberOfImages ≥ 1 → length = 2+).
+
+The test needs to carefully verify the exact bytes returned match the original frame arrays. Since `BifFrameImageSource` returns `new Uint8Array(this.bifFile, startOffset, length)`, it's a view into the ArrayBuffer. To compare, I'll use `Array.from()` or `Buffer.from()`.
+[tool] Creating bifWriter.test.ts
+[tool] status: Completed
+[tool] Completing #5
+[tool] status: Completed
+Now let's run the TypeScript check and Jest tests:
+[tool] Running: npx tsc -p tsconfig.json --noEmit 2>&1 | head -80
+[tool] status: Completed
+TypeScript is clean. Now run the Jest test:
+[tool] Running: npx jest test/flipbook/bifWriter.test.ts --coverage=false 2>&1
+[tool] status: Completed
+All 18 tests pass. Let me complete the remaining tasks:
+[tool] Completing #6, #7
+[tool] status: Completed
+[tool] Goal complete
+[tool] status: Completed
+All done. Here's a summary of what was built:
+
+**`src/flipbook/core/bifWriter.ts`** — Pure TS BIF writer. Zero Node imports so it compiles for React Native. The layout matches what `BifParser.parse` expects exactly: 8-byte magic, version=0, frame count, timestamp multiplier, 44 zero bytes, then 8-byte index entries `[timestamp uint32 LE][absolute offset uint32 LE]`, terminator `[0xFFFFFFFF][end offset]`, then raw frame data.
+
+**`scripts/make-bif.ts`** — CLI (`npx tsx scripts/make-bif.ts`). Uses ffmpeg with `-fflags +bitexact -flags:v +bitexact` for deterministic output. Supports `--letterbox WxH` (scale-to-fit + black pad) or `--width` (scale with `-2` height). Writes the BIF and a `.json` sidecar with source SHA-256, bif SHA-256, ffmpeg version, and frame metadata.
+
+**`test/flipbook/bifWriter.test.ts`** — 18 passing tests:
+- Round-trip through `BifParser` with 12 synthetic frames, verifying `getImageData` at positions 0, 10000, 15000, and 110000 ms
+- Regression fixture with Amazon's exact header values (428 frames, multiplier `0xFFFFD8F0`, timestamps 1–428), verifying every header field byte-by-byte plus parser behavior at 0ms and 30000ms
+- Error cases for empty array and non-positive interval

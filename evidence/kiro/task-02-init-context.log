@@ -1,0 +1,130 @@
+
+====================================================
+🚀 Amazon Devices Builder Tools for AI
+====================================================
+
+This tool installs (updates) the context document and sets up the MCP config for your AI agent to get insights for Amazon Devices App development.
+The MCP config enables usage of the amazon-devices-buildertools-mcp in your project
+The context document guides AI agents to efficiently answer queries related to app development for Amazon Devices
+
+Choose from the following options to automatically install an Agent specific preset in your app project:
+
+1. Cursor
+   Cursor AI IDE - Uses AGENTS.md file in project root
+
+2. Claude Code
+   Claude Code - Uses CLAUDE.md file in project root
+
+3. GitHub Copilot
+   GitHub Copilot CLI - Uses AGENTS.md file in project root
+
+4. Kiro
+   Kiro - Uses .kiro/steering folder
+
+5. Cline
+   Cline - Uses .clinerules folder
+
+6. OpenCode
+   OpenCode - Uses AGENTS.md file in project root
+
+7. Codex
+   OpenAI Codex - Uses AGENTS.md file in project root
+
+8. Gemini CLI / Antigravity CLI
+   Gemini CLI / Antigravity CLI - Uses GEMINI.md file
+
+9. Other/Custom Agent
+   Other AI agent or custom setup - View content only
+
+
+✅ Selected: Kiro
+✅ Updated Kiro configuration at ~/.kiro/settings/mcp.json
+
+📍 Target file: /tmp/bt-run/ws/amazon_devices_get_started.md
+✅ Successfully wrote context file: /tmp/bt-run/ws/amazon_devices_get_started.md
+
+✅ Installed 19 skill(s) to ~/.kiro/skills
+
+   Skill                                    Description
+   ──────────────────────────────────────── ──────────────────────────────────────────────────
+   amazon-devices-vega-webview-caption-settings Bridge the OS closed-captioning accessibility settings from a React Native for Vega host into a WebView page and render app-drawn captions that match them, using @amazon-devices/kepler-a11y-settings-interface-turbo and @amazon-devices/webview.
+   amazon-devices-vega-webview-audio-description Bridge the OS "audio description preferred" accessibility setting from a React Native for Vega host into a WebView page so the page's own player selects the described audio track, using @amazon-devices/kepler-a11y-settings-interface-turbo and @amazon-devices/webview.
+   amazon-devices-vega-ui-components        High performance Vega UI Components with native bindings such as Carousel.
+   amazon-devices-vega-setup-sdk            Installs and configures the Vega SDK with prerequisite checks and verification.
+   amazon-devices-vega-rn-upgrade           Upgrade a React Native for Vega app to a newer RN version (e.g. 0.72 to 0.83) as a
+   amazon-devices-vega-navigation           Stack, tab, and drawer navigation using Amazon-specific react-navigation packages.
+   amazon-devices-vega-media-player         W3C MSE/EME standard media playback with DRM support, adaptive streaming, and VideoPlayer component.
+   amazon-devices-vega-matter-casting       Matter Casting for Vega content apps — declaring Matter identity in the app manifest, providing the Content Launcher, Media Controls, and Account Login platform clusters, and reporting state back to the phone.
+   amazon-devices-vega-focus-management     Cartesian focus management for D-Pad navigation with TVFocusGuideView and FocusManager.
+   amazon-devices-vega-developer-mode-init  Guides developers through enabling Developer Mode on Fire TV (Vega OS) devices.
+   amazon-devices-vega-caption-settings     Read the OS closed-captioning accessibility settings and render app-drawn captions that match them in a React Native for Vega video app, using @amazon-devices/kepler-a11y-settings-interface-turbo.
+   amazon-devices-vega-build-and-run        Complete guide for building, deploying, and running React Native for Vega applications.
+   amazon-devices-vega-best-practices       Performance guidelines, development workflow, and architecture recommendations for Vega apps.
+   amazon-devices-vega-audio-description    Read the OS "audio description preferred" accessibility setting in a React Native for Vega app so the app can auto-select an audio description track based on the setting value, using @amazon-devices/kepler-a11y-settings-interface-turbo.
+   amazon-devices-vega-app-performance      Performance optimization, KPI targets, and diagnostics for Vega applications — including which component is re-rendering, unnecessary or wasted re-renders, UI jank / stutter, dropped frames, slow app launch, key-input latency, and CPU hot functions. Also covers debugging Vega WebView apps (apps whose primary screen is web content in a WebView): a screen that won't render, a blank or white screen, a page that won't load, a wrong or broken DOM/CSS layout, a web page that throws a JavaScript error, or a WebView that is blank or slow.
+   amazon-devices-vega-app-migration        Migrate an existing Fire TV / FOS app to a React Native for Vega app as a STRICT, phase-by-phase,
+   amazon-devices-vega-app-manifest         Required manifest.toml configuration for Vega apps including package identifiers, capabilities, and privileges.
+   amazon-devices-scalable-ui-audit         Audit an Android TV app for Scalable UI readiness on any non-1080p canvas (720p/900p/1440p, up-
+   amazon-devices-android-sdk-uplevel       Routing guidance for assessing and upgrading a Fire TV app's Android targetSdkVersion across API 30 through 36.
+
+📦 Installing Amazon Developers led community skills...
+
+│
+●   claude-code_2-1-291_agent  Agent detected — installing non-interactively
+│
+◇  Source: https://github.com/AmazonAppDev/devices-agent-skills.git
+│
+◒  Cloning repository…◐  Cloning repository…◓  Cloning repository…◑  Cloning repository…◒  Cloning repository…◐  Cloning repository…◓  Cloning repository…◑  Cloning repository…◒  Cloning repository….◐  Cloning repository….◓  Cloning repository….◑  Cloning repository….◇  Repository cloned
+│
+◇  Found 2 skills
+│
+●  Selected 1 skill: vega-multi-tv-migration
+
+│
+◇  Installation Summary ─────────────────────╮
+│                                            │
+│  ~/.agents/skills/vega-multi-tv-migration  │
+│    copy → Kiro CLI                         │
+│                                            │
+├────────────────────────────────────────────╯
+│
+◇  Security Risk Assessments ─────────────────────────────────────────────╮
+│                                                                         │
+│                           Gen               Socket            Snyk      │
+│  vega-multi-tv-migration  Safe              0 alerts          Low Risk  │
+│                                                                         │
+│  Details: https://skills.sh/AmazonAppDev/devices-agent-skills           │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────╯
+│
+◇  Installation complete
+
+│
+◇  Installed 1 skill ──────────────────────────╮
+│                                              │
+│  ✓ vega-multi-tv-migration (copied)          │
+│    → ~/.kiro/skills/vega-multi-tv-migration  │
+│                                              │
+├──────────────────────────────────────────────╯
+
+│
+└  Done!  Review skills before use; they run with full agent permissions.
+
+
+🎉 Successfully initialized Kiro context!
+
+ Summary:
+   Agent: Kiro
+   MCP version: 1.0.17
+   File: /tmp/bt-run/ws/amazon_devices_get_started.md
+
+📚 Next steps:
+   1. Review the generated file: /tmp/bt-run/ws/amazon_devices_get_started.md
+   2. Customize the content as needed for your project
+   3. Start using Kiro with Amazon Devices specific context
+   4. Try this prompt: "Help me set up Vega app project"
+
+💡 Kiro-specific tips:
+   • The context is now available in your .kiro/steering folder
+   • Kiro will automatically use this context for Vega-related queries
+   • You can add more steering files for other contexts

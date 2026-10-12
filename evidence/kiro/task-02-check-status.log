@@ -1,0 +1,27 @@
+
+====================================================
+🔍 Checking Agent Setup Status
+====================================================
+
+Checking status for: Kiro
+
+─────────────────────────────────────────────────────────────────────────────────────────────────
+Agent            │ Context Document         │ Agent (--install-agent) │ MCP Configuration        
+─────────────────────────────────────────────────────────────────────────────────────────────────
+Kiro             │ ❌ Not found              │ ❌ Not installed         │ ✅ Configured             
+─────────────────────────────────────────────────────────────────────────────────────────────────
+
+📊 Summary:
+   Total configurations: 1
+   ✅ Fully configured: 0
+   ⚠️  Partially configured: 1
+   ❌ Not configured: 0
+
+📁 Detailed Information:
+
+   Kiro:
+     Agent file: ~/.kiro/agents/adbt-dev.json
+     MCP Config: ~/.kiro/settings/mcp.json
+
+====================================================
+

@@ -1,0 +1,23 @@
+[tool] Running: @amazon-devices-buildertools-mcp/list_documents
+[tool] status: Completed
+[tool] Running: @amazon-devices-buildertools-mcp/set_project_context
+[tool] status: Completed
+[tool] Running: @amazon-devices-buildertools-mcp/list_documents
+[tool] Running: @amazon-devices-buildertools-mcp/search_documentation
+[tool] status: Completed
+[tool] status: Completed
+Now let me also check for the `markers` prop specifically:
+[tool] Running: @amazon-devices-buildertools-mcp/search_documentation
+[tool] status: Completed
+Here are the answers, sourced entirely from the ADBT MCP server:
+
+**1. MCP tools exposed by the Amazon Devices Builder Tools server:**
+`analyze_perfetto_traces`, `get_app_hot_functions`, `list_documents`, `read_document`, `read_asset`, `report_workflow_status`, `search_documentation`, `set_project_context`, `symbolicate_acr`
+
+**2. SeekBar `markers` and `partialDisablingConfiguration` — confirmed:**
+
+Both props are documented. Quoting from the search results (sources: `https://developer.amazon.com/docs/vega-api/0.21/seekbar.html`, `0.22`, `0.23`, `0.24`):
+
+- **`markers`**: *"Markers — Custom React nodes or views laid out horizontally throughout the SeekBar. Three types: ReactNode markers (custom components), Point markers (colored points), and Segment markers (break markers)."*
+
+- **`partialDisablingConfiguration`**: *"When provided, this prop overrides the global `disabled` and `disabledWhenNotFocused` settings... Available actions: playPause, skipBackward, skipForward, left, right, select, back. When you provide the PartialDisablingConfiguration object, all default values for the actions are set to false."*

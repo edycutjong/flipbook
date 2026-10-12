@@ -110,7 +110,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Steps:** `kirocrew run TASK.md`, unattended, about 40 min.
 - **Expected:** files in our repo, or a clear approval prompt.
 - **Actual:** the run uses its own workspace; its write and shell tools were denied by the approval policy; it hit 429 `CREDIT_CONSUMPTION_RATE_EXCEEDED` 14 times (28 log lines, two per failure) and produced nothing. `kiro-cli chat --no-interactive --trust-all-tools` in the repo did the same task in about 2 minutes (plus our review).
-- **Workaround:** used `kiro-cli` headless (evidence: `submission/kiro/` in the kitchen; the commits are in this repo's history).
+- **Workaround:** used `kiro-cli` headless (evidence: [`docs/KIRO.md`](docs/KIRO.md) and `evidence/kiro/`).
 - **Suggestion:** let `kirocrew run` target an existing directory with a pre-approved tool policy.
 
 ### 12 · `vega` is not on PATH in a fresh shell — 2026-10-12 · low
