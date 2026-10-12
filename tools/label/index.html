@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Flipbook — ground-truth labeller</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#141110; --ink:#F2EBDD; --muted:#9A8F80; --rule:#D9A441; --after:#E5432E; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.45 system-ui, sans-serif; }
+  main { max-width:1200px; margin:0 auto; padding:20px; display:grid; grid-template-columns: 1fr 360px; gap:20px; }
+  h1 { font-size:18px; margin:0 0 6px; letter-spacing:.04em; }
+  p.note { color:var(--muted); margin:0 0 14px; font-size:13px; }
+  video { width:100%; background:#000; border:1px solid #333; }
+  .bar { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; align-items:center; }
+  button, input, select { font:inherit; background:#211d1b; color:var(--ink); border:1px solid #3a3330; padding:6px 10px; border-radius:4px; }
+  button:hover, button:focus-visible { border-color:var(--rule); outline:none; }
+  .time { font-family: ui-monospace, Menlo, monospace; color:var(--rule); font-size:20px; }
+  table { width:100%; border-collapse:collapse; font-family: ui-monospace, Menlo, monospace; font-size:13px; }
+  td, th { border-bottom:1px solid #2b2624; padding:4px; text-align:left; }
+  .keys { color:var(--muted); font-size:12px; font-family: ui-monospace, Menlo, monospace; }
+  textarea { width:100%; height:180px; background:#0d0b0a; color:var(--ink); border:1px solid #333; font: 12px ui-monospace, Menlo, monospace; }
+  label { color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<main>
+  <section>
+    <h1>Ground-truth labeller</h1>
+    <p class="note">Label every score-graphic change from the full-frame-rate video, <strong>before</strong> any detector run on this match.
+      This page loads only your local video file — it never sees detector output. Nothing is uploaded.</p>
+    <div class="bar">
+      <input type="file" id="file" accept="video/*" aria-label="Choose the match video">
+      <span class="time" id="t">0:00.000</span>
+    </div>
+    <video id="v" controls muted></video>
+    <div class="bar">
+      <button data-step="-10">−10 s</button><button data-step="-1">−1 s</button>
+      <button data-step="-0.0333">−1 frame</button><button data-step="0.0333">+1 frame</button>
+      <button data-step="1">+1 s</button><button data-step="10">+10 s</button>
+    </div>
+    <div class="bar">
+      <button id="markPlay">G · goal: ball crosses the line (playMs)</button>
+      <button id="markGraphic">S · first frame with the NEW score (graphicMs)</button>
+      <select id="kind" aria-label="Kind of change">
+        <option value="goal">goal</option><option value="correction">correction</option><option value="period">period</option>
+      </select>
+    </div>
+    <p class="keys">Keys: space play/pause · ←/→ 1 s · shift+←/→ 10 s · , . one frame · G mark play · S mark graphic · Z undo last</p>
+  </section>
+  <aside>
+    <label>Match id <input id="match" value="match-a"></label><br><br>
+    <label>Labelled by <input id="who" placeholder="your name"></label>
+    <table aria-label="Labelled changes"><thead><tr><th>#</th><th>kind</th><th>playMs</th><th>graphicMs</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+    <div class="bar"><button id="export">Copy JSON</button><button id="download">Download JSON</button></div>
+    <textarea id="out" readonly aria-label="Truth JSON"></textarea>
+  </aside>
+</main>
+<script>
+const v = document.getElementById('v'), t = document.getElementById('t');
+let sourceName = '';
+const changes = []; // {kind, playMs?, graphicMs?}
+const fmt = s => { const m = Math.floor(s / 60), r = (s - m * 60).toFixed(3).padStart(6, '0'); return `${Math.floor(m / 60) ? Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0') : m}:${r}`; };
+document.getElementById('file').onchange = e => { const f = e.target.files[0]; if (!f) return; sourceName = f.name; v.src = URL.createObjectURL(f); render(); };
+v.ontimeupdate = () => (t.textContent = fmt(v.currentTime));
+document.querySelectorAll('[data-step]').forEach(b => (b.onclick = () => { v.pause(); v.currentTime = Math.max(0, v.currentTime + Number(b.dataset.step)); }));
+const ms = () => Math.round(v.currentTime * 1000);
+function open() { const last = changes[changes.length - 1]; return last && last.graphicMs === undefined ? last : null; }
+function markPlay() { const c = open() || { kind: document.getElementById('kind').value }; if (!open()) changes.push(c); c.playMs = ms(); render(); }
+function markGraphic() { let c = open(); if (!c) { c = { kind: document.getElementById('kind').value }; changes.push(c); } c.graphicMs = ms(); if (c.kind !== 'goal') delete c.playMs; render(); }
+document.getElementById('markPlay').onclick = markPlay;
+document.getElementById('markGraphic').onclick = markGraphic;
+function render() {
+  const rows = document.getElementById('rows'); rows.innerHTML = '';
+  changes.forEach((c, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i + 1}</td><td>${c.kind}</td><td>${c.playMs ?? ''}</td><td>${c.graphicMs ?? ''}</td><td><button aria-label="delete">✕</button></td>`;
+    tr.querySelector('button').onclick = () => { changes.splice(i, 1); render(); };
+    rows.appendChild(tr);
+  });
+  const doc = {
+    match: document.getElementById('match').value,
+    source: sourceName,
+    status: 'GROUND TRUTH — labelled by a human from the full-frame-rate video BEFORE any detector run on this match',
+    labelledBy: document.getElementById('who').value,
+    labelledOn: new Date().toISOString().slice(0, 10),
+    precisionMs: 1000,
+    changes: changes.filter(c => c.graphicMs !== undefined).sort((a, b) => a.graphicMs - b.graphicMs),
+  };
+  document.getElementById('out').value = JSON.stringify(doc, null, 2);
+}
+document.getElementById('export').onclick = () => navigator.clipboard.writeText(document.getElementById('out').value);
+document.getElementById('download').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([document.getElementById('out').value], { type: 'application/json' }));
+  a.download = `${document.getElementById('match').value}.truth.json`; a.click();
+};
+['match', 'who'].forEach(id => (document.getElementById(id).oninput = render));
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  const step = s => { e.preventDefault(); v.pause(); v.currentTime = Math.max(0, v.currentTime + s); };
+  if (e.key === ' ') { e.preventDefault(); v.paused ? v.play() : v.pause(); }
+  else if (e.key === 'ArrowLeft') step(e.shiftKey ? -10 : -1);
+  else if (e.key === 'ArrowRight') step(e.shiftKey ? 10 : 1);
+  else if (e.key === ',') step(-1 / 30);
+  else if (e.key === '.') step(1 / 30);
+  else if (e.key.toLowerCase() === 'g') markPlay();
+  else if (e.key.toLowerCase() === 's') markGraphic();
+  else if (e.key.toLowerCase() === 'z') { changes.pop(); render(); }
+});
+render();
+</script>
+</body>
+</html>

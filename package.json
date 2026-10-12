@@ -24,7 +24,11 @@
     "app:build": "run-s build:release && npm run app:install && npm run app:launch",
     "build:release": "react-native build-kepler --build-type Release",
     "build:debug": "react-native build-kepler --build-type Debug",
-    "build:app": "npm-run-all build:release build:debug"
+    "build:app": "npm-run-all build:release build:debug",
+    "bench": "tsx scripts/bench.ts fixtures/winchester-2023-320.bif --rect 0.155,0.868,0.497,0.058 --labels fixtures/winchester-2023.devlabels.json --runs 20 --ablate hold,anchor",
+    "make-bif": "tsx scripts/make-bif.ts",
+    "verify:offline": "tsx scripts/verify_offline.ts",
+    "test:flipbook": "jest test/flipbook --coverage=false"
   },
   "dependencies": {
     "@amazon-devices/headless-task-manager": "~1.2.8",
