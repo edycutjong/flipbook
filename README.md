@@ -25,11 +25,11 @@
 
 ## 📸 See it in Action
 
-Running on the **Vega Virtual Device** (Apple M-series Mac). These stills use Amazon's own webinar trickplay file (the "witness"), not a match: it is the one title where we can show the engine without footage rights in play.
+Running on the **Vega Virtual Device** (Apple M-series Mac). These stills use Amazon's own webinar trickplay file (the "witness"), not a match: it is the title the sample app itself streams, so it shows the engine without any footage of ours.
 
-| Jump | Scrub with the score area masked |
+| Jump | Scrub: the mask over the thumbnail |
 |---|---|
-| ![Press ⏩: jump to the next detected change, minus a 30 s lead-in](docs/images/vvd-jump-toast.png) | ![Scrubbing: the thumbnail's score rectangle is covered](docs/images/vvd-scrub-mask.png) |
+| ![Press ⏩: jump to the next detected change, minus a 30 s lead-in](docs/images/vvd-jump-toast.png) | ![Scrubbing: the black block is the mask drawn over the scrub thumbnail; on this title the calibrated box covers most of the frame](docs/images/vvd-scrub-mask.png) |
 
 ![Calibration: draw the box once around the broadcaster's score graphic](docs/images/vvd-calibration.png)
 
@@ -43,14 +43,14 @@ Every streaming player that offers scrub previews already downloads a **BIF** (t
 
 1. **Calibrate once** — draw a box around the broadcaster's score graphic (it is remembered per broadcaster).
 2. **Scan** — a two-pass change-and-hold detector compares the box across thumbnails. Pass 1 samples sparse frames so the first ticks appear fast; pass 2 reads every frame to fill gaps and refine. Only a change that *holds* counts, so a replay or a brief graphic dropout does not.
-3. **Jump** — ⏩ goes to the next change minus a lead-in (default 30 s), anchored on the last frame that still shows the **old** score, so you land before the goal.
+3. **Jump** — ⏩ goes to the next change minus a lead-in (default 30 s), anchored on the last frame that still shows the **old** score, so you land before the play.
 
-Two modes, **blind by default**: the seek bar shows only your position and the thumbnails' score rectangle is masked. **Highlights** (user-selected) adds ticks on the seek bar. Either way, no video bytes are decoded: the benchmark reports `videoBytesDecoded: 0`.
+Two modes, **blind by default**: the seek bar shows only your position and the thumbnails' score rectangle is masked. **Highlights** (user-selected) adds ticks on the seek bar. Either way, no video is decoded, by construction: the scan only opens the BIF's thumbnail JPEGs (the benchmark records this as `videoBytesDecoded: 0`).
 
 ## 🏗️ Architecture & Tech Stack
 
 ```
-BIF file ──► BifIndex ──► jpeg-js decode (box crop only) ──► 64×5 signature
+BIF file ──► BifIndex ──► jpeg-js decode, box crop ────────► 64×5 signature
                                    │                              │
                                    ▼                              ▼
                        pass 1 (stride 8)  ──►  pass 2 (all frames)  ──►  markers (anchor = last old-score frame)
@@ -71,7 +71,7 @@ BIF file ──► BifIndex ──► jpeg-js decode (box crop only) ──► 6
 
 ## 🏆 Fire TV (Vega) Integration
 
-The judged path uses **four platform surfaces**, plus Amazon's reference BIF service which is sample code we forked and fixed (not a platform API):
+The judged path uses **four platform surfaces**, plus Amazon's reference BIF service — sample code we forked and extended to hand over the raw bytes (not a platform API):
 
 | Surface | Used for |
 |---|---|
@@ -79,7 +79,7 @@ The judged path uses **four platform surfaces**, plus Amazon's reference BIF ser
 | KUI `SeekBar` | blind/highlights seek bar: `markers` prop for ticks, `displayAboveThumb` overlay masking the score area; `partialDisablingConfiguration` hands ⏩/⏪ to Flipbook |
 | TV input and focus (`useTVEventHandler`, `TVFocusGuideView`) | skip keys, calibration (arrows move, SELECT toggles resize, PLAY/PAUSE or BACK confirms, MENU opens the panel) |
 | Vega Virtual Device + CLI | build, run, on-device logs and recordings |
-| Amazon's BIF service in the sample (`src/services/bif/*`) | the parser we read with; fixes recorded in [`FRICTION_LOG.md`](FRICTION_LOG.md) (11 entries) |
+| Amazon's BIF service in the sample (`src/services/bif/*`) | downloads the BIF; one added call (`getBifFile`) hands Flipbook the same bytes, which its own validated parser reads (`src/flipbook/core/bifIndex.ts`); the sample's defects are in [`FRICTION_LOG.md`](FRICTION_LOG.md) (11 entries) |
 
 Found while verifying: Amazon's own `tv-webinar-hd.bif` has 428 frames at 240×180 and a timestamp-multiplier field of `0xFFFFD8F0`, so a binary search by `positionMillis` would break Amazon's file. Flipbook sanity-checks the header and falls back to a 10 s interval.
 
@@ -90,7 +90,7 @@ The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core
 | Metric | Value | Source |
 |---|---|---|
 | Tests | 420 passing (69 Flipbook) + 4 upstream skipped; `tsc` clean | `npm test`, `npm run typecheck` |
-| Video bytes decoded | 0 | `evidence/bench/*.json` → `videoBytesDecoded` |
+| Video bytes decoded | 0, by construction (the scan only opens BIF JPEGs) | `src/flipbook/core/scan.ts`; recorded as `videoBytesDecoded` in `evidence/bench/*.json` |
 | On-device pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame) | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
 | Jump without stacked seek | `seek from=50572ms currentTime=199.1`, then `currentTime=199.1` 1.5 s later | `evidence/vvd/witness-v1-flipbook-lines.log` |
 | Development match (agent dev labels, **not ground truth**) | 2/2 changes found, 0 false markers, 2/2 jumps land before the play (leads 28 s and 30 s); pass 1 reads 14.9 % of frames | `evidence/bench/dev-winchester-320.json` |
@@ -103,7 +103,7 @@ Always read pass 1 and pass 2 together: pass 1 reads 14.9 % of frames only to pu
 ### Honest limits (9)
 
 1. **Virtual device only.** No Fire TV hardware was available; every timing is "Vega virtual device on Apple M-series".
-2. **The held-out headline is pending.** The headline metric (goal jumps that land before the goal on held-out match B) will be reported only after the human's ground-truth files for matches A and B are committed. Until then no such number is claimed. Detector parameters and calibration boxes are frozen in [`fixtures/PREREG.json`](fixtures/PREREG.json) (detector-params sha256 `6f21e417…`), and `bench`/`visibility` refuse to run on matches A and B without a committed truth file.
+2. **The held-out headline is pending.** The headline metric (goal jumps that land before the play on held-out match B) will be reported only after the human's ground-truth files for matches A and B are committed. Until then no such number is claimed. Detector parameters and calibration boxes are frozen in [`fixtures/PREREG.json`](fixtures/PREREG.json) (detector-params sha256 `6f21e417…`), and `bench`/`visibility` refuse to run on matches A and B without a committed truth file.
 3. **The numbers above come from one development match with two labelled changes**, labelled by the detector's author from 2 s stills. The 95 % confidence interval on 2/2 is [0.158, 1]. It shows the pipeline works, not how well it generalises.
 4. **Same producer.** Matches A, B and the development match are all Belmont Media Center broadcasts; B has a different overlay design. Read it as "tuned on one match, tested on two more from the same producer."
 5. **Disclosure:** to place the calibration boxes the author looked at one 2:00 frame of each of A and B; no detector run has been made on either.
