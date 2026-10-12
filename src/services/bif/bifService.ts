@@ -10,7 +10,18 @@ export type BifDetails = {
 export const getBifFrameImageSource = async (
   bifUrl: string,
 ): Promise<FrameImageSource | null> => {
+  return (await getBifFile(bifUrl)).frameImageSource;
+};
+
+/**
+ * Fetches a BIF once and returns both the sample's thumbnail source and the raw bytes, so Flipbook can read the
+ * same file as a corpus without a second download.
+ */
+export const getBifFile = async (
+  bifUrl: string,
+): Promise<{ arrayBuffer: ArrayBuffer; frameImageSource: FrameImageSource | null; fetchMs: number }> => {
   try {
+    const started = Date.now();
     const response = await fetch(bifUrl);
 
     if (!response.ok) {
@@ -18,11 +29,12 @@ export const getBifFrameImageSource = async (
     }
 
     const arrayBuffer = await response.arrayBuffer();
+    const fetchMs = Date.now() - started;
 
     const bifParser = new BifParser();
     const frameImageSource = bifParser.parse(arrayBuffer);
 
-    return frameImageSource;
+    return { arrayBuffer, frameImageSource, fetchMs };
   } catch (error) {
     throw new Error(`Error getting Bif File: ${error}`);
   }

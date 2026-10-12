@@ -1,4 +1,5 @@
 import { MediaItem } from '../blocks/types';
+import type { FlipbookTitleConfig } from '../flipbook/app/FlipbookContext';
 
 export type MimeType =
   | 'text/plain'
@@ -39,4 +40,6 @@ export interface TitleData extends MediaItem {
   rentAmount: string;
   bifUrl?: string;
   thumbnailUrl?: string;
+  /** Flipbook: score-change chapters from this title's BIF (see src/flipbook). */
+  flipbook?: FlipbookTitleConfig;
 }

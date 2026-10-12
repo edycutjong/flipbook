@@ -17,6 +17,8 @@ import {
   isRunningOnAutomotive,
 } from '../../config/AppConfig';
 import { DPADEventType, EVENT_KEY_DOWN } from '../../constants';
+import { useFlipbook } from '../../flipbook/app/FlipbookContext';
+import { FlipbookOverlay } from '../../flipbook/app/FlipbookOverlay';
 import { getMockPlaybackEventForVideo } from '../../personalization/mock/ContentPersonalizationMocks';
 import { FrameImageSource } from '../../services/bif/FrameImageSource';
 import { COLORS } from '../../styles/Colors';
@@ -64,6 +66,7 @@ export const VideoPlayerUI = React.memo(
     const [playerControlType, setPlayerControlType] = useState<string>('');
     const [isCaptionButtonFocused, setCaptionButtonFocused] = useState(false);
     const [showMediaControls, setShowMediaControls] = useState(true);
+    const flipbook = useFlipbook();
     const { handleShowControls, handleShowControlsOnKeyEvent, cancelTimer } =
       useMediaControls(showMediaControls, setShowMediaControls);
 
@@ -91,6 +94,11 @@ export const VideoPlayerUI = React.memo(
 
     useTVEventHandler((evt: HWEvent) => {
       if (!Platform.isTV) {
+        return;
+      }
+
+      // Flipbook's calibration box and options panel take every key while open.
+      if (flipbook.capturesKeys) {
         return;
       }
 
@@ -226,6 +234,7 @@ export const VideoPlayerUI = React.memo(
             />
           </LinearGradient>
         )}
+        <FlipbookOverlay controlsVisible={showMediaControls} />
       </View>
     );
   },

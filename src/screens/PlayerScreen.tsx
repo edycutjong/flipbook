@@ -46,7 +46,8 @@ import {
 import { isContentPersonalizationEnabled } from '../config/AppConfig';
 import { CAPTION_DISABLE_ID, EVENT_KEY_DOWN } from '../constants';
 import { getMockPlaybackEventForVideo } from '../personalization/mock/ContentPersonalizationMocks';
-import { getBifFrameImageSource } from '../services/bif/bifService';
+import { FlipbookProvider, useFlipbook } from '../flipbook/app/FlipbookContext';
+import { getBifFile } from '../services/bif/bifService';
 import { FrameImageSource } from '../services/bif/FrameImageSource';
 import { COLORS } from '../styles/Colors';
 import { VideoHandler } from '../utils/VideoHandler';
@@ -95,6 +96,7 @@ const PlayerScreen = ({
   const videoRef = useRef<VideoPlayer | null>(null);
   const player = useRef<ShakaPlayer | null>(null);
   const bifFrameImagesRef = useRef<FrameImageSource | null>(null);
+  const flipbookAttachRef = useRef<((buffer: ArrayBuffer, fetchMs: number, durationMs?: number) => void) | null>(null);
 
   const TIME_TO_GO_BACK_IF_VIDEO_ENDS = 2300;
   const BACK_NAVIGATION_DELAY = 700;
@@ -362,7 +364,15 @@ const PlayerScreen = ({
 
       //Get bif file if apply
       if (data?.bifUrl) {
-        bifFrameImagesRef.current = await getBifFrameImageSource(data.bifUrl);
+        try {
+          const bif = await getBifFile(data.bifUrl);
+          bifFrameImagesRef.current = bif.frameImageSource;
+          // Flipbook reads the same BIF as a corpus (scan runs alongside playback).
+          flipbookAttachRef.current?.(bif.arrayBuffer, bif.fetchMs, data.duration ? data.duration * 1000 : undefined);
+        } catch (e) {
+          console.error('[PlayerScreen.tsx] - BIF unavailable', e);
+          flipbookAttachRef.current?.(new ArrayBuffer(0), 0);
+        }
       }
 
       // Play video once surface has created and set to media reference
@@ -415,6 +425,8 @@ const PlayerScreen = ({
   };
 
   return (
+    <FlipbookProvider config={data.flipbook} videoRef={videoRef}>
+    <FlipbookAttach attachRef={flipbookAttachRef} />
     <SafeAreaView style={styles.playerContainer} testID="safe-area-view">
       <View
         style={[
@@ -460,7 +472,19 @@ const PlayerScreen = ({
         {isVideoError && <ErrorView navigateBack={navigateBack} />}
       </View>
     </SafeAreaView>
+    </FlipbookProvider>
   );
+};
+
+/** Hands the provider's attachBif to the surface callback (which is created outside the provider). */
+const FlipbookAttach = ({
+  attachRef,
+}: {
+  attachRef: React.MutableRefObject<((buffer: ArrayBuffer, fetchMs: number, durationMs?: number) => void) | null>;
+}) => {
+  const fb = useFlipbook();
+  attachRef.current = fb.enabled ? fb.attachBif : null;
+  return null;
 };
 
 const arePlayerPropsEqual = (

@@ -17,6 +17,15 @@ import { COLORS } from '../styles/Colors';
 import { TitleData } from '../types/TitleData';
 import { formatTime } from '../utils/commonFunctions';
 import { scaleUxToDp } from '../utils/pixelUtils';
+import { DisplayAboveThumbProps } from '@amazon-devices/kepler-ui-components';
+import { useFlipbook } from '../flipbook/app/FlipbookContext';
+import {
+  changeMarkers,
+  maskRectOnThumbnail,
+  ScanStrip,
+  thumbnailDisabled,
+  ThumbnailMask,
+} from '../flipbook/app/FlipbookSeekbarParts';
 import FastForwardRewindIcon from './seekbar/ForwardBackwardIcon';
 import ThumbIcon from './seekbar/ThumbIcon';
 
@@ -58,7 +67,34 @@ const Seekbar = ({
   const [isSkipping, setIsSkipping] = useState(false);
   const isSkippingRef = useRef(false);
   const totalValue = videoRef.current?.duration;
-  const disableThumbnail = !isSkipping;
+  const flipbook = useFlipbook();
+  // Flipbook titles: thumbnails show the score graphic, so they stay off until the score box can be masked.
+  const disableThumbnail = thumbnailDisabled(isSkipping, flipbook);
+  const thumbMask =
+    flipbook.enabled && flipbook.rect && flipbook.geometry
+      ? maskRectOnThumbnail(
+          flipbook.rect,
+          flipbook.geometry.area,
+          flipbook.geometry.width,
+          flipbook.geometry.height,
+        )
+      : null;
+  const renderAboveThumb = useCallback(
+    (props: DisplayAboveThumbProps) =>
+      flipbook.enabled ? (
+        <ThumbnailMask mask={thumbMask}>
+          <FastForwardRewindIcon {...props} />
+        </ThumbnailMask>
+      ) : (
+        <FastForwardRewindIcon {...props} />
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [flipbook.enabled, thumbMask?.x, thumbMask?.y, thumbMask?.w, thumbMask?.h],
+  );
+  const flipbookMarkers =
+    flipbook.enabled && flipbook.mode === 'highlights'
+      ? changeMarkers(flipbook.markers, null)
+      : undefined;
   const thumbnailImageNotAvailable =
     !videoData?.thumbnailUrl && !bifFrameImagesRef?.current;
   const thumbnailStyle = thumbnailImageNotAvailable
@@ -352,6 +388,7 @@ const Seekbar = ({
           hasTVPreferredFocus={true}
           autoFocus
           style={styles.seekbar}>
+          <ScanStrip fb={flipbook} durationMs={(totalValue || 0) * 1000} />
           <KUICSeekbar
             ref={seekBarRef}
             currentValue={progress}
@@ -359,6 +396,14 @@ const Seekbar = ({
             disabledWhenNotFocused={true}
             disableThumbnail={disableThumbnail}
             thumbnailStyle={thumbnailStyle}
+            thumbnailImageResizeMode={flipbook.enabled ? 'stretch' : undefined}
+            markers={flipbookMarkers}
+            disabled={flipbook.capturesKeys}
+            partialDisablingConfiguration={
+              flipbook.ownsSkipKeys
+                ? { skipForward: true, skipBackward: true }
+                : undefined
+            }
             step={SEEKBAR_STEP}
             stepMultiplierFactor={STEP_MULTIPLIER_FACTOR}
             stepMultiplierFactorInterval={STEP_MULTIPLIER_INTERVAL}
@@ -370,7 +415,7 @@ const Seekbar = ({
             enableLongPressAcceleration={true}
             enableAnimations={true}
             animationDuration={ANIMATION_DURATION}
-            displayAboveThumb={FastForwardRewindIcon}
+            displayAboveThumb={renderAboveThumb}
             thumbIcon={getThumbIcon}
             thumbnailLabel={getThumbnailLabel}
             currentValueIndicatorColor={getIndicatorColor}
