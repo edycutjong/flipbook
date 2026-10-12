@@ -17,6 +17,28 @@ Two rows on the home screen: **Matches** (the development match: local HLS + the
 confirms), then ⏩ jumps to the next change minus the lead-in. Blind mode is the default; Highlights adds ticks.
 Never build from a path containing a directory named `assets` (the packager embeds host paths).
 
+### The "Matches" row needs its media on a local server
+
+`src/flipbook/media.ts` points the row at `http://10.0.2.2:8765/flipbook`: from inside the Vega Virtual Device, `10.0.2.2` is your Mac.
+The files are not in the repo (the recording is about 500 MB); rebuild them from the CC0 recording:
+
+```bash
+mkdir -p ~/flipbook-serve/flipbook/winchester-2023/hls && cd ~/flipbook-serve/flipbook/winchester-2023
+# 1. the CC0 development match (Internet Archive item snafuinfinitysoccer-girls_091923-vs-winchester, see CREDITS.md)
+curl -L -o match.mp4 https://archive.org/download/snafuinfinitysoccer-girls_091923-vs-winchester/soccer-girls_091923-vs-winchester.mp4
+shasum -a 1 match.mp4            # must print e4c3982a1a87840f8f2e64ef538235ee4a1d6ce0
+# 2. the BIF Flipbook reads (should match fixtures/winchester-2023-320.bif if your ffmpeg is like ours, 8.1.1; run from this repo)
+(cd <path to this repo> && npm run make-bif -- ~/flipbook-serve/flipbook/winchester-2023/match.mp4 --out ~/flipbook-serve/flipbook/winchester-2023/match.bif --interval 10 --width 320)
+# 3. video-only HLS, commentary audio removed (the player rejects http:// MP4s, so the row plays HLS through Shaka)
+ffmpeg -i match.mp4 -an -c:v copy -f hls -hls_time 8 -hls_playlist_type vod -hls_segment_filename 'hls/seg%05d.ts' hls/index.m3u8
+# 4. serve it (stop it when you are done: it serves that folder to your network)
+python3 <path to this repo>/scripts/serve-media.py ~/flipbook-serve 8765
+```
+
+Step 2's SHA-256 is in `fixtures/winchester-2023-320.bif.json` (`bifSha256`). The step-3 command is the stream-copy recipe we used
+in spirit; our own HLS cut has slightly different segment boundaries, and we have not re-played this exact output on the device
+since the virtual device stopped booting, so if the player complains, adjust `-hls_time`. The "Witness" row needs none of this.
+
 ## 2. Re-run the numbers (no credentials, no device)
 
 For the tests and the benchmark alone, `npm ci --ignore-scripts` is enough (it skips the Shaka build, which only the device build needs).

@@ -45,7 +45,7 @@ A player that shows scrub previews from BIF trickplay — as Amazon's Vega video
 2. **Scan** — a two-pass change-and-hold detector compares the box across thumbnails. Pass 1 samples sparse frames so the first ticks appear fast; pass 2 reads every frame to fill gaps and refine. Only a change that *holds* counts, so a replay or a brief graphic dropout does not.
 3. **Jump** — ⏩ goes to the next change minus a lead-in (default 30 s), anchored on the last frame that still shows the **old** score, so you land before the play.
 
-Two modes, **blind by default**: the seek bar shows only your position and the thumbnails' score rectangle is masked. **Highlights** (user-selected) adds ticks on the seek bar. Either way, no video is decoded, by construction: the scan only opens the BIF's thumbnail JPEGs (the benchmark records this as `videoBytesDecoded: 0`).
+Two modes, **blind by default**: the seek bar shows only your position and how far the scan has read, and the thumbnails' score rectangle is masked. **Highlights** (user-selected) adds ticks on the seek bar. Either way, no video is decoded, by construction: the scan only opens the BIF's thumbnail JPEGs (the benchmark records this as `videoBytesDecoded: 0`).
 
 ## 🏗️ Architecture & Tech Stack
 
@@ -91,7 +91,7 @@ The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core
 |---|---|---|
 | Tests | 420 passing (69 Flipbook) + 4 upstream skipped; `tsc` clean | `npm test`, `npm run typecheck` |
 | Video bytes decoded | 0, by construction (the scan only opens BIF JPEGs) | `src/flipbook/core/scan.ts`; recorded as `videoBytesDecoded` in `evidence/bench/*.json` |
-| On the Vega Virtual Device, pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame); that title gave 34 markers in pass 1 against 2 on the development match | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
+| On the Vega Virtual Device, pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame); that run used a box over most of a webinar frame with no score graphic, so its 34 pass-1 markers are not detections | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
 | On the Vega Virtual Device, jump without stacked seek | `seek from=50572ms currentTime=199.1`, then `currentTime=199.1` 1.5 s later | `evidence/vvd/witness-v1-flipbook-lines.log` |
 | Development match (agent dev labels, **not ground truth**) | 2/2 changes found, 0 false markers, 2/2 jumps land before the play (leads 28 s and 30 s); pass 1 reads 14.9 % of frames | `evidence/bench/dev-winchester-320.json` |
 | Visibility margin (dev labels) | 2.64× at 320 px, 2.04× at 240×180 letterboxed | `evidence/bench/visibility-dev-winchester-*.json` |
@@ -128,7 +128,7 @@ vega virtual-device start --gui
 vega run-app build/aarch64-release/keplervideoapp_aarch64.vpkg   # x86_64 hosts: build/x86_64-release/…
 ```
 
-The "Matches" row plays development media from a local static server and BIFs from `fixtures/`; the "Witness" row streams Amazon's BIF from the sample's own CDN. Build your own BIF from any video with `npm run make-bif`.
+The "Matches" row plays development media from a local static server (rebuild steps: [`DEMO.md`](DEMO.md)) and BIFs from `fixtures/`; the "Witness" row streams Amazon's BIF from the sample's own CDN. Build your own BIF from any video with `npm run make-bif`.
 
 ## 🧪 Testing & CI
 
@@ -170,6 +170,7 @@ test/flipbook/         Jest invariants
 - [ ] Human ground truth for matches A and B, then the held-out result
 - [ ] Calibrated on-device recording of the development match
 - [ ] Upstream the BIF parser fixes to `vega-video-sample`
+- [ ] A packaging-time scan, so a provider can run the detector once where the BIF is made
 
 ## 📄 License
 

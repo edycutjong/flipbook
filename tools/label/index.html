@@ -98,8 +98,11 @@ document.getElementById('download').onclick = () => {
   a.download = `${document.getElementById('match').value}.truth.json`; a.click();
 };
 ['match', 'who'].forEach(id => (document.getElementById(id).oninput = render));
+// Keys must reach the page after choosing a file or a kind: blur those controls, and let Enter leave a text field.
+['file', 'kind'].forEach(id => document.getElementById(id).addEventListener('change', e => e.target.blur()));
+['match', 'who'].forEach(id => document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); }));
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT') return;
+  if (['match', 'who', 'out'].includes(e.target.id)) return;
   const step = s => { e.preventDefault(); v.pause(); v.currentTime = Math.max(0, v.currentTime + s); };
   if (e.key === ' ') { e.preventDefault(); v.paused ? v.play() : v.pause(); }
   else if (e.key === 'ArrowLeft') step(e.shiftKey ? -10 : -1);

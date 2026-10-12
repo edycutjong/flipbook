@@ -119,7 +119,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Expected:** `vega` resolves in any shell.
 - **Actual:** command not found in the non-login shells our scripts used until `~/vega/env` was sourced (the SDK's env file).
 - **Workaround:** `source ~/vega/env` plus Node 20 / JDK 21 exports, wrapped in a script.
-- **Suggestion:** the installer should say which file it edits, and `vega` should work from a login shell without it.
+- **Suggestion:** say in the install docs which file to source, so scripted sessions can do it.
 
 ### 13 · The Shaka postinstall leaves untracked output and a nested `.git` — 2026-10-12 · medium
 - **Task:** `npm install` in a fresh clone of the sample, then commit.
@@ -133,7 +133,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Task:** confirm the package still builds after adding the landing page's media under `docs/`.
 - **Steps:** `npm run build:release`; `git status`.
 - **Expected:** a build artifact only.
-- **Actual:** the working tree is dirty afterwards: many `[[needs.module]]` lines (about 130 when we saw it) were appended to `manifest.toml`. Committing it would change the app manifest as a side effect of a verification step.
+- **Actual:** the working tree is dirty afterwards: many `[[needs.module]]` lines were appended to `manifest.toml`. Committing it would change the app manifest as a side effect of a verification step.
 - **Workaround:** `git checkout -- manifest.toml` after every release build.
 - **Suggestion:** generate the module list into the build directory, not the tracked manifest.
 
@@ -141,7 +141,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Task:** install the Amazon Devices Builder Tools MCP into Kiro and use it.
 - **Steps:** `npx -y @amazon-devices/amazon-devices-buildertools-mcp@latest init-context --agent kiro -p <dir> --force`, then `check-status --agent kiro`, then a headless `kiro-cli chat` asking for the tool list and the SeekBar props.
 - **Expected:** what the docs page shows: a three-column status table and the agent list on the page (`cursor, cline, kiro, claude-code-cli, claude-code-desktop, github-copilot, amazon-q, other`).
-- **Actual:** it worked: Kiro called `list_documents`, `set_project_context` and `search_documentation` and returned the SeekBar docs page (`seekbar.html`, versions 0.21 to 0.24) covering `markers` and `partialDisablingConfiguration`. But the `--agent` option text in `--help` lists a shorter agent set (no `claude-code-desktop` or `amazon-q`), the status table has a fourth column (`Agent (--install-agent)`), and `check-status` reports the context document "Not found" when it was written to a custom `-p` path, so a correct setup reads as "partially configured". The default flow also copied 20 skills into `~/.kiro/skills/`; separately, the first `npx` run printed nine `npm warn deprecated` lines (`evidence/kiro/task-02-npm-warnings.log`).
+- **Actual:** it worked: Kiro called `list_documents`, `set_project_context` and `search_documentation` and returned the SeekBar docs page (`seekbar.html`, versions 0.21 to 0.24) covering `markers` and `partialDisablingConfiguration`. But the `--agent` option text in `--help` lists six agent types where the docs page (developer.amazon.com/docs/vega/0.24/mcp-server) lists eight (no `claude-code-desktop` or `amazon-q`), the status table has a fourth column (`Agent (--install-agent)`), and `check-status` reports the context document "Not found" (we passed a custom `-p` path) and the agent as "Not installed" (we did not use `--install-agent`), summarising "Partially configured: 1" for a setup that works. The default flow also copied 20 skills into `~/.kiro/skills/`; separately, the first `npx` run printed nine `npm warn deprecated` lines (`evidence/kiro/task-02-npm-warnings.log`).
 - **Workaround:** none needed; treat "Not found" for a custom path as expected.
 - **Suggestion:** make `check-status` look at the `-p` path (or print where it looked), and bring the docs page in line with `--help`.
 
@@ -154,5 +154,5 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 | F1 | A pixel read-back API for the player surface (or a frame-grab call) | Flipbook can only look at frames inside a BIF and decodes JPEGs in JS; a read-back call would let any app read live frames. | Important |
 | F2 | A BIF lookup in the sample that uses the file's own interval and offset (and a corrected hosted `tv-webinar-hd.bif`) | The sample's per-index lookup and the hosted file's multiplier are why Flipbook reads BIFs with its own parser (entries 6–7). | Important |
 | F3 | `vega logs <pkg>` — a per-app log tail with history | entry 9 | Nice-to-have |
-| F4 | A VVD that boots with the host display locked, or says it cannot | It cost every on-device capture after the VVD stopped drawing (about 23:13 WIB) and failed to boot (23:27 WIB) (entry 10); it matters most to anyone recording unattended. | Critical |
+| F4 | A VVD that boots with the host display locked, or says it cannot | It cost every on-device capture after the VVD failed to boot (23:27 WIB) (entry 10); it matters most to anyone recording unattended. | Critical |
 | F5 | A short-row-safe carousel / grid, or documented minimum item counts | entry 3 | Nice-to-have |
