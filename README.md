@@ -13,6 +13,8 @@
   ![Vega OS](https://img.shields.io/badge/Vega_OS-Fire_TV-FF9900?style=flat)
   ![React Native](https://img.shields.io/badge/React_Native-20232A?style=flat&logo=react)
   ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+  [![CI](https://github.com/edycutjong/flipbook/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/flipbook/actions/workflows/ci.yml)
+  [![CodeQL](https://github.com/edycutjong/flipbook/actions/workflows/codeql.yml/badge.svg)](https://github.com/edycutjong/flipbook/actions/workflows/codeql.yml)
   [![License](https://img.shields.io/badge/License-MIT--0-yellow)](LICENSE)
 
 </div>
