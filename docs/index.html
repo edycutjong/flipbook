@@ -111,7 +111,7 @@ h1 .l2{background:linear-gradient(90deg,var(--rule) 10%,var(--amber-hi) 90%);-we
 .proof{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:22px;font:500 13px/1.4 var(--font-data);color:var(--muted)}
 .cmd{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--hair2);border-radius:4px;padding:7px 8px 7px 12px;color:var(--ink);background:var(--sprocket)}
 .cmd::before{content:"$";color:var(--rule)}
-.cmd button{all:unset;cursor:pointer;display:grid;place-items:center;width:26px;height:26px;border-radius:3px;color:var(--muted);transition:color .2s,background .2s}
+.cmd button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;place-items:center;width:26px;height:26px;border-radius:3px;color:var(--muted);transition:color .2s,background .2s}
 .cmd button:hover{color:var(--ink);background:rgba(242,235,221,.08)}
 .cmd button:focus-visible{outline:2px solid var(--rule)}
 .cmd button.ok{color:var(--rule)}
@@ -175,18 +175,18 @@ h1 .l2{background:linear-gradient(90deg,var(--rule) 10%,var(--amber-hi) 90%);-we
 .controls{display:none;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px}
 .js .controls{display:flex}
 .seg{display:inline-flex;border:1px solid var(--hair2);border-radius:4px;padding:3px;gap:3px}
-.seg button{all:unset;cursor:pointer;padding:9px 13px;font:800 14px/1 var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-radius:2px;transition:color .2s,background .2s}
+.seg button{all:unset;box-sizing:border-box;cursor:pointer;padding:9px 13px;font:800 14px/1 var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-radius:2px;transition:color .2s,background .2s}
 .seg button:hover{color:var(--ink)}
 .seg button[aria-checked="true"]{background:var(--ink);color:var(--bg)}
 .seg button:focus-visible{outline:2px solid var(--rule);outline-offset:2px}
-.key{all:unset;cursor:pointer;display:inline-grid;place-items:center;width:46px;height:38px;border:1.5px solid var(--ink);border-radius:7px;color:var(--ink);transition:transform .2s var(--ease),background .2s,color .2s,border-color .2s}
+.key{all:unset;box-sizing:border-box;cursor:pointer;display:inline-grid;place-items:center;width:46px;height:38px;border:1.5px solid var(--ink);border-radius:7px;color:var(--ink);transition:transform .2s var(--ease),background .2s,color .2s,border-color .2s}
 .key svg{width:22px;height:22px}
 .key:hover{background:var(--ink);color:var(--bg)}
 .key:active{transform:scale(.94)}
 .key:focus-visible{outline:2px solid var(--rule);outline-offset:3px}
 .key.nudge{animation:nudge 1.8s var(--ease) 2}
 @keyframes nudge{0%,100%{box-shadow:0 0 0 0 rgba(217,164,65,0)}40%{box-shadow:0 0 0 7px rgba(217,164,65,.35)}}
-.mini{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;font:500 13px/1 var(--font-data);color:var(--muted);border-radius:4px;transition:color .2s,background .2s}
+.mini{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;font:500 13px/1 var(--font-data);color:var(--muted);border-radius:4px;transition:color .2s,background .2s}
 .mini svg{width:15px;height:15px}
 .mini:hover:not([disabled]){color:var(--ink);background:rgba(242,235,221,.06)}
 .mini[disabled]{opacity:.38;cursor:default}
@@ -336,7 +336,14 @@ footer.site .small{margin-top:14px;font-size:14px;line-height:1.55}
   .js .dev.d1{animation-delay:.05s}.js .dev.d2{animation-delay:.16s}.js .dev.d3{animation-delay:.28s}.js .dev.d4{animation-delay:.4s}.js .dev.d5{animation-delay:.52s}.js .dev.d6{animation-delay:.64s}
   @keyframes develop{from{opacity:0;filter:blur(6px) brightness(1.8);transform:translateY(10px)}to{opacity:1;filter:none;transform:none}}
 }
-@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+@media (prefers-reduced-motion:reduce){
+  /* no movement: no develop-in, no pulses, no sweeps, no sliding; colour and opacity changes stay as short fades */
+  html{scroll-behavior:auto}
+  .js .dev,.key.nudge,.mini.armed,.track .tick.flash{animation:none}
+  .btn,.key,.card,.toast,.osd,.ring,.track .played,.track .thumb,.track .tick,.status,.strip,.faq summary i::before,.faq summary i::after{transition-property:opacity,color,background-color,border-color,box-shadow;transition-duration:.12s}
+  .btn:hover,.card:hover{transform:none}
+  .toast,.toast.on{transform:translate(-50%,0)}
+}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 
 /* ── responsive ── */
@@ -383,6 +390,9 @@ footer.site .small{margin-top:14px;font-size:14px;line-height:1.55}
   .ctas .btn{flex:1 1 0;justify-content:center}
   footer.site .wrap{grid-template-columns:1fr}
   .key{width:52px;height:44px}
+  .mini,.mini.tiny{min-height:44px}.seg button{min-height:44px;display:inline-flex;align-items:center}
+  .cmd button{width:44px;height:44px}
+  .nav .btn{min-height:44px}
   .track .tick em{display:none}
   .toast{top:44px}
   .screen.clean .osd{opacity:0}.screen.clean:hover .osd{opacity:1}
