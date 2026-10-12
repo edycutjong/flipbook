@@ -81,7 +81,7 @@ aside.speaker-notes{display:none}
 @keyframes blink{50%{opacity:0}}
 .band{position:absolute;left:120px;right:120px;bottom:116px;height:112px;border-radius:3px;box-shadow:0 0 0 1px var(--hair)}
 .band img{border-radius:3px}
-.band img{width:100%;height:100%;object-fit:cover;filter:saturate(.85)}
+.band img{width:100%;height:100%;object-fit:cover}
 .band .rule{position:absolute;top:0;bottom:0;left:0;width:3px;background:var(--amber-hi);box-shadow:0 0 22px 6px rgba(240,200,115,.55);opacity:0}
 .slide.on .band .rule{animation:sweep 4.2s var(--ease) .5s 1 forwards}
 @keyframes sweep{0%{left:0;opacity:1}92%{opacity:1}100%{left:100%;opacity:0}}
@@ -107,6 +107,8 @@ aside.speaker-notes{display:none}
 .sheetwrap{position:relative;margin-top:28px;width:1060px;background:var(--sprocket);padding:18px;border-radius:4px;box-shadow:0 0 0 1px var(--hair)}
 .sheetwrap .plate{position:relative}
 .sheetwrap svg.loops{position:absolute;inset:0;width:100%;height:100%}
+.sheetwrap .plate>img{filter:saturate(.52) sepia(.14)}
+.band img{filter:saturate(.62) sepia(.12)}
 .s3 .side{position:absolute;right:120px;top:262px;width:400px;display:grid;gap:40px}
 .stat b{display:block;font:900 92px/.9 var(--font-display);letter-spacing:.01em}
 .stat span{font:500 21px/1.35 var(--font-data);color:var(--muted)}
@@ -277,7 +279,7 @@ body.debug-contrast .slide :is(h2,p,li,span,b,em,code,figcaption,time,div.call){
   <div class="sheetwrap">
     <div class="plate">
       <img src="../assets/sheet/sheet.jpg" alt="All 517 trickplay thumbnails of the development match, every score box masked; the frames at 17:00 and 49:30 are circled in red" width="2688" height="1386">
-      <svg class="loops" viewBox="0 0 2688 1386" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="728" cy="284" rx="110" ry="71" transform="rotate(-6 728 284)" fill="none" stroke="#E5432E" stroke-width="15" stroke-linecap="round" stroke-dasharray="627 60"/><ellipse cx="732" cy="280" rx="101" ry="66" transform="rotate(-2 728 284)" fill="none" stroke="#E5432E" stroke-width="7" opacity=".8"/><ellipse cx="1064" cy="788" rx="110" ry="71" transform="rotate(-6 1064 788)" fill="none" stroke="#E5432E" stroke-width="15" stroke-linecap="round" stroke-dasharray="627 60"/><ellipse cx="1068" cy="784" rx="101" ry="66" transform="rotate(-2 1064 788)" fill="none" stroke="#E5432E" stroke-width="7" opacity=".8"/></svg>
+      <svg class="loops" viewBox="0 0 2688 1386" preserveAspectRatio="none" aria-hidden="true"><clipPath id="cell102"><rect x="672" y="252" width="112" height="63"/></clipPath><image href="../assets/sheet/sheet.jpg" x="0" y="0" width="2688" height="1386" clip-path="url(#cell102)"/><ellipse cx="728" cy="284" rx="110" ry="71" transform="rotate(-6 728 284)" fill="none" stroke="#E5432E" stroke-width="15" stroke-linecap="round" stroke-dasharray="627 60"/><ellipse cx="732" cy="280" rx="101" ry="66" transform="rotate(-2 728 284)" fill="none" stroke="#E5432E" stroke-width="7" opacity=".8"/><clipPath id="cell297"><rect x="1008" y="756" width="112" height="63"/></clipPath><image href="../assets/sheet/sheet.jpg" x="0" y="0" width="2688" height="1386" clip-path="url(#cell297)"/><ellipse cx="1064" cy="788" rx="110" ry="71" transform="rotate(-6 1064 788)" fill="none" stroke="#E5432E" stroke-width="15" stroke-linecap="round" stroke-dasharray="627 60"/><ellipse cx="1068" cy="784" rx="101" ry="66" transform="rotate(-2 1064 788)" fill="none" stroke="#E5432E" stroke-width="7" opacity=".8"/></svg>
     </div>
   </div>
   <div class="seek3" aria-hidden="true"><i class="tick" style="left:19.73%"><em>17:00</em></i><i class="tick" style="left:57.45%"><em>49:30</em></i><i class="land" style="left:18.96%"><em><svg class="kbd" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="fast-forward"><path d="M3.5 6.2v11.6l7.7-5.8z"/><path d="M12.5 6.2v11.6l7.7-5.8z"/></svg> 16:20</em></i></div>
