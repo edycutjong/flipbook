@@ -334,3 +334,8 @@ jest.mock('@amazon-devices/security-manager-lib', () => ({
     UNKNOWN: 'UNKNOWN',
   },
 }));
+
+// Flipbook persists the calibrated box with AsyncStorage; tests use the library's own in-memory mock.
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
+);
