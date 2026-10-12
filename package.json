@@ -65,7 +65,7 @@
     "@amazon-devices/react-navigation__stack": "~8.0.9000000000+7.6.8",
     "@amazon-devices/security-manager-lib": "~1.0.1767254405",
     "@amazon-devices/vega-carousel": "~1.0.0",
-    "@jest/globals": "^29.7.0",
+    "@jest/globals": "^30.5.2",
     "@react-native-async-storage/async-storage": "npm:@amazon-devices/react-native-async-storage__async-storage@~2.1.0",
     "@reduxjs/toolkit": "~2.2.4",
     "@shopify/flash-list": "~2.1.0",
