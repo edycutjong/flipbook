@@ -73,7 +73,7 @@
     "base-64": "1.0.0",
     "fastestsmallesttextencoderdecoder": "~1.0.22",
     "formik": "~2.4.6",
-    "jest-fetch-mock": "~3.0.3",
+    "jest-fetch-mock": "~4.2.0",
     "jpeg-js": "^0.4.4",
     "lodash": "~4.17.21",
     "react": "19.2.0",
