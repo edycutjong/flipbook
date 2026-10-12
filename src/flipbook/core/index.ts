@@ -4,3 +4,4 @@ export * from './jump';
 export * from './luma';
 export * from './scan';
 export * from './signature';
+export * from './bifWriter';

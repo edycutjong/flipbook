@@ -318,6 +318,9 @@ const PlayerScreen = ({
   const playVideo = useCallback(async () => {
     try {
       // Hide buffer view and Play the video if allowed...
+      if (data.flipbook?.muteAudio && videoRef.current) {
+        videoRef.current.muted = true;
+      }
       await videoRef?.current?.play();
       setShowBuffering(false);
       console.debug(
@@ -351,6 +354,7 @@ const PlayerScreen = ({
     }
   }, [
     videoRef,
+    data.flipbook?.muteAudio,
     data.title,
     navigateBack,
     onChannelTuneFailed,

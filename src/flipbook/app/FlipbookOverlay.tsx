@@ -67,12 +67,13 @@ const CalibrationBackdrop = ({ bd }: { bd: NonNullable<FlipbookApi['backdrop']> 
   // Scale the frame so its PICTURE area (bars excluded) fills the screen: the box is in picture coordinates.
   const aw = bd.area.right - bd.area.left;
   const ah = bd.area.bottom - bd.area.top;
+  // A hair larger than the screen: a full-screen-exact image can be composited above sibling views on the VVD.
   const style = {
     position: 'absolute' as const,
-    width: pct(bd.width / aw),
-    height: pct(bd.height / ah),
-    left: pct(-bd.area.left / aw),
-    top: pct(-bd.area.top / ah),
+    width: pct((bd.width / aw) * 1.002),
+    height: pct((bd.height / ah) * 1.002),
+    left: pct(-bd.area.left / aw - 0.001),
+    top: pct(-bd.area.top / ah - 0.001),
   };
   return <Image source={{ uri }} resizeMode="stretch" style={style} testID="flipbook-backdrop" />;
 };
@@ -161,10 +162,12 @@ export const FlipbookOverlay = ({ controlsVisible }: { controlsVisible: boolean 
 };
 
 const styles = StyleSheet.create({
-  backdropDim: { ...StyleSheet.absoluteFillObject, backgroundColor: FB.bg, overflow: 'hidden' },
-  box: { position: 'absolute', borderWidth: scaleUxToDp(3) },
+  backdropDim: { ...StyleSheet.absoluteFillObject, backgroundColor: FB.bg, overflow: 'hidden', zIndex: 0 },
+  box: { position: 'absolute', borderWidth: scaleUxToDp(3), zIndex: 10, elevation: 10 },
   calCard: {
     position: 'absolute',
+    zIndex: 11,
+    elevation: 11,
     left: '5%',
     right: '5%',
     bottom: '6%',

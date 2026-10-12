@@ -18,7 +18,7 @@ import {
   describeBifError,
   formatClock,
   frameBytes,
-  makePreview,
+  makePreviewAsync,
   probeArea,
   PictureArea,
   nextJump,
@@ -45,6 +45,8 @@ export interface FlipbookTitleConfig {
   defaultRect: NormRect;
   leadInMs?: number;
   params?: Partial<DetectorParams>;
+  /** Play the title muted (e.g. original commentary we do not publish). */
+  muteAudio?: boolean;
 }
 
 const FF_KEYS = new Set(['skip_forward', 'fastforward', 'forward']);
@@ -53,7 +55,7 @@ const PANEL_ITEMS = ['mode', 'box', 'log', 'close'] as const;
 export type PanelItem = (typeof PANEL_ITEMS)[number];
 
 const STEP = 0.01; // box nudge, fraction of the picture
-const PREVIEW_FRAMES = 60;
+const PREVIEW_FRAMES = 30;
 const LOG_LINES = 8;
 
 export interface FlipbookApi {
@@ -281,22 +283,26 @@ export const FlipbookProvider = ({
         return;
       }
       scanIdRef.current++;
+      const id = scanIdRef.current;
       setRect(clampRect(initial));
       setResizing(false);
+      setBoxState(null);
       setPhase('calibrating');
-      // Live preview (F3): the first 60 frames decoded once; each nudge only re-crops them.
-      const preview = makePreview(bif.buffer, bif.index, PREVIEW_FRAMES, params.stride);
-      previewRef.current = (r: NormRect) => (boxIsMoving(preview.sigsFor(r), params).moving ? 'moving' : 'steady');
-      // Backdrop = the most typical of the first frames (graphic on screen, early in the match: no later score shown).
-      const early = preview.sigsFor(clampRect(initial));
-      const pick = mostTypical(early);
-      setBackdrop({ jpeg: frameBytes(bif.buffer, bif.index, pick), area: preview.area, width: preview.width, height: preview.height });
-      log(`calibrate on frame=${pick} (${formatClock(bif.index.timeMs[pick])})`);
-      try {
-        setBoxState(previewRef.current(clampRect(initial)));
-      } catch {
-        setBoxState(null);
-      }
+      // Live preview (F3): the first frames decoded once, in small chunks; each nudge only re-crops them.
+      makePreviewAsync(bif.buffer, bif.index, PREVIEW_FRAMES, params.stride)
+        .then(preview => {
+          if (scanIdRef.current !== id) {
+            return;
+          }
+          previewRef.current = (r: NormRect) => (boxIsMoving(preview.sigsFor(r), params).moving ? 'moving' : 'steady');
+          // Backdrop = the most typical of the first frames (graphic on screen, early in the match: no later score).
+          const early = preview.sigsFor(clampRect(initial));
+          const pick = mostTypical(early);
+          setBackdrop({ jpeg: frameBytes(bif.buffer, bif.index, pick), area: preview.area, width: preview.width, height: preview.height });
+          log(`calibrate on frame=${pick} (${formatClock(bif.index.timeMs[pick])})`);
+          setBoxState(previewRef.current(clampRect(initial)));
+        })
+        .catch(e => log(`calibration preview failed: ${String(e)}`));
     },
     [log, params],
   );
@@ -304,6 +310,11 @@ export const FlipbookProvider = ({
   const attachBif = useCallback(
     (buffer: ArrayBuffer, fetchMs: number, durationMs?: number) => {
       if (!config) {
+        return;
+      }
+      if (bifRef.current) {
+        // The player can recreate its surface; the BIF for this title is already attached.
+        log('bif already attached — ignoring a second fetch');
         return;
       }
       log(`bif fetched bytes=${buffer.byteLength} ms=${Math.round(fetchMs)}`);

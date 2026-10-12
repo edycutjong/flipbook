@@ -1,0 +1,86 @@
+import { describe, expect, it, jest } from '@jest/globals';
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
+);
+import { FlipbookApi } from '../../src/flipbook/app/FlipbookContext';
+import { statusText } from '../../src/flipbook/app/FlipbookOverlay';
+import { maskRectOnThumbnail, thumbnailDisabled } from '../../src/flipbook/app/FlipbookSeekbarParts';
+
+const base = {
+  enabled: true,
+  phase: 'scanning',
+  mode: 'blind',
+  markers: [1, 2, 3, 4, 5, 6].map(i => ({ ms: i * 600000, changeMs: i * 600000 + 10000, frameIndex: i * 60, anchorIndex: i * 60 - 1, delta: 30, pass: 1 })),
+  progress: { pass: 1, readToMs: 4320000, decodes: 166, frames: 1084, markers: 6 },
+  result: null,
+  failure: null,
+} as unknown as FlipbookApi;
+
+describe('blind mode leaks nothing (ui.md S1/S2, a2a r02 #3)', () => {
+  const phases = ['scanning', 'ready'] as const;
+  for (const phase of phases) {
+    it(`status in ${phase} shows a match position only — no count, no decode number`, () => {
+      const s = statusText({ ...base, phase } as FlipbookApi)!;
+      const text = `${s.head} ${s.detail}`;
+      expect(text).not.toMatch(/\d+ CHANGE/i);
+      expect(text).not.toMatch(/\b166\b|\b1,?084\b|\b6\b/);
+      expect(text).not.toMatch(/skipped/i);
+    });
+  }
+  it('ready after pass 2 still shows no count in blind mode', () => {
+    const s = statusText({ ...base, phase: 'ready', result: { frames: 1084, skippedAbsent: 212 } } as unknown as FlipbookApi)!;
+    expect(`${s.head} ${s.detail}`).not.toMatch(/212|1,?084|\d+ CHANGE/);
+  });
+  it('highlights mode adds the count and the frames read', () => {
+    const s = statusText({ ...base, mode: 'highlights' } as FlipbookApi)!;
+    expect(s.head).toBe('6 CHANGES');
+    expect(s.detail).toMatch(/166 of 1084/);
+  });
+  it('F1: a title without a usable index says so in both modes', () => {
+    for (const mode of ['blind', 'highlights']) {
+      const s = statusText({ ...base, mode, phase: 'no-index', failure: null } as unknown as FlipbookApi)!;
+      expect(s.detail).toBe('No trickplay index for this title');
+    }
+  });
+});
+
+describe('ThumbnailMask — no unmasked thumbnail', () => {
+  it('thumbnails stay off for a Flipbook title until a mask exists, whatever the key (FF, RW, RIGHT, hold)', () => {
+    const noMask = { enabled: true, thumbnailsAllowed: false };
+    for (const skipping of [true, false]) {
+      expect(thumbnailDisabled(skipping, noMask)).toBe(true);
+    }
+    expect(thumbnailDisabled(true, { enabled: true, thumbnailsAllowed: true })).toBe(false);
+    // sample behaviour untouched for other titles
+    expect(thumbnailDisabled(true, { enabled: false, thumbnailsAllowed: false })).toBe(false);
+    expect(thumbnailDisabled(false, { enabled: false, thumbnailsAllowed: false })).toBe(true);
+  });
+
+  it('the mask covers the calibrated box (plus margin) on the stretched thumbnail, with and without bars', () => {
+    const cases = [
+      { area: { top: 0, bottom: 180, left: 0, right: 320 }, width: 320, height: 180 },
+      { area: { top: 23, bottom: 163, left: 0, right: 240 }, width: 240, height: 180 },
+    ];
+    const rects = [
+      { x: 0.155, y: 0.868, w: 0.497, h: 0.058 },
+      { x: 0.02, y: 0.03, w: 0.3, h: 0.08 },
+      { x: 0.7, y: 0.9, w: 0.29, h: 0.09 },
+    ];
+    for (const c of cases) {
+      for (const r of rects) {
+        const m = maskRectOnThumbnail(r, c.area, c.width, c.height);
+        const aw = c.area.right - c.area.left;
+        const ah = c.area.bottom - c.area.top;
+        const bx0 = (c.area.left + r.x * aw) / c.width;
+        const by0 = (c.area.top + r.y * ah) / c.height;
+        const bx1 = (c.area.left + (r.x + r.w) * aw) / c.width;
+        const by1 = (c.area.top + (r.y + r.h) * ah) / c.height;
+        expect(m.x).toBeLessThanOrEqual(bx0);
+        expect(m.y).toBeLessThanOrEqual(by0);
+        expect(m.x + m.w).toBeGreaterThanOrEqual(Math.min(1, bx1) - 1e-9);
+        expect(m.y + m.h).toBeGreaterThanOrEqual(Math.min(1, by1) - 1e-9);
+      }
+    }
+  });
+});

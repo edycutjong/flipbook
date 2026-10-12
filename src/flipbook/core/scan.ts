@@ -120,7 +120,8 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
   const params: DetectorParams = { ...DEFAULT_PARAMS, ...(opts.params || {}) };
   const now = opts.now || defaultNow;
   const yieldFn = opts.yieldFn || defaultYield;
-  const batch = opts.batchDecodes ?? 50;
+  // Small batches: one decode is ~20 ms on the VVD, so 8 keeps each JS turn under ~200 ms.
+  const batch = opts.batchDecodes ?? 8;
   const log = opts.log || (() => {});
   const { index, buffer } = opts;
   const n = index.frameCount;
@@ -252,4 +253,36 @@ export function probeArea(buffer: ArrayBuffer, index: BifIndex, stride: number) 
   const probes = areaProbeFrames(index.frameCount, stride).map(i => decodeLuma(frameBytes(buffer, index, i)));
   const { width, height } = probes[0];
   return { area: medianPictureArea(probes.map(pictureAreaOf), width, height), width, height };
+}
+
+/** Same as makePreview, decoding in small chunks and yielding between them (keeps the remote responsive). */
+export async function makePreviewAsync(
+  buffer: ArrayBuffer,
+  index: BifIndex,
+  count: number,
+  stride: number,
+  yieldFn: () => Promise<void> = defaultYield,
+  chunk = 4,
+) {
+  const n = Math.min(count, index.frameCount);
+  const frames: LumaFrame[] = [];
+  for (let i = 0; i < n; i++) {
+    frames.push(decodeLuma(frameBytes(buffer, index, i)));
+    if (i % chunk === chunk - 1) {
+      await yieldFn();
+    }
+  }
+  const probes: LumaFrame[] = [];
+  for (const i of areaProbeFrames(index.frameCount, stride)) {
+    probes.push(decodeLuma(frameBytes(buffer, index, i)));
+    await yieldFn();
+  }
+  const { width, height } = frames[0] || probes[0];
+  const area = medianPictureArea(probes.map(pictureAreaOf), width, height);
+  return {
+    area,
+    width,
+    height,
+    sigsFor: (rect: NormRect): Sig[] => frames.map(f => signature(f, area, rect)),
+  };
 }
