@@ -20,7 +20,7 @@ jobs:
       actions: read
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
           build-mode: none
@@ -31,7 +31,7 @@ jobs:
               - coverage
       # Code scanning upload needs GitHub Advanced Security on private repos. While the repo is private the
       # analysis still runs and the SARIF is kept as an artifact; once the repo is public it uploads normally.
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v4
         with:
           category: /language:javascript-typescript
           output: sarif-results
