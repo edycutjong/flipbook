@@ -137,6 +137,17 @@
     "root": true,
     "ignorePatterns": [
       "src/w3cmedia/shakaplayer/dist/"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "src/flipbook/core/bifWriter.ts",
+          "test/flipbook/**/*.ts"
+        ],
+        "rules": {
+          "no-bitwise": "off"
+        }
+      }
     ]
   },
   "kepler": {

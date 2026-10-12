@@ -1,0 +1,22 @@
+name: Bug report
+description: Something in the Flipbook scan, jump or calibration flow misbehaves
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Which title, BIF, calibration box and mode (blind or highlights).
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Vega virtual device or hardware, Vega SDK version, Node version.
