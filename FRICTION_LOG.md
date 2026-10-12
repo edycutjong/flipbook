@@ -109,7 +109,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Task:** have Kiro Crew write `make-bif` and its round-trip test.
 - **Steps:** `kirocrew run TASK.md`, unattended, about 40 min.
 - **Expected:** files in our repo, or a clear approval prompt.
-- **Actual:** the run uses its own workspace; its write and shell tools were denied by the approval policy; it hit 429 `CREDIT_CONSUMPTION_RATE_EXCEEDED` 14 times (28 log lines, two per failure) and produced nothing. `kiro-cli chat --no-interactive --trust-all-tools` in the repo did the same task in about 2 minutes (plus our review).
+- **Actual:** the run uses its own workspace; its write and shell tools were denied by the approval policy; it hit 429 `CREDIT_CONSUMPTION_RATE_EXCEEDED` repeatedly (14 times by our count of the run log) and produced nothing. `kiro-cli chat --no-interactive --trust-all-tools` in the repo did the same task in about 2 minutes (plus our review).
 - **Workaround:** used `kiro-cli` headless (evidence: [`docs/KIRO.md`](docs/KIRO.md) and `evidence/kiro/`).
 - **Suggestion:** let `kirocrew run` target an existing directory with a pre-approved tool policy.
 
@@ -133,7 +133,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Task:** confirm the package still builds after adding the landing page's media under `docs/`.
 - **Steps:** `npm run build:release`; `git status`.
 - **Expected:** a build artifact only.
-- **Actual:** the working tree is dirty afterwards: about 130 `[[needs.module]]` lines were appended to `manifest.toml`. Committing it would change the app manifest as a side effect of a verification step.
+- **Actual:** the working tree is dirty afterwards: about 130 `[[needs.module]]` lines were appended when we saw it to `manifest.toml`. Committing it would change the app manifest as a side effect of a verification step.
 - **Workaround:** `git checkout -- manifest.toml` after every release build.
 - **Suggestion:** generate the module list into the build directory, not the tracked manifest.
 
@@ -141,7 +141,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Task:** install the Amazon Devices Builder Tools MCP into Kiro and use it.
 - **Steps:** `npx -y @amazon-devices/amazon-devices-buildertools-mcp@latest init-context --agent kiro -p <dir> --force`, then `check-status --agent kiro`, then a headless `kiro-cli chat` asking for the tool list and the SeekBar props.
 - **Expected:** what the docs page shows: a three-column status table and the agent list on the page (`cursor, cline, kiro, claude-code-cli, claude-code-desktop, github-copilot, amazon-q, other`).
-- **Actual:** it worked: Kiro called `list_documents`, `set_project_context` and `search_documentation` and returned the doc pages for `markers` and `partialDisablingConfiguration`. But `--help` lists a shorter agent set (no `claude-code-desktop` or `amazon-q`), the status table has a fourth column (`Agent (--install-agent)`), and `check-status` reports the context document "Not found" when it was written to a custom `-p` path, so a correct setup reads as "partially configured". The default flow also copied 20 skills into `~/.kiro/skills/` and `npm` printed nine deprecation warnings.
+- **Actual:** it worked: Kiro called `list_documents`, `set_project_context` and `search_documentation` and returned the SeekBar docs page (`seekbar.html`, versions 0.21 to 0.24) covering `markers` and `partialDisablingConfiguration`. But `--help` lists a shorter agent set (no `claude-code-desktop` or `amazon-q`), the status table has a fourth column (`Agent (--install-agent)`), and `check-status` reports the context document "Not found" when it was written to a custom `-p` path, so a correct setup reads as "partially configured". The default flow also copied 20 skills into `~/.kiro/skills/` and `npm` printed nine deprecation warnings.
 - **Workaround:** none needed; treat "Not found" for a custom path as expected.
 - **Suggestion:** make `check-status` look at the `-p` path (or print where it looked), and bring the docs page in line with `--help`.
 

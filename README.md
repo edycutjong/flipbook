@@ -1,7 +1,7 @@
 <div align="center">
   <img src="docs/assets/icon.svg" alt="Flipbook Icon" width="144">
   <h1>Flipbook ⏩</h1>
-  <p><em>Skip to just before the next goal on a replay you haven't watched — read from the trickplay file your TV already downloads, without decoding any video.</em></p>
+  <p><em>Skip to just before the next goal on a replay you haven't watched — read from the trickplay file a Vega player already has, without decoding any video.</em></p>
   <img src="docs/assets/readme-hero.png" alt="Flipbook — scans a match's trickplay thumbnails on the TV and marks each score change on the seek bar" width="100%">
 
   <br/>
@@ -29,7 +29,7 @@ Running on the **Vega Virtual Device** (Apple M-series Mac). These stills use Am
 
 | Jump | Scrub: the mask over the thumbnail |
 |---|---|
-| ![Press ⏩: jump to 30 s before the next change's anchor, the last frame with the old score](docs/images/vvd-jump-toast.png) | ![Scrubbing: the black block is the mask drawn over the scrub thumbnail; on this title the calibrated box covers most of the frame](docs/images/vvd-scrub-mask.png) |
+| ![Press ⏩: jump to 30 s before the next change's anchor, the last frame with the old score](docs/images/vvd-jump-toast.png) | ![Scrubbing: the black block is the scrub preview with the calibrated box masked; on this title the box was set to most of the frame, so the whole preview is covered](docs/images/vvd-scrub-mask.png) |
 
 ![Calibration: draw the box once around the broadcaster's score graphic](docs/images/vvd-calibration.png)
 
@@ -91,8 +91,8 @@ The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core
 |---|---|---|
 | Tests | 420 passing (69 Flipbook) + 4 upstream skipped; `tsc` clean | `npm test`, `npm run typecheck` |
 | Video bytes decoded | 0, by construction (the scan only opens BIF JPEGs) | `src/flipbook/core/scan.ts`; recorded as `videoBytesDecoded` in `evidence/bench/*.json` |
-| On-device pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame) | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
-| Jump without stacked seek | `seek from=50572ms currentTime=199.1`, then `currentTime=199.1` 1.5 s later | `evidence/vvd/witness-v1-flipbook-lines.log` |
+| On the Vega Virtual Device, pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame) | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
+| On the Vega Virtual Device, jump without stacked seek | `seek from=50572ms currentTime=199.1`, then `currentTime=199.1` 1.5 s later | `evidence/vvd/witness-v1-flipbook-lines.log` |
 | Development match (agent dev labels, **not ground truth**) | 2/2 changes found, 0 false markers, 2/2 jumps land before the play (leads 28 s and 30 s); pass 1 reads 14.9 % of frames | `evidence/bench/dev-winchester-320.json` |
 | Visibility margin (dev labels) | 2.64× at 320 px, 2.04× at 240×180 letterboxed | `evidence/bench/visibility-dev-winchester-*.json` |
 | Fair baseline | a plain frame differ needs τ = 30 for 2/2 recall and then fires 237 false markers | `evidence/bench/dev-winchester-320.json` → `ablationBaseline` |

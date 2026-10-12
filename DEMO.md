@@ -1,12 +1,12 @@
 # DEMO — see it, then re-run every number
 
 Flipbook runs on the **Vega Virtual Device** (Apple M-series Mac). No Fire TV hardware was available, so no timing here
-is from a real device. The demo video (linked from the Devpost page) shows the app on the virtual device.
+is from a real device. The demo video, linked from the Devpost page once it is uploaded, shows the app on the virtual device.
 
 ## 1. See it on the virtual device
 
 ```bash
-npm install && npm run build:release
+npm install && npm run build:release   # npm install also builds Shaka (needs Python 3 and a JDK)
 vega virtual-device start --gui
 vega run-app build/aarch64-release/keplervideoapp_aarch64.vpkg
 ```
@@ -18,6 +18,8 @@ confirms), then ⏩ jumps to the next change minus the lead-in. Blind mode is th
 Never build from a path containing a directory named `assets` (the packager embeds host paths).
 
 ## 2. Re-run the numbers (no credentials, no device)
+
+For the tests and the benchmark alone, `npm ci --ignore-scripts` is enough (it skips the Shaka build, which only the device build needs).
 
 | Claim | Command | Evidence file it must match |
 |---|---|---|
