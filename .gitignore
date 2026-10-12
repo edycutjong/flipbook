@@ -25,5 +25,5 @@ shaka-setup/shaka-player/
 src/w3cmedia/shakaplayer/dist/
 buildinfo.json
 
-# agent tooling (kitchen)
+# local agent tooling
 .kiro/
