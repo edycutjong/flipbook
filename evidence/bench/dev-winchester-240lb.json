@@ -1,0 +1,95 @@
+{
+  "bif": "winchester-2023-240lb.bif",
+  "frames": 517,
+  "intervalMs": 10000,
+  "intervalSource": "header",
+  "rect": {
+    "x": 0.155,
+    "y": 0.868,
+    "w": 0.497,
+    "h": 0.058
+  },
+  "params": {
+    "tau": 20,
+    "tauCand": 12,
+    "tauAbs": 20,
+    "topK": 3,
+    "window": 3,
+    "jitterMax": 2.5,
+    "movingKeptMin": 0.4,
+    "stride": 8,
+    "reach": 30
+  },
+  "maskKept": 0.3625,
+  "markers": [
+    {
+      "changeAt": "17:00",
+      "anchorAt": "16:50",
+      "changeMs": 1020000,
+      "anchorMs": 1010000,
+      "D": 36.9,
+      "pass": 1
+    },
+    {
+      "changeAt": "49:30",
+      "anchorAt": "49:20",
+      "changeMs": 2970000,
+      "anchorMs": 2960000,
+      "D": 23.6,
+      "pass": 1
+    }
+  ],
+  "pass1": {
+    "decodes": 77,
+    "decodeFraction": 0.149
+  },
+  "pass2": {
+    "added": 0
+  },
+  "lostFromPass1": 0,
+  "skippedAbsent": 5,
+  "videoBytesDecoded": 0,
+  "nodeTimings": {
+    "label": "Node (tsx) on Apple M-series — NOT device timings",
+    "runs": 5,
+    "pass1Ms": {
+      "p50": 159.6,
+      "p95": 212.3
+    },
+    "pass2Ms": {
+      "p50": 912.1,
+      "p95": 920
+    }
+  },
+  "labels": {
+    "file": "winchester-2023.devlabels.json",
+    "status": "DEVELOPMENT LABELS — made by the detector's author (agent) from 2-second stills, used only to develop and tune thresholds. NOT ground truth; never reported as a result."
+  },
+  "score": {
+    "changesLabelled": 2,
+    "changesFound": 2,
+    "recall": 1,
+    "falseMarkers": 0,
+    "falseMarkersPer90min": 0,
+    "goalJumps": 2,
+    "goalJumpsBeforePlay": 2,
+    "goalJumpsSpoiled": 0,
+    "medianLeadS": 28,
+    "jumps": [
+      {
+        "playMs": 1008000,
+        "targetMs": 980000,
+        "beforePlay": true,
+        "spoiled": false,
+        "leadMs": 28000
+      },
+      {
+        "playMs": 2960000,
+        "targetMs": 2930000,
+        "beforePlay": true,
+        "spoiled": false,
+        "leadMs": 30000
+      }
+    ]
+  }
+}

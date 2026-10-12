@@ -1,0 +1,464 @@
+{
+  "bif": "tv-webinar-hd.bif",
+  "frames": 428,
+  "intervalMs": 10000,
+  "intervalSource": "fallback-10s",
+  "rect": {
+    "x": 0.05,
+    "y": 0.05,
+    "w": 0.9,
+    "h": 0.9
+  },
+  "params": {
+    "tau": 20,
+    "tauCand": 12,
+    "tauAbs": 256,
+    "topK": 40,
+    "window": 3,
+    "jitterMax": 256,
+    "movingKeptMin": 0.4,
+    "stride": 8,
+    "reach": 30
+  },
+  "maskKept": 1,
+  "markers": [
+    {
+      "changeAt": "0:30",
+      "anchorAt": "0:20",
+      "changeMs": 30000,
+      "anchorMs": 20000,
+      "D": 157.1,
+      "pass": 1
+    },
+    {
+      "changeAt": "0:50",
+      "anchorAt": "0:40",
+      "changeMs": 50000,
+      "anchorMs": 40000,
+      "D": 72.1,
+      "pass": 2
+    },
+    {
+      "changeAt": "1:10",
+      "anchorAt": "1:00",
+      "changeMs": 70000,
+      "anchorMs": 60000,
+      "D": 87.3,
+      "pass": 2
+    },
+    {
+      "changeAt": "4:00",
+      "anchorAt": "3:50",
+      "changeMs": 240000,
+      "anchorMs": 230000,
+      "D": 89.4,
+      "pass": 1
+    },
+    {
+      "changeAt": "4:30",
+      "anchorAt": "4:20",
+      "changeMs": 270000,
+      "anchorMs": 260000,
+      "D": 79.8,
+      "pass": 2
+    },
+    {
+      "changeAt": "5:00",
+      "anchorAt": "4:50",
+      "changeMs": 300000,
+      "anchorMs": 290000,
+      "D": 153.8,
+      "pass": 1
+    },
+    {
+      "changeAt": "5:10",
+      "anchorAt": "5:00",
+      "changeMs": 310000,
+      "anchorMs": 300000,
+      "D": 153.8,
+      "pass": 2
+    },
+    {
+      "changeAt": "6:10",
+      "anchorAt": "6:00",
+      "changeMs": 370000,
+      "anchorMs": 360000,
+      "D": 153.1,
+      "pass": 2
+    },
+    {
+      "changeAt": "6:50",
+      "anchorAt": "6:40",
+      "changeMs": 410000,
+      "anchorMs": 400000,
+      "D": 159,
+      "pass": 1
+    },
+    {
+      "changeAt": "7:20",
+      "anchorAt": "7:10",
+      "changeMs": 440000,
+      "anchorMs": 430000,
+      "D": 72.8,
+      "pass": 2
+    },
+    {
+      "changeAt": "7:50",
+      "anchorAt": "7:40",
+      "changeMs": 470000,
+      "anchorMs": 460000,
+      "D": 177.2,
+      "pass": 1
+    },
+    {
+      "changeAt": "8:20",
+      "anchorAt": "8:10",
+      "changeMs": 500000,
+      "anchorMs": 490000,
+      "D": 208.5,
+      "pass": 2
+    },
+    {
+      "changeAt": "10:50",
+      "anchorAt": "10:40",
+      "changeMs": 650000,
+      "anchorMs": 640000,
+      "D": 153.8,
+      "pass": 1
+    },
+    {
+      "changeAt": "11:50",
+      "anchorAt": "11:40",
+      "changeMs": 710000,
+      "anchorMs": 700000,
+      "D": 156.5,
+      "pass": 1
+    },
+    {
+      "changeAt": "15:00",
+      "anchorAt": "14:50",
+      "changeMs": 900000,
+      "anchorMs": 890000,
+      "D": 199,
+      "pass": 1
+    },
+    {
+      "changeAt": "18:00",
+      "anchorAt": "17:50",
+      "changeMs": 1080000,
+      "anchorMs": 1070000,
+      "D": 171,
+      "pass": 2
+    },
+    {
+      "changeAt": "18:20",
+      "anchorAt": "18:10",
+      "changeMs": 1100000,
+      "anchorMs": 1090000,
+      "D": 173.7,
+      "pass": 1
+    },
+    {
+      "changeAt": "24:30",
+      "anchorAt": "24:20",
+      "changeMs": 1470000,
+      "anchorMs": 1460000,
+      "D": 173.7,
+      "pass": 1
+    },
+    {
+      "changeAt": "24:50",
+      "anchorAt": "24:40",
+      "changeMs": 1490000,
+      "anchorMs": 1480000,
+      "D": 180.7,
+      "pass": 2
+    },
+    {
+      "changeAt": "25:10",
+      "anchorAt": "25:00",
+      "changeMs": 1510000,
+      "anchorMs": 1500000,
+      "D": 66.7,
+      "pass": 2
+    },
+    {
+      "changeAt": "25:40",
+      "anchorAt": "25:30",
+      "changeMs": 1540000,
+      "anchorMs": 1530000,
+      "D": 173.4,
+      "pass": 1
+    },
+    {
+      "changeAt": "26:30",
+      "anchorAt": "26:20",
+      "changeMs": 1590000,
+      "anchorMs": 1580000,
+      "D": 144.2,
+      "pass": 2
+    },
+    {
+      "changeAt": "27:20",
+      "anchorAt": "27:10",
+      "changeMs": 1640000,
+      "anchorMs": 1630000,
+      "D": 157.7,
+      "pass": 1
+    },
+    {
+      "changeAt": "28:00",
+      "anchorAt": "27:50",
+      "changeMs": 1680000,
+      "anchorMs": 1670000,
+      "D": 147.8,
+      "pass": 2
+    },
+    {
+      "changeAt": "28:30",
+      "anchorAt": "28:20",
+      "changeMs": 1710000,
+      "anchorMs": 1700000,
+      "D": 249.4,
+      "pass": 1
+    },
+    {
+      "changeAt": "28:50",
+      "anchorAt": "28:40",
+      "changeMs": 1730000,
+      "anchorMs": 1720000,
+      "D": 96.1,
+      "pass": 2
+    },
+    {
+      "changeAt": "29:10",
+      "anchorAt": "29:00",
+      "changeMs": 1750000,
+      "anchorMs": 1740000,
+      "D": 97.2,
+      "pass": 2
+    },
+    {
+      "changeAt": "29:40",
+      "anchorAt": "29:30",
+      "changeMs": 1780000,
+      "anchorMs": 1770000,
+      "D": 159.4,
+      "pass": 1
+    },
+    {
+      "changeAt": "30:10",
+      "anchorAt": "30:00",
+      "changeMs": 1810000,
+      "anchorMs": 1800000,
+      "D": 149.8,
+      "pass": 2
+    },
+    {
+      "changeAt": "32:30",
+      "anchorAt": "32:20",
+      "changeMs": 1950000,
+      "anchorMs": 1940000,
+      "D": 226.8,
+      "pass": 1
+    },
+    {
+      "changeAt": "32:50",
+      "anchorAt": "32:40",
+      "changeMs": 1970000,
+      "anchorMs": 1960000,
+      "D": 34.9,
+      "pass": 2
+    },
+    {
+      "changeAt": "33:10",
+      "anchorAt": "33:00",
+      "changeMs": 1990000,
+      "anchorMs": 1980000,
+      "D": 91.5,
+      "pass": 2
+    },
+    {
+      "changeAt": "33:30",
+      "anchorAt": "33:20",
+      "changeMs": 2010000,
+      "anchorMs": 2000000,
+      "D": 82.3,
+      "pass": 2
+    },
+    {
+      "changeAt": "34:20",
+      "anchorAt": "34:10",
+      "changeMs": 2060000,
+      "anchorMs": 2050000,
+      "D": 106.9,
+      "pass": 1
+    },
+    {
+      "changeAt": "36:00",
+      "anchorAt": "35:50",
+      "changeMs": 2160000,
+      "anchorMs": 2150000,
+      "D": 147.9,
+      "pass": 1
+    },
+    {
+      "changeAt": "37:10",
+      "anchorAt": "37:00",
+      "changeMs": 2230000,
+      "anchorMs": 2220000,
+      "D": 183.2,
+      "pass": 1
+    },
+    {
+      "changeAt": "39:00",
+      "anchorAt": "38:50",
+      "changeMs": 2340000,
+      "anchorMs": 2330000,
+      "D": 165.3,
+      "pass": 1
+    },
+    {
+      "changeAt": "40:30",
+      "anchorAt": "40:20",
+      "changeMs": 2430000,
+      "anchorMs": 2420000,
+      "D": 100.9,
+      "pass": 1
+    },
+    {
+      "changeAt": "42:10",
+      "anchorAt": "42:00",
+      "changeMs": 2530000,
+      "anchorMs": 2520000,
+      "D": 100,
+      "pass": 1
+    },
+    {
+      "changeAt": "43:10",
+      "anchorAt": "43:00",
+      "changeMs": 2590000,
+      "anchorMs": 2580000,
+      "D": 135.6,
+      "pass": 2
+    },
+    {
+      "changeAt": "43:40",
+      "anchorAt": "43:30",
+      "changeMs": 2620000,
+      "anchorMs": 2610000,
+      "D": 157.2,
+      "pass": 1
+    },
+    {
+      "changeAt": "47:40",
+      "anchorAt": "47:30",
+      "changeMs": 2860000,
+      "anchorMs": 2850000,
+      "D": 159,
+      "pass": 1
+    },
+    {
+      "changeAt": "49:10",
+      "anchorAt": "49:00",
+      "changeMs": 2950000,
+      "anchorMs": 2940000,
+      "D": 20.4,
+      "pass": 1
+    },
+    {
+      "changeAt": "49:50",
+      "anchorAt": "49:40",
+      "changeMs": 2990000,
+      "anchorMs": 2980000,
+      "D": 70.2,
+      "pass": 2
+    },
+    {
+      "changeAt": "50:40",
+      "anchorAt": "50:30",
+      "changeMs": 3040000,
+      "anchorMs": 3030000,
+      "D": 71.2,
+      "pass": 1
+    },
+    {
+      "changeAt": "51:00",
+      "anchorAt": "50:50",
+      "changeMs": 3060000,
+      "anchorMs": 3050000,
+      "D": 35.6,
+      "pass": 2
+    },
+    {
+      "changeAt": "52:00",
+      "anchorAt": "51:50",
+      "changeMs": 3120000,
+      "anchorMs": 3110000,
+      "D": 159,
+      "pass": 1
+    },
+    {
+      "changeAt": "52:40",
+      "anchorAt": "52:30",
+      "changeMs": 3160000,
+      "anchorMs": 3150000,
+      "D": 114.8,
+      "pass": 1
+    },
+    {
+      "changeAt": "55:20",
+      "anchorAt": "55:10",
+      "changeMs": 3320000,
+      "anchorMs": 3310000,
+      "D": 158.7,
+      "pass": 1
+    },
+    {
+      "changeAt": "55:30",
+      "anchorAt": "55:20",
+      "changeMs": 3330000,
+      "anchorMs": 3320000,
+      "D": 158.6,
+      "pass": 2
+    },
+    {
+      "changeAt": "56:00",
+      "anchorAt": "55:50",
+      "changeMs": 3360000,
+      "anchorMs": 3350000,
+      "D": 58.2,
+      "pass": 2
+    },
+    {
+      "changeAt": "1:11:00",
+      "anchorAt": "1:10:50",
+      "changeMs": 4260000,
+      "anchorMs": 4250000,
+      "D": 164,
+      "pass": 1
+    }
+  ],
+  "pass1": {
+    "decodes": 212,
+    "decodeFraction": 0.495
+  },
+  "pass2": {
+    "added": 23
+  },
+  "lostFromPass1": 0,
+  "skippedAbsent": 0,
+  "videoBytesDecoded": 0,
+  "nodeTimings": {
+    "label": "Node (tsx) on Apple M-series — NOT device timings",
+    "runs": 5,
+    "pass1Ms": {
+      "p50": 531.5,
+      "p95": 577
+    },
+    "pass2Ms": {
+      "p50": 613.3,
+      "p95": 618.4
+    }
+  }
+}

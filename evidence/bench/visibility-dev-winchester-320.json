@@ -1,0 +1,18 @@
+{
+  "bif": "winchester-2023-320.bif",
+  "rect": {
+    "x": 0.155,
+    "y": 0.868,
+    "w": 0.497,
+    "h": 0.058
+  },
+  "labels": "winchester-2023.devlabels.json",
+  "changeD": [
+    32,
+    31.8
+  ],
+  "noiseMaxD": 12,
+  "noiseMaxAtFrame": 113,
+  "margin": 2.64,
+  "pass": true
+}

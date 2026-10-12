@@ -1,0 +1,11 @@
+{
+  "match": "winchester-2023",
+  "source": "Internet Archive snafuinfinitysoccer-girls_091923-vs-winchester (Belmont Media Center, CC0 1.0)",
+  "status": "DEVELOPMENT LABELS — made by the detector's author (agent) from 2-second stills, used only to develop and tune thresholds. NOT ground truth; never reported as a result.",
+  "precisionMs": 2000,
+  "changes": [
+    { "graphicMs": 1018000, "playMs": 1008000, "kind": "goal", "note": "Winchester 0-1; clock freezes at 22:11, digit 0->1 between 16:56 and 16:58" },
+    { "graphicMs": 2964000, "playMs": 2960000, "kind": "goal", "note": "Winchester 0-2; digit 1->2 between 49:22 and 49:24" }
+  ],
+  "box": { "x": 0.155, "y": 0.868, "w": 0.497, "h": 0.058 }
+}

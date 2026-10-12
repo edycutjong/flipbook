@@ -1,0 +1,91 @@
+Oct 12 15:45:57.572236 [flipbook] scan start frames=428 rect=0.050,0.050,0.900,0.900
+Oct 12 15:45:57.838317 [flipbook] ref frame=344 area=12,163,0,240
+Oct 12 15:45:58.010412 [flipbook] marker anchor=19926ms change=69741ms d=105.4 pass=1
+Oct 12 15:45:58.134384 [flipbook] marker anchor=229147ms change=239110ms d=26.2 pass=1
+Oct 12 15:45:58.217397 [flipbook] marker anchor=259036ms change=268999ms d=20.8 pass=1
+Oct 12 15:45:58.276758 [flipbook] marker anchor=288925ms change=308851ms d=101.6 pass=1
+Oct 12 15:45:58.380219 [flipbook] marker anchor=358666ms change=368629ms d=42.1 pass=1
+Oct 12 15:45:58.437273 [flipbook] marker anchor=398517ms change=408480ms d=84.9 pass=1
+Oct 12 15:45:58.522512 [flipbook] marker anchor=428406ms change=438369ms d=20.8 pass=1
+Oct 12 15:45:58.560540 [flipbook] marker anchor=458295ms change=468258ms d=108.8 pass=1
+Oct 12 15:45:58.662649 [flipbook] marker anchor=488184ms change=498147ms d=55.2 pass=1
+Oct 12 15:45:58.786038 [flipbook] marker anchor=637628ms change=647591ms d=67.1 pass=1
+Oct 12 15:45:58.869805 [flipbook] marker anchor=697405ms change=707368ms d=87.4 pass=1
+Oct 12 15:45:58.870144 [flipbook] box saved for witness-amazon-tv-webinar
+Oct 12 15:45:58.999817 [flipbook] marker anchor=886701ms change=896664ms d=64.9 pass=1
+Oct 12 15:45:59.157107 [flipbook] marker anchor=1066034ms change=1095923ms d=23.1 pass=1
+Oct 12 15:45:59.424228 [flipbook] marker anchor=1454588ms change=1534292ms d=102.6 pass=1
+Oct 12 15:45:59.499066 [flipbook] marker anchor=1574144ms change=1584107ms d=35.0 pass=1
+Oct 12 15:45:59.573045 [flipbook] marker anchor=1623958ms change=1633921ms d=94.5 pass=1
+Oct 12 15:45:59.629436 [flipbook] marker anchor=1663810ms change=1673773ms d=53.5 pass=1
+Oct 12 15:45:59.761346 [flipbook] marker anchor=1693699ms change=1743514ms d=89.9 pass=1
+Oct 12 15:45:59.865031 [flipbook] marker anchor=1763439ms change=1773402ms d=53.3 pass=1
+Oct 12 15:45:59.907542 [flipbook] marker anchor=1793328ms change=1803291ms d=58.1 pass=1
+Oct 12 15:46:00.121970 [flipbook] marker anchor=1932809ms change=2002550ms d=86.5 pass=1
+Oct 12 15:46:00.217447 [flipbook] marker anchor=2042402ms change=2052365ms d=21.0 pass=1
+Oct 12 15:46:00.292062 [flipbook] marker anchor=2142031ms change=2151994ms d=25.6 pass=1
+Oct 12 15:46:00.392116 [flipbook] marker anchor=2211771ms change=2221734ms d=57.7 pass=1
+Oct 12 15:46:00.559572 [flipbook] marker anchor=2321364ms change=2331327ms d=109.1 pass=1
+Oct 12 15:46:00.655187 [flipbook] marker anchor=2411030ms change=2420993ms d=27.5 pass=1
+Oct 12 15:46:00.748757 [flipbook] marker anchor=2510660ms change=2520622ms d=20.5 pass=1
+Oct 12 15:46:00.915709 [flipbook] marker anchor=2570437ms change=2610289ms d=33.7 pass=1
+Oct 12 15:46:01.037256 [flipbook] marker anchor=2839436ms change=2849399ms d=108.1 pass=1
+Oct 12 15:46:01.147041 [flipbook] marker anchor=3098473ms change=3108436ms d=126.6 pass=1
+Oct 12 15:46:01.244851 [flipbook] marker anchor=3138324ms change=3148287ms d=23.9 pass=1
+Oct 12 15:46:01.389108 [flipbook] marker anchor=3297731ms change=3317657ms d=102.0 pass=1
+Oct 12 15:46:01.429698 [flipbook] marker anchor=3337583ms change=3347546ms d=12.5 pass=1
+Oct 12 15:46:01.652951 [flipbook] marker anchor=4234247ms change=4254173ms d=73.2 pass=1
+Oct 12 15:46:01.656692 [flipbook] pass1 done n=203/428 markers=34 ms=4085
+Oct 12 15:46:06.401130 [flipbook] marker anchor=2968955ms change=2978917ms d=18.0 pass=2
+Oct 12 15:46:06.401212 [flipbook] marker anchor=3018769ms change=3038695ms d=23.0 pass=2
+Oct 12 15:46:06.401225 [flipbook] pass2 done added=2 lost=0 absent=0 ms=4745
+Oct 12 15:46:06.401320 [flipbook] thumb mode=overlay video bytes decoded=0
+Oct 12 15:46:42.838350 [flipbook] seek from=50572ms currentTime=199.1 anchor=229147ms
+Oct 12 15:46:44.342362 [flipbook] after seek currentTime=199.1
+Oct 12 15:47:07.621282 [flipbook] seek from=226280ms currentTime=229.0 anchor=259036ms
+Oct 12 15:47:09.122096 [flipbook] after seek currentTime=229.0
+Oct 12 16:13:27.550138 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 12 16:13:27.550273 [flipbook] bif fetched bytes=6575564 ms=823
+Oct 12 16:13:27.554289 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 12 16:13:27.791362 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 12 16:13:30.170038 [flipbook] calibrate on frame=36 (6:00)
+Oct 12 16:13:30.232855 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 12 16:13:30.233454 [flipbook] bif fetched bytes=6575564 ms=3511
+Oct 12 16:13:30.234222 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 12 16:13:30.459672 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 12 16:13:32.959853 [flipbook] calibrate on frame=36 (6:00)
+Oct 12 16:15:03.164231 [flipbook] scan start frames=517 rect=0.100,0.790,0.500,0.080
+Oct 12 16:15:04.960086 [flipbook] box saved for belmont-media-center-2023
+Oct 12 16:15:05.555980 [flipbook] ref frame=0 mask kept=0% area=0,180,0,320
+Oct 12 16:15:05.556057 [flipbook] pass1 done n=66/517 markers=0 ms=2392
+Oct 12 16:15:20.707975 [flipbook] pass2 done added=0 lost=0 absent=0 ms=15152
+Oct 12 16:15:20.708022 [flipbook] thumb mode=overlay video bytes decoded=0
+Oct 12 16:16:27.191496 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 12 16:16:27.192415 [flipbook] bif fetched bytes=6575564 ms=805
+Oct 12 16:16:27.195730 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 12 16:16:27.420371 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 12 16:16:30.154813 [flipbook] calibrate on frame=36 (6:00)
+Oct 12 16:16:30.234433 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 12 16:16:30.236380 [flipbook] bif fetched bytes=6575564 ms=3854
+Oct 12 16:16:30.238284 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 12 16:16:30.425278 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 12 16:16:32.959864 [flipbook] calibrate on frame=36 (6:00)
+Oct 12 16:17:11.657028 [flipbook] scan start frames=517 rect=0.100,0.800,0.500,0.080
+Oct 12 16:17:13.514523 [flipbook] box saved for belmont-media-center-2023
+Oct 12 16:17:14.201516 [flipbook] ref frame=0 mask kept=0% area=0,180,0,320
+Oct 12 16:17:14.201718 [flipbook] pass1 done n=66/517 markers=0 ms=2544
+Oct 12 16:17:20.746512 [flipbook] pass2 done added=0 lost=0 absent=0 ms=6545
+Oct 12 16:23:17.904347 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 12 16:23:17.907710 [flipbook] bif fetched bytes=6575564 ms=1251
+Oct 12 16:23:17.908517 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 12 16:23:18.045540 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 12 16:23:18.340935 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 12 16:23:18.341060 [flipbook] bif already attached — ignoring a second fetch
+Oct 12 16:23:19.377309 [flipbook] calibrate on frame=10 (1:40)
+Oct 12 16:26:13.038576 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 12 16:26:13.040835 [flipbook] bif fetched bytes=6575564 ms=961
+Oct 12 16:26:13.042736 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 12 16:26:13.186024 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 12 16:26:13.464665 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 12 16:26:13.464749 [flipbook] bif already attached — ignoring a second fetch
+Oct 12 16:26:14.345062 [flipbook] calibrate on frame=10 (1:40)

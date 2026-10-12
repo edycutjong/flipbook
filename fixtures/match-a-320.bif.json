@@ -1,0 +1,13 @@
+{
+  "source": "matchA.mp4",
+  "sourceSha256": "be54451298fa1f45e25b8318c68b8abcd34ab8da38689877fd0644815324aa30",
+  "intervalMs": 10000,
+  "width": 320,
+  "height": 180,
+  "mode": "scale",
+  "quality": 5,
+  "frames": 566,
+  "frameTimeRule": "frame k = k*interval s (ffmpeg fps filter)",
+  "bifSha256": "f9b906e16d0b40fe91931b8f28f1a5d46a469b8ac8c685f3efcd4fbba87f53b7",
+  "ffmpegVersion": "ffmpeg version 8.1.1 Copyright (c) 2000-2026 the FFmpeg developers"
+}
