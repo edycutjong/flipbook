@@ -13,7 +13,7 @@ const base = {
   failure: null,
 } as unknown as FlipbookApi;
 
-describe('blind mode leaks nothing (ui.md S1/S2, a2a r02 #3)', () => {
+describe('blind mode leaks nothing', () => {
   const phases = ['scanning', 'ready'] as const;
   for (const phase of phases) {
     it(`status in ${phase} shows a match position only — no count, no decode number`, () => {
