@@ -1,3 +1,4 @@
+# kiro-cli 2.29.1 headless session, 2026-10-12 15:59:34Z → 16:01:37Z (from kiro-cli's session record); output of `kiro-cli chat --no-interactive --trust-all-tools`
 [tool] Creating task list: Create BIF writer, CLI script, and round-trip Jest test f...
 [tool] status: Completed
 Let me start by reading the parser files and TypeScript configuration simultaneously.

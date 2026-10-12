@@ -39,5 +39,5 @@ For the tests and the benchmark alone, `npm ci --ignore-scripts` is enough (it s
   in `fixtures/PREREG.json`. Until then no such number is claimed anywhere.
 - On-device captures of a calibrated scan of the development match, 20 relaunch timings, a 100-frame decode median and
   the AsyncStorage restore after a relaunch (see README, honest limit 8).
-- Everything above on the development match was labelled by the detector's author (`fixtures/winchester-2023.devlabels.json`)
+- Everything above on the development match was labelled by the detector's author, an AI agent (Claude Code) (`fixtures/winchester-2023.devlabels.json`)
   and is evidence that the pipeline works, not how well it generalises.

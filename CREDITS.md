@@ -1,7 +1,7 @@
 # Credits and licences
 
 ## Code
-- Forked from [AmazonAppDev/vega-video-sample](https://github.com/AmazonAppDev/vega-video-sample) at
+- Copied (upstream history not kept; not a GitHub fork) from [AmazonAppDev/vega-video-sample](https://github.com/AmazonAppDev/vega-video-sample) at
   `ef8e4da89b22ef7973d0d41beedfa2b42f7bb272` — MIT-0 (see `LICENSE`, `LICENSE-THIRD-PARTY`). Flipbook's own
   additions (`src/flipbook/`, `scripts/`, `test/flipbook/`, `tools/label/`, `fixtures/`) are also released under MIT-0,
   copyright 2026 Edy Cu; `LICENSE` is left exactly as upstream so GitHub detects `MIT-0`.

@@ -62,16 +62,16 @@ BIF file ──► BifIndex ──► jpeg-js decode, box crop ─────�
 | Layer | Choice |
 |---|---|
 | Platform | Vega OS (Fire TV), React Native, TypeScript |
-| Player | W3C `VideoPlayer` + Shaka Player (from the forked sample) |
+| Player | W3C `VideoPlayer` + Shaka Player (from the sample) |
 | Detector | Arithmetic change-and-hold on a calibrated rectangle — no ML, no LLM (`src/flipbook/core/`) |
 | Detector signature | 64×5 grid, jitter mask, top-3 cell distance, 3-frame median hold (v2; replaced a 16×4 mean-abs signature) |
 | Decode | `jpeg-js` 0.4.4 on the device |
 | Persistence | AsyncStorage (box per broadcaster) |
-| Starting point | Fork of [AmazonAppDev/vega-video-sample](https://github.com/AmazonAppDev/vega-video-sample) (MIT-0) |
+| Starting point | A copy of [AmazonAppDev/vega-video-sample](https://github.com/AmazonAppDev/vega-video-sample) at `ef8e4da` (MIT-0; upstream history not kept, so not a GitHub fork) |
 
 ## 🏆 Fire TV (Vega) Integration
 
-The judged path uses **four platform surfaces**, plus Amazon's reference BIF service — sample code we forked and extended to hand over the raw bytes (not a platform API):
+The judged path uses **four platform surfaces**, plus Amazon's reference BIF service — sample code we extended to hand over the raw bytes (not a platform API):
 
 | Surface | Used for |
 |---|---|
@@ -81,7 +81,7 @@ The judged path uses **four platform surfaces**, plus Amazon's reference BIF ser
 | Vega Virtual Device + CLI | build, run, on-device logs and recordings |
 | Amazon's BIF service in the sample (`src/services/bif/*`) | downloads the BIF; one added call (`getBifFile`) hands Flipbook the same bytes, which its own validated parser reads (`src/flipbook/core/bifIndex.ts`); its header and parser defects are entries 6–7 of [`FRICTION_LOG.md`](FRICTION_LOG.md) (15 entries in all) |
 
-Found while verifying: Amazon's own `tv-webinar-hd.bif` has 428 frames at 240×180 and a timestamp-multiplier field of `0xFFFFD8F0`, so a binary search by `positionMillis` would break Amazon's file. Flipbook sanity-checks the header and falls back to a 10 s interval.
+Found while verifying: Amazon's own `tv-webinar-hd.bif` has 428 frames (the first checked at 240×180) and a timestamp-multiplier field of `0xFFFFD8F0`, so a binary search by `positionMillis` would break Amazon's file. Flipbook sanity-checks the header and falls back to a 10 s interval.
 
 The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core/bifWriter.ts` and their tests (18) headless (see the commit history). A `kirocrew run` attempt produced nothing (approval policy and rate limits); that is recorded, not claimed. The Amazon Devices Builder Tools MCP was installed into Kiro (`init-context --agent kiro`) and Kiro called its `list_documents`, `set_project_context` and `search_documentation` tools to return the SeekBar `markers` and `partialDisablingConfiguration` docs; no perfetto trace was analysed (the VVD has not booted since the host screen locked). Details and logs: [`docs/KIRO.md`](docs/KIRO.md). All 15 friction-log entries are in [`FRICTION_LOG.md`](FRICTION_LOG.md).
 
@@ -91,25 +91,25 @@ The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core
 |---|---|---|
 | Tests | 420 passing (69 Flipbook) + 4 upstream skipped; `tsc` clean | `npm test`, `npm run typecheck` |
 | Video bytes decoded | 0, by construction (the scan only opens BIF JPEGs) | `src/flipbook/core/scan.ts`; recorded as `videoBytesDecoded` in `evidence/bench/*.json` |
-| On the Vega Virtual Device, pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame) | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
+| On the Vega Virtual Device, pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame); that title gave 34 markers in pass 1 against 2 on the development match | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
 | On the Vega Virtual Device, jump without stacked seek | `seek from=50572ms currentTime=199.1`, then `currentTime=199.1` 1.5 s later | `evidence/vvd/witness-v1-flipbook-lines.log` |
 | Development match (agent dev labels, **not ground truth**) | 2/2 changes found, 0 false markers, 2/2 jumps land before the play (leads 28 s and 30 s); pass 1 reads 14.9 % of frames | `evidence/bench/dev-winchester-320.json` |
 | Visibility margin (dev labels) | 2.64× at 320 px, 2.04× at 240×180 letterboxed | `evidence/bench/visibility-dev-winchester-*.json` |
-| Fair baseline | a plain frame differ needs τ = 30 for 2/2 recall and then fires 237 false markers | `evidence/bench/dev-winchester-320.json` → `ablationBaseline` |
+| Fair baseline | a plain frame differ finds 2/2 only at τ ≤ 30 (of the 8–80 we swept; τ = 40 finds none); at τ = 30, the best of those, it fires 237 false markers | `evidence/bench/dev-winchester-320.json` → `ablationBaseline` |
 | Node timings (not device) | pass 1 p50 210.8 ms, pass 2 p50 1,229.6 ms over 20 runs, labelled "Node (tsx) on Apple M-series" | same file |
 
 Always read pass 1 and pass 2 together: pass 1 reads 14.9 % of frames only to put the first ticks up quickly; pass 2 still reads every frame.
 
-### Honest limits (9)
+### Honest limits
 
-1. **Virtual device only.** No Fire TV hardware was available; every timing is "Vega virtual device on Apple M-series".
+1. **Virtual device only.** No Fire TV hardware was available; every on-device timing is from the Vega Virtual Device on an Apple M-series Mac; the benchmark timings are Node (tsx), not device.
 2. **The held-out headline is pending.** The headline metric (goal jumps that land before the play on held-out match B) will be reported only after the human's ground-truth files for matches A and B are committed. Until then no such number is claimed. Detector parameters and calibration boxes are frozen in [`fixtures/PREREG.json`](fixtures/PREREG.json) (detector-params sha256 `6f21e417…`), and `bench`/`visibility` refuse to run on matches A and B without a committed truth file.
-3. **The numbers above come from one development match with two labelled changes**, labelled by the detector's author from 2 s stills. The 95 % confidence interval on 2/2 is [0.158, 1]. It shows the pipeline works, not how well it generalises.
+3. **The numbers above come from one development match with two labelled changes**, labelled by the detector's author (an AI agent, Claude Code) from 2 s stills. The 95 % confidence interval on 2/2 is [0.158, 1]. It shows the pipeline works, not how well it generalises.
 4. **Same producer.** Matches A, B and the development match are all Belmont Media Center broadcasts; B has a different overlay design. Read it as "tuned on one match, tested on two more from the same producer."
-5. **Disclosure:** to place the calibration boxes the author looked at one 2:00 frame of each of A and B; no detector run has been made on either.
+5. **Disclosure:** to place the calibration boxes the detector's author (the same AI agent) looked at one 2:00 frame of each of A and B; no detector run has been made on either.
 6. **Blind mode still discloses** that a jump reveals a change ahead; "No later change" reveals none; misses are silent.
 7. **Scrubbing is coarse:** one thumbnail per ~10 s. A leaked score in the video itself (not the graphic) is outside what the mask covers.
-8. **On-device captures still owed:** a calibrated scan of the development match on the VVD, 20 relaunch timings, a 100-frame decode median, and AsyncStorage restore after a relaunch (write is shown, read-back is not). The Mac's screen lock stopped the VVD; see `evidence/vvd/README.md`.
+8. **On-device captures still owed:** a calibrated scan of the development match on the VVD, 20 relaunch timings, a 100-frame decode median, and AsyncStorage restore after a relaunch (write is shown, read-back is not). The VVD stopped drawing and then would not boot after the Mac's screen locked (the lock is the most likely cause; not proven); see `evidence/vvd/README.md`.
 9. **Footage rights.** The three matches are CC0 1.0 on the Internet Archive and show high-school students and school marks; the marks are the schools', not ours, and CC0 does not cover trademarks. We mute the original commentary in everything we publish and use no close-ups.
 
 ## 🚀 Getting Started
@@ -141,10 +141,10 @@ npm run trace                             # the scan's read order and per-frame 
 npm run verify:offline                    # offline checks of the BIF pipeline
 ```
 
-GitHub Actions runs on every push and pull request (`.github/workflows/`):
+GitHub Actions runs on every push to `main` and every pull request (`.github/workflows/`):
 
 - **CI**: `npm ci --ignore-scripts`, typecheck, lint, Jest with the coverage thresholds, `verify:offline`, and `actionlint` on the workflows
-- **Security**: gitleaks over the full history, plus a report-only `npm audit` of production dependencies (the open advisories are in the sample's React Native CLI chain and `xmldom`)
+- **Security**: gitleaks over the full history, plus a report-only `npm audit` of production dependencies (the open advisories are in the sample's dependencies — its React Native CLI chain, `xmldom` and others — not in Flipbook's own code)
 - **CodeQL**: JavaScript/TypeScript analysis; results upload to code scanning once the repository is public, and are kept as an artifact until then
 
 Dependabot is limited to patch and security updates because the dependency set is pinned to the Vega toolchain. See [SECURITY.md](SECURITY.md).

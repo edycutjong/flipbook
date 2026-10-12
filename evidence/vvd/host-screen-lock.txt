@@ -1,0 +1,3 @@
+# from `ioreg -n Root -d1` on the host (CGSSessionScreenLockedTime = Unix time; 1791819395 = 2026-10-12 22:36:35 WIB)
+"CGSSessionScreenLockedTime"=1791819395
+2026-10-12 22:36:35 WIB

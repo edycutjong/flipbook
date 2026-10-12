@@ -3,8 +3,7 @@
 Command: `kirocrew run <task file> --name flipbook-make-bif --no-test --fresh --timeout 2400`, run from the repo directory.
 Outcome: **no files produced.** The task runner works in its own workspace directory (not our repo); its `write` and `shell`
 tools were denied by the runner's approval policy in an unattended session, and the backend returned
-429 ThrottlingException (`CREDIT_CONSUMPTION_RATE_EXCEEDED`) 14 times by our count of the run log (28 log lines, two loggers per
-failure). We stopped it at 22:59 and used `kiro-cli` instead (see `task-01-kiro-cli.log`).
+429 ThrottlingException (`CREDIT_CONSUMPTION_RATE_EXCEEDED`) repeatedly. We gave up on it at 22:59 (the run was left unfinished) and used `kiro-cli` instead (see `task-01-kiro-cli.log`).
 
 ## Run-level transcript excerpts (verbatim, trimmed)
 
@@ -17,4 +16,4 @@ failure). We stopped it at 22:59 and used `kiro-cli` instead (see `task-01-kiro-
 - assistant, 22:35: "Every attempt to create files — via the `write` tool or `shell` — is blocked with 'User denied tool
   execution.' **This is not a code problem.** The execution environment's approval policy is blocking all write operations."
 
-The 14-times count is an assertion from our own review of the log; the raw log is not committed.
+The raw run log is not committed.
