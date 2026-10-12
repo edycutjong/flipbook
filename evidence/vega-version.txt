@@ -1,0 +1,3 @@
+# 2026-10-13 — from `vega --version`
+Active SDK Version: 0.24.12112
+Vega CLI Version: 1.4.4

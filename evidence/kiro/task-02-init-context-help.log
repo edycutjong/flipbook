@@ -1,0 +1,84 @@
+
+🚀 Amazon Devices Builder Tools for AI - Initialize Context
+========================================================
+
+DESCRIPTION:
+  This tool installs (updates) the context document and sets up the MCP config
+  for your AI agent to get insights for Amazon Devices App development.
+
+  Two guidance modes are available:
+    - Steering mode (default): installs a steering document into your workspace,
+      which your AI agent picks up automatically in every session in that workspace.
+    - Agent mode (--install-agent): installs adbt-dev, a dedicated, opt-in
+      Amazon Devices agent that provides the same guidance but only when you
+      explicitly invoke adbt-dev, with no always-on steering doc. See the
+      --install-agent option below.
+
+  In its default (steering) mode, this command will:
+    1. Display available AI agents and their context file requirements
+    2. Let you select your preferred AI agent from the supported list
+    3. Update selected agent's MCP settings to configure the Amazon Devices Builder Tools MCP server
+    4. Ask for context installation directory (defaults to current working directory)
+    5. Handle existing context files by offering to merge or update content
+    6. Create the appropriate context file in the correct location for your chosen AI agent
+    7. Install skills (curated + Amazon Developers led community skills) to the agent's skills directory
+
+USAGE:
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context [options]
+
+OPTIONS:
+  -a, --agent <type>               Target AI agent (cursor, cline, kiro, claude-code-cli, 
+                                   github-copilot, other)
+  -p, --context-document-path      Path to save context document
+  -d, --skip-context-document      Skip context document installation (MCP config only)
+  -m, --skip-mcp-config            Skip MCP configuration (context document only)
+  -c, --clean                      Clean opposing artifacts before install (agent mode: delete
+                                   steering; steering mode: delete agent file)
+      --install-agent              Install adbt-dev, a dedicated Amazon Devices agent, for the
+                                   selected host instead of the always-on steering doc (opt-in;
+                                   invoke the agent explicitly to get ADBT guidance)
+  -f, --force                      Skip all confirmation prompts and force overwrite existing configuration
+  -h, --help                       Show this help message
+
+EXAMPLES:
+  # Interactive mode (default)
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context
+
+  # Non-interactive with specific agent (steering mode)
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context --agent cursor --force
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context -a cursor -f
+
+  # Agent mode: install the adbt-dev agent for the selected host (instead of the steering doc)
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context --agent kiro --install-agent
+
+  # Agent mode: install the agent and hard-delete any existing steering doc
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context --agent kiro --force --install-agent --clean
+
+  # Switch back to steering mode: remove the agent file before installing the steering doc
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context --agent kiro --force --clean
+
+  # MCP config only (skip context document)
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context --agent cursor --skip-context-document
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context -a cursor -d
+
+  # Context document only with custom path (skip MCP config)
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context --agent kiro --context-document-path ./docs --skip-mcp-config
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context -a kiro -p ./docs -m
+
+  # Show help for init-context command
+  npx @amazon-devices/amazon-devices-buildertools-mcp@latest init-context --help
+
+SUPPORTED AI AGENTS:
+  1. cursor                 - Cursor
+  2. claude-code-cli        - Claude Code
+  3. github-copilot         - GitHub Copilot
+  4. kiro                   - Kiro
+  5. cline                  - Cline
+  6. opencode               - OpenCode
+  7. codex                  - Codex
+  8. gemini-cli             - Gemini CLI / Antigravity CLI
+  9. other                  - Other/Custom Agent
+
+For more information, visit:
+  https://www.npmjs.com/package/@amazon-devices/amazon-devices-buildertools-mcp
+

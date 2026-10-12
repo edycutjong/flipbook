@@ -34,7 +34,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Suggestion:** one supported Node range, stated in both places.
 
 ### 2 · A project under a directory named `assets` builds a broken vpkg — 2026-10-12 · blocker
-- **Task:** build and run the sample on the VVD (Gate A of our plan).
+- **Task:** build and run the sample on the VVD (our first build-and-run check).
 - **Steps:** `npm run build:release` and `vega run-app` from a checkout that sat under `…/assets/probe/…`.
 - **Expected:** a package that installs and launches, or a build error naming the cause.
 - **Actual:** the vpkg's entries embed the host path. The app either installs but hangs in "Creating surfaces" (ANR after about 15 s) or fails to install with "Missing icon file". No message points at the path. About 90 minutes.
