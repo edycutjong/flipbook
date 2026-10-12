@@ -1,6 +1,7 @@
 {
   "name": "@amazon-devices/Keplervideoapp",
   "version": "3.24.0",
+  "license": "MIT-0",
   "files": [
     "dist"
   ],

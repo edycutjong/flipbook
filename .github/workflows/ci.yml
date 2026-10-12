@@ -10,7 +10,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:
@@ -32,7 +32,7 @@ jobs:
         run: npm run lint
       - name: Jest
         run: npx jest --coverage
-      - name: Detector reproduces the committed results offline
+      - name: Detector reproduces the committed fixture results (network stubbed out)
         run: npm run verify:offline
       - name: Upload coverage
         if: always()

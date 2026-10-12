@@ -1,12 +1,14 @@
 # Security policy
 
-Flipbook is a hackathon prototype that runs on the Vega virtual device. It holds no accounts, tokens or user data:
-the scan reads a trickplay (BIF) file the app already downloads, and the only thing stored on the device is the
-calibration box.
+Flipbook is a hackathon prototype that runs on the Vega virtual device. Its own code holds no accounts, tokens or
+user data: the scan reads a trickplay (BIF) file the app already downloads, and the only thing Flipbook stores on
+the device is the calibration box. The rest of the app is Amazon's `vega-video-sample`, which keeps a sample login
+flag and its Redux state in AsyncStorage; there is no real account backend and no credentials in the tree.
 
 ## Reporting a vulnerability
 
 Use GitHub's private vulnerability reporting (Security tab → Report a vulnerability) rather than a public issue.
+If that button is not available, open an issue that asks for a private channel and contains no details.
 Expect a first reply within a few days.
 
 ## What is checked automatically

@@ -138,7 +138,13 @@ npm run bench                             # development-match benchmark, 20 runs
 npm run verify:offline                    # offline checks of the BIF pipeline
 ```
 
-No CI workflow is wired yet; the checks above are the local equivalents.
+GitHub Actions runs on every push and pull request (`.github/workflows/`):
+
+- **CI**: `npm ci --ignore-scripts`, typecheck, lint, Jest with the coverage thresholds, `verify:offline`, and `actionlint` on the workflows
+- **Security**: gitleaks over the full history, plus a report-only `npm audit` of production dependencies (the open advisories are in the sample's React Native CLI chain and `xmldom`)
+- **CodeQL**: JavaScript/TypeScript analysis; results upload to code scanning once the repository is public, and are kept as an artifact until then
+
+Dependabot is limited to patch and security updates because the dependency set is pinned to the Vega toolchain. See [SECURITY.md](SECURITY.md).
 
 ## 📁 Project Structure
 

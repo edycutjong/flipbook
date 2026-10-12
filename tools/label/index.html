@@ -74,8 +74,10 @@ function render() {
   const rows = document.getElementById('rows'); rows.innerHTML = '';
   changes.forEach((c, i) => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${i + 1}</td><td>${c.kind}</td><td>${c.playMs ?? ''}</td><td>${c.graphicMs ?? ''}</td><td><button aria-label="delete">✕</button></td>`;
-    tr.querySelector('button').onclick = () => { changes.splice(i, 1); render(); };
+    [i + 1, c.kind, c.playMs ?? '', c.graphicMs ?? ''].forEach(val => { const td = document.createElement('td'); td.textContent = String(val); tr.appendChild(td); });
+    const del = document.createElement('button'); del.setAttribute('aria-label', 'delete'); del.textContent = '✕';
+    del.onclick = () => { changes.splice(i, 1); render(); };
+    const tdDel = document.createElement('td'); tdDel.appendChild(del); tr.appendChild(tdDel);
     rows.appendChild(tr);
   });
   const doc = {

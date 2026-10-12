@@ -2,7 +2,9 @@
 
 ## Code
 - Forked from [AmazonAppDev/vega-video-sample](https://github.com/AmazonAppDev/vega-video-sample) at
-  `ef8e4da89b22ef7973d0d41beedfa2b42f7bb272` — MIT-0 (see `LICENSE`, `LICENSE-THIRD-PARTY`).
+  `ef8e4da89b22ef7973d0d41beedfa2b42f7bb272` — MIT-0 (see `LICENSE`, `LICENSE-THIRD-PARTY`). Flipbook's own
+  additions (`src/flipbook/`, `scripts/`, `test/flipbook/`, `tools/label/`, `fixtures/`) are also released under MIT-0,
+  copyright 2026 Edy Cu; `LICENSE` is left exactly as upstream so GitHub detects `MIT-0`.
 - [jpeg-js](https://github.com/jpeg-js/jpeg-js) 0.4.4 — BSD-3-Clause (on-device JPEG decode of BIF frames).
 - `scripts/make-bif.ts`, `src/flipbook/core/bifWriter.ts`, `test/flipbook/bifWriter.test.ts` were written by Kiro
   (kiro-cli 2.29.1, headless) from our task brief and reviewed; see the commit history.
