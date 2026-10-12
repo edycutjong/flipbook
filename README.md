@@ -7,6 +7,8 @@
   <br/>
 
   [![Built for Amazon Developer Hackathon](https://img.shields.io/badge/Devpost-Amazon_Developer_Hackathon-8b5cf6?style=for-the-badge)](https://amazonappdev2026.devpost.com/)
+  [![Landing page](https://img.shields.io/badge/Landing-page-D9A441?style=for-the-badge)](https://edycutjong.github.io/flipbook/)
+  [![Pitch deck](https://img.shields.io/badge/Pitch-deck-F2EBDD?style=for-the-badge)](https://edycutjong.github.io/flipbook/pitch/)
 
   <br/>
 
@@ -156,6 +158,7 @@ scripts/               bench, visibility, trace, make-bif, verify_offline
 fixtures/              BIFs for the development match and matches A/B, PREREG.json, truth template
 evidence/              bench JSON and on-device VVD logs behind every number above
 tools/label/           the human ground-truth labelling page
+docs/                  the landing page and pitch deck (GitHub Pages), with the media they use
 test/flipbook/         Jest invariants
 ```
 
