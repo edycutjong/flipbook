@@ -87,7 +87,7 @@ The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core
 
 | Metric | Value | Source |
 |---|---|---|
-| Tests | 417 passing (66 Flipbook) + 4 upstream skipped; `tsc` clean | `npm test`, `npm run typecheck` |
+| Tests | 420 passing (69 Flipbook) + 4 upstream skipped; `tsc` clean | `npm test`, `npm run typecheck` |
 | Video bytes decoded | 0 | `evidence/bench/*.json` → `videoBytesDecoded` |
 | On-device pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame) | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
 | Jump without stacked seek | `seek from=50572ms currentTime=199.1`, then `currentTime=199.1` 1.5 s later | `evidence/vvd/witness-v1-flipbook-lines.log` |
@@ -132,9 +132,10 @@ The "Matches" row plays development media from a local static server and BIFs fr
 
 ```bash
 npm run typecheck
-npm test                                  # 417 passing (66 Flipbook)
+npm test                                  # 420 passing (69 Flipbook)
 npm run test:flipbook                     # Flipbook only
 npm run bench                             # development-match benchmark, 20 runs, with ablations
+npm run trace                             # the scan's read order and per-frame change distance (the landing page replays it)
 npm run verify:offline                    # offline checks of the BIF pipeline
 ```
 
@@ -151,7 +152,7 @@ Dependabot is limited to patch and security updates because the dependency set i
 ```
 src/flipbook/core/     BIF index + writer, luma, signature, detector, two-pass scan, jump
 src/flipbook/app/      context, overlay (calibration, panel), SeekBar parts
-scripts/               bench, visibility, make-bif, verify_offline
+scripts/               bench, visibility, trace, make-bif, verify_offline
 fixtures/              BIFs for the development match and matches A/B, PREREG.json, truth template
 evidence/              bench JSON and on-device VVD logs behind every number above
 tools/label/           the human ground-truth labelling page

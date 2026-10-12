@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flipbook — skip to the goal, not the score · Fire TV / Vega OS</title>
+<meta name="description" content="Flipbook reads the trickplay file a Fire TV player already downloaded, marks where the score graphic changes, and lets fast-forward land half a minute before the goal — without decoding any video or showing the score.">
+<meta name="theme-color" content="#141110">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-512.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Flipbook">
+<meta property="og:title" content="Flipbook — skip to the goal, not the score">
+<meta property="og:description" content="Chapters for a recorded match, read on a Fire TV from the trickplay thumbnails the player already has. No feed, no video decode, no spoiler.">
+<meta property="og:url" content="https://edycutjong.github.io/flipbook/">
+<meta property="og:image" content="https://edycutjong.github.io/flipbook/assets/og-image.png">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1260">
+<meta property="og:image:alt" content="Flipbook, built for Fire TV: no event feed, no video decode; a strip of frames and red ticks on a seek bar">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://edycutjong.github.io/flipbook/assets/og-image.png">
+<link rel="preload" href="assets/fonts/big-shoulders-display-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Big Shoulders Display";src:url(assets/fonts/big-shoulders-display-latin-var.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(assets/fonts/atkinson-hyperlegible-latin-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(assets/fonts/atkinson-hyperlegible-latin-400-italic.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(assets/fonts/atkinson-hyperlegible-latin-700.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url(assets/fonts/ibm-plex-mono-latin-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url(assets/fonts/ibm-plex-mono-latin-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url(assets/fonts/ibm-plex-mono-latin-600.woff2) format("woff2");font-weight:600;font-display:swap}
+
+/* design.md §4 — contact-sheet-editorial (verbatim) */
+:root {
+  --bg:      #141110;  /* film-base black, warm (not blue-black) — reads as negative stock over footage */
+  --ink:     #F2EBDD;  /* print-paper white, slightly warm; legible at 3 m on a TV */
+  --muted:   #9A8F80;  /* faded rebate printing for secondary text */
+  --before:  #5A534B;  /* state: unscanned / unchanged frame on the strip (film base, unexposed) */
+  --after:   #E5432E;  /* state: score graphic changed here — grease-pencil red, fires ONLY on a detected change */
+  --rule:    #D9A441;  /* amber edge-number printing: timestamps, scan progress rule */
+  --font-display: "Big Shoulders Display", "Oswald", "Arial Narrow", sans-serif;  /* condensed caps, stadium-signage and darkroom-label lineage; fits a TV lower third */
+  --font-body:    "Atkinson Hyperlegible", "Helvetica Neue", Arial, sans-serif;  /* 10-foot legibility, distinct letterforms at distance */
+  --font-data:    "IBM Plex Mono", "Menlo", monospace;  /* ONLY for timestamps (34:10), frame counts (1,084 frames) and the scan log tail */
+}
+/* the sheet's own materials (assets/_tokens.css) */
+:root{--frame:#2A2622;--frame-line:#4A433C;--sprocket:#0B0908;--paper:#D8CFBF;--hair:rgba(242,235,221,.1);--hair2:rgba(242,235,221,.18);
+  --amber-hi:#F0C873;--wrap:1328px;--pad:clamp(20px,4vw,56px);--ease:cubic-bezier(.16,1,.3,1)}
+
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--bg);color-scheme:dark;overflow-x:clip;scrollbar-color:var(--before) var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);font:400 18px/1.6 var(--font-body);caret-color:var(--rule);overflow-x:clip}
+::selection{background:var(--rule);color:var(--bg)}
+::-webkit-scrollbar{width:12px;height:12px}::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--before);border:3px solid var(--bg);border-radius:8px}
+:focus-visible{outline:2px solid var(--rule);outline-offset:3px;border-radius:2px}
+img,svg,canvas{display:block;max-width:100%}
+img{height:auto}
+a{color:var(--ink);text-decoration-color:var(--rule);text-decoration-thickness:1px;text-underline-offset:4px}
+a:hover{color:var(--amber-hi)}
+h1,h2,h3,p,figure,blockquote,ol,ul{margin:0}
+b,strong{font-weight:700;color:var(--ink)}
+code,.mono{font-family:var(--font-data);font-size:.86em}
+.kbd{display:inline-block;width:1.05em;height:1.05em;vertical-align:-.16em;color:var(--ink);border:1.5px solid currentColor;border-radius:.22em;padding:.1em;box-sizing:content-box;margin:0 .1em}
+h3 .kbd{border-width:2px;vertical-align:-.1em}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:var(--pad)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;z-index:50;background:var(--rule);color:var(--bg);padding:10px 14px;font-weight:700;border-radius:3px}
+.skip:focus{top:12px}
+
+/* film grain + one warm safelight leak */
+body::before{content:"";position:fixed;inset:-50%;z-index:60;pointer-events:none;opacity:.055;mix-blend-mode:overlay;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.leak{position:absolute;inset:0 0 auto 0;height:1100px;pointer-events:none;z-index:-1;
+  background:radial-gradient(52% 46% at 8% 0%,rgba(217,164,65,.16),transparent 72%),radial-gradient(40% 40% at 92% 30%,rgba(90,83,75,.22),transparent 70%)}
+
+/* edge printing — the rebate labels of a contact sheet */
+.edge{display:flex;align-items:center;gap:14px;font:500 13px/1.3 var(--font-data);letter-spacing:.14em;text-transform:uppercase;color:var(--rule)}
+.edge::before{content:"";flex:0 0 40px;height:1px;background:currentColor}
+.h2{font:800 clamp(40px,5vw,68px)/.92 var(--font-display);text-transform:uppercase;letter-spacing:-.005em;margin:18px 0 18px;max-width:20ch;text-wrap:balance}
+.lede{color:var(--paper);max-width:64ch;font-size:19px}
+section{position:relative}
+.sec{padding-block:clamp(72px,10vw,132px)}
+
+/* ── nav ── */
+.nav{position:sticky;top:0;z-index:40;background:rgba(20,17,16,.94);border-bottom:1px solid var(--hair)}
+.nav .wrap{display:flex;align-items:center;gap:18px;height:64px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand img{width:32px;height:32px}
+.wm{font:900 26px/1 var(--font-display);letter-spacing:.02em;color:var(--ink)}
+.wm i{font-style:normal;color:var(--rule)}
+.nav ul{display:flex;gap:4px;list-style:none;padding:0;margin:0 0 0 auto}
+.nav li a{display:block;padding:8px 12px;font-size:15px;color:var(--muted);text-decoration:none;border-radius:3px;transition:color .2s,background .2s}
+.nav li a:hover{color:var(--ink);background:rgba(242,235,221,.06)}
+.btn{display:inline-flex;align-items:center;gap:10px;font:700 16px/1 var(--font-body);padding:15px 22px;border-radius:4px;text-decoration:none;color:var(--ink);
+  border:1px solid var(--hair2);background:transparent;cursor:pointer;transition:transform .25s var(--ease),background .2s,border-color .2s,color .2s,box-shadow .25s}
+.btn svg{width:18px;height:18px;flex:none}
+.btn:hover{border-color:var(--rule);color:var(--ink);transform:translateY(-1px)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--rule);border-color:var(--rule);color:#1B1408}
+.btn.primary:hover{background:var(--amber-hi);border-color:var(--amber-hi);color:#1B1408;box-shadow:0 10px 28px -10px rgba(217,164,65,.55)}
+.nav .btn{padding:10px 14px;font-size:14px}
+
+/* ── hero ── */
+.hero{padding-top:clamp(36px,5vw,64px);padding-bottom:28px}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);gap:clamp(32px,4.4vw,64px);align-items:start}
+h1{font:900 clamp(56px,7.3vw,110px)/.86 var(--font-display);text-transform:uppercase;letter-spacing:-.008em;margin:22px 0 26px}
+h1 span{display:block}
+h1 .l2{background:linear-gradient(90deg,var(--rule) 10%,var(--amber-hi) 90%);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:.04em}
+.sub{color:var(--paper);max-width:56ch;font-size:19px}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.proof{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:22px;font:500 13px/1.4 var(--font-data);color:var(--muted)}
+.cmd{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--hair2);border-radius:4px;padding:7px 8px 7px 12px;color:var(--ink);background:var(--sprocket)}
+.cmd::before{content:"$";color:var(--rule)}
+.cmd button{all:unset;cursor:pointer;display:grid;place-items:center;width:26px;height:26px;border-radius:3px;color:var(--muted);transition:color .2s,background .2s}
+.cmd button:hover{color:var(--ink);background:rgba(242,235,221,.08)}
+.cmd button:focus-visible{outline:2px solid var(--rule)}
+.cmd button.ok{color:var(--rule)}
+.cmd svg{width:15px;height:15px}
+.dots{display:inline-flex;gap:14px;flex-wrap:wrap}.dots span+span::before{content:"·";margin-right:14px;color:var(--before)}
+
+/* the stage: a web replay of the app's own overlay */
+.stage{margin-top:10px}
+.screen{position:relative;aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden;box-shadow:0 30px 70px -30px rgba(0,0,0,.85),0 0 0 1px var(--hair2)}
+.screen .pic{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .35s}
+.screen::after{content:"";position:absolute;inset:auto 0 0 0;height:48%;background:linear-gradient(to top,rgba(20,17,16,.92) 30%,rgba(20,17,16,0));pointer-events:none}
+.tag{position:absolute;left:14px;top:12px;z-index:2;font:500 12px/1 var(--font-data);letter-spacing:.06em;color:var(--ink);background:rgba(20,17,16,.78);padding:6px 8px;border-radius:2px}
+.tag b{color:var(--rule);font-weight:500}
+.toast{position:absolute;left:50%;top:34%;z-index:3;transform:translate(-50%,-6px);opacity:0;font:500 clamp(13px,1.5vw,18px)/1 var(--font-data);white-space:pre;color:var(--ink);
+  background:rgba(20,17,16,.92);padding:12px 16px;border-bottom:2px solid var(--rule);transition:opacity .25s,transform .35s var(--ease);pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.osd{position:absolute;inset:auto 0 0 0;z-index:2;padding:0 4.2% 3.4%;transition:opacity .45s var(--ease),transform .45s var(--ease)}
+.screen::after{transition:opacity .45s var(--ease)}
+.screen.clean .osd{opacity:0;transform:translateY(8px)}.screen.clean::after{opacity:0}
+.screen.clean:hover .osd{opacity:1;transform:none}.screen.clean:hover::after{opacity:1}
+.status{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:9px;min-height:1.2em}
+.status b{font:800 clamp(15px,1.7vw,22px)/1 var(--font-display);letter-spacing:.11em;text-transform:uppercase}
+.status span{font:500 clamp(11px,1.05vw,13px)/1.2 var(--font-data);color:var(--rule)}
+.strip{position:relative;height:4px;margin:0 0 10px;background:rgba(90,83,75,.55);border-radius:2px;overflow:hidden}
+.strip .fill{position:absolute;inset:0 auto 0 0;width:100%;background:var(--rule)}
+.strip .hole{position:absolute;top:0;width:2px;height:4px;background:var(--amber-hi)}
+.seek{display:flex;align-items:center;gap:12px;font:500 clamp(11px,1.05vw,13px)/1 var(--font-data);color:var(--ink)}
+.track{position:relative;flex:1;height:6px;background:rgba(90,83,75,.9);border-radius:3px;cursor:crosshair;touch-action:none}
+.track .played{position:absolute;inset:0 auto 0 0;width:2.7%;background:var(--rule);border-radius:3px;transition:width .5s var(--ease)}
+.track .thumb{position:absolute;top:50%;left:2.7%;width:16px;height:16px;border-radius:50%;background:#FFC266;transform:translate(-50%,-50%);box-shadow:0 0 0 3px rgba(20,17,16,.55);transition:left .5s var(--ease)}
+.track .tick{position:absolute;top:-8px;width:4px;height:22px;margin-left:-2px;background:var(--after);border-radius:2px;transform-origin:50% 100%;transform:rotate(5deg) scaleY(0);transition:transform .45s var(--ease)}
+.track .tick.on{transform:rotate(5deg) scaleY(1)}
+.track .tick.flash{animation:flash .9s var(--ease)}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(229,67,46,.9)}100%{box-shadow:0 0 0 10px rgba(229,67,46,0)}}
+.track .tick em{position:absolute;top:26px;left:50%;transform:translateX(-50%) rotate(-5deg);font:500 11px/1 var(--font-data);font-style:normal;color:var(--rule);white-space:nowrap}
+.preview{position:absolute;bottom:22px;width:clamp(120px,22%,176px);transform:translateX(-50%);pointer-events:none;opacity:0;transition:opacity .15s}
+.preview.on{opacity:1}
+.preview i{display:block;aspect-ratio:16/9;background-color:#000;background-repeat:no-repeat;border:2px solid var(--ink);border-radius:2px}
+.preview em{display:block;text-align:center;margin-top:5px;font:500 11px/1 var(--font-data);font-style:normal;color:var(--ink);text-shadow:0 1px 3px #000}
+.bif{margin-top:14px}
+.bif-l{display:flex;justify-content:space-between;gap:12px;font:500 12px/1 var(--font-data);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.bif-s{display:inline-flex;align-items:center;gap:6px;color:var(--rule)}
+.mini.tiny{padding:4px 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;gap:5px}.mini.tiny svg{width:12px;height:12px}
+.bif-c{position:relative;height:58px;background:var(--sprocket);border-radius:2px;box-shadow:0 0 0 1px var(--hair);overflow:hidden}
+.bif-c canvas{position:absolute;inset:0;width:100%;height:100%}
+.bif-t{display:flex;justify-content:space-between;margin-top:6px;font:500 11px/1 var(--font-data);color:var(--rule);opacity:.85}
+.controls{display:none;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px}
+.js .controls{display:flex}
+.seg{display:inline-flex;border:1px solid var(--hair2);border-radius:4px;padding:3px;gap:3px}
+.seg button{all:unset;cursor:pointer;padding:9px 13px;font:800 14px/1 var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-radius:2px;transition:color .2s,background .2s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-checked="true"]{background:var(--ink);color:var(--bg)}
+.seg button:focus-visible{outline:2px solid var(--rule);outline-offset:2px}
+.key{all:unset;cursor:pointer;display:inline-grid;place-items:center;width:46px;height:38px;border:1.5px solid var(--ink);border-radius:7px;color:var(--ink);transition:transform .2s var(--ease),background .2s,color .2s,border-color .2s}
+.key svg{width:22px;height:22px}
+.key:hover{background:var(--ink);color:var(--bg)}
+.key:active{transform:scale(.94)}
+.key:focus-visible{outline:2px solid var(--rule);outline-offset:3px}
+.key.nudge{animation:nudge 1.8s var(--ease) 2}
+@keyframes nudge{0%,100%{box-shadow:0 0 0 0 rgba(217,164,65,0)}40%{box-shadow:0 0 0 7px rgba(217,164,65,.35)}}
+.mini{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;font:500 13px/1 var(--font-data);color:var(--muted);border-radius:4px;transition:color .2s,background .2s}
+.mini svg{width:15px;height:15px}
+.mini:hover:not([disabled]){color:var(--ink);background:rgba(242,235,221,.06)}
+.mini[disabled]{opacity:.38;cursor:default}
+.mini:focus-visible{outline:2px solid var(--rule)}
+.cap{margin-top:14px;font-size:15px;line-height:1.55;color:var(--muted);max-width:62ch}
+.cap b{color:var(--paper)}
+.cap .now{display:block;color:var(--paper);margin-bottom:4px;min-height:1.55em}
+
+/* ── the sheet ── */
+.sheet-sec{padding-top:56px;padding-bottom:clamp(72px,9vw,120px)}
+.sheet-head{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:40px;align-items:end;margin-bottom:28px}
+.readout{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:4px 26px;font:500 13px/1.5 var(--font-data);color:var(--muted)}
+.readout b{display:block;font:800 30px/1 var(--font-display);letter-spacing:.04em;color:var(--ink);font-variant-numeric:tabular-nums}
+.readout b.amber{color:var(--rule)}
+.sheet{position:relative;display:grid;grid-template-columns:52px minmax(0,1fr);gap:0 12px;background:var(--sprocket);padding:22px 18px 22px 10px;border-radius:3px;box-shadow:0 0 0 1px var(--hair)}
+.sheet::before,.sheet::after{content:"";position:absolute;left:74px;right:18px;height:7px;background:repeating-linear-gradient(90deg,transparent 0 10px,var(--frame) 10px 20px);border-radius:1px}
+.sheet::before{top:7px}.sheet::after{bottom:7px}
+.rows{display:grid;grid-template-rows:repeat(22,1fr);font:500 11px/1 var(--font-data);color:var(--rule);text-align:right}
+.rows span{display:flex;align-items:center;justify-content:flex-end;opacity:.85}
+.plate{position:relative}
+.plate img{width:100%;height:auto;border-radius:1px}
+.plate canvas{position:absolute;inset:0;width:100%;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font:500 13px/1.4 var(--font-data);color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:9px;margin-right:8px;vertical-align:middle;border-radius:1px}
+.lg-unread{background:#2A2622}.lg-s{background:var(--rule)}.lg-b{background:var(--amber-hi);outline:1px solid var(--rule)}.lg-v{background:var(--paper)}
+.lg-x{border:2px solid var(--after);border-radius:50%;width:16px!important;height:12px!important}
+.sheet-note{margin-top:12px;font-size:15px;color:var(--muted);max-width:80ch}
+
+/* the box, frame by frame */
+.boxread{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(28px,4vw,64px);align-items:center;margin-top:clamp(56px,7vw,96px)}
+.crops{display:grid;gap:8px;counter-reset:c}
+.crop{display:grid;grid-template-columns:62px minmax(0,1fr) 88px;align-items:center;gap:14px;font:500 13px/1 var(--font-data);color:var(--muted)}
+.crop img{width:100%;border-radius:2px;box-shadow:0 0 0 1px var(--hair)}
+.crop time{color:var(--rule);text-align:right}
+.crop.anchor img{box-shadow:0 0 0 2px var(--rule)}
+.crop.change img{box-shadow:0 0 0 2px var(--after)}
+.crop .k{font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.crop.anchor .k{color:var(--rule)}.crop.change .k{color:var(--after)}
+.split{height:0;border-top:1px dashed var(--after);margin:2px 0 2px 76px;position:relative}
+.split::after{content:"D = 32.0 > τ = 20";position:absolute;right:0;top:-9px;background:var(--bg);padding-left:10px;font:500 12px/1 var(--font-data);color:var(--after)}
+
+/* ── receipts ── */
+.receipts{border-block:1px solid var(--hair);background:linear-gradient(180deg,rgba(11,9,8,.6),rgba(11,9,8,.2))}
+.receipts .wrap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.rc{padding:38px 28px 34px;border-left:1px solid var(--hair)}
+.rc:first-child{border-left:0;padding-left:0}
+.rc .n{font:900 clamp(48px,5.4vw,78px)/.9 var(--font-display);letter-spacing:.005em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.rc .n small{font-size:.5em;color:var(--muted);margin:0 .12em}
+.rc p{margin-top:12px;font-size:16px;line-height:1.45;color:var(--paper);max-width:28ch}
+.rc a{display:inline-block;margin-top:12px;font:500 12px/1.4 var(--font-data);color:var(--muted);text-decoration-color:var(--before)}
+.rc a:hover{color:var(--rule)}
+
+/* ── on the TV ── */
+.tvgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;margin-top:40px;align-items:stretch}
+.shot{position:relative;margin:0}
+.shot img{width:100%;border-radius:3px;box-shadow:0 0 0 1px var(--hair2),0 24px 50px -28px #000}
+.shot figcaption{margin-top:10px;font-size:15px;color:var(--muted)}
+.shot figcaption b{color:var(--paper)}
+.shots2{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+.term{display:flex;flex-direction:column;background:#0B0908;border-radius:4px;box-shadow:0 0 0 1px var(--hair2);overflow:hidden;min-height:100%}
+.term header{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--hair);font:500 12px/1.3 var(--font-data);color:var(--muted)}
+.term header i{width:9px;height:9px;border-radius:50%;background:var(--before)}
+.term header i:first-child{background:var(--rule)}
+.term pre{margin:0;padding:16px 16px 20px;font:400 12.5px/1.75 var(--font-data);color:var(--paper);white-space:pre-wrap;word-break:break-word;flex:1}
+.term .t{color:var(--before)}.term .k{color:var(--rule)}.term .v{color:var(--ink);font-weight:500}.term .z{color:var(--amber-hi);font-weight:600}
+.term .el{color:var(--muted);font-style:italic}
+.term .ln{display:inline}
+.js .term.typing .ln{visibility:hidden}
+.js .term.typing .ln.shown{visibility:visible}
+
+/* ── how (bento) ── */
+.bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:18px;margin-top:44px}
+.card{position:relative;background:linear-gradient(180deg,rgba(42,38,34,.55),rgba(42,38,34,.25));border-radius:4px;padding:28px 26px 26px;box-shadow:0 0 0 1px var(--hair);transition:box-shadow .3s,transform .3s var(--ease)}
+.card:hover{box-shadow:0 0 0 1px var(--hair2),0 18px 40px -26px #000;transform:translateY(-2px)}
+.card h3{font:800 28px/1 var(--font-display);text-transform:uppercase;letter-spacing:.02em;margin:18px 0 10px}
+.card p{font-size:16px;line-height:1.55;color:var(--paper)}
+.card .ico{width:40px;height:40px;color:var(--rule)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font:500 12px/1 var(--font-data);color:var(--ink);background:rgba(11,9,8,.7);padding:7px 9px;border-radius:2px;box-shadow:0 0 0 1px var(--hair)}
+.c4{grid-column:span 4}.c3{grid-column:span 3}.c2{grid-column:span 2}
+.vega{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:12px}
+.vega li{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;font-size:15px;line-height:1.45;color:var(--paper);padding-top:12px;border-top:1px solid var(--hair)}
+.vega li code{color:var(--ink)}
+
+/* ── evidence ── */
+.ev{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:44px}
+.panel{background:rgba(11,9,8,.55);border-radius:4px;padding:26px 26px 22px;box-shadow:0 0 0 1px var(--hair)}
+.panel.wide{grid-column:1/-1}
+.panel h3{font:800 24px/1.05 var(--font-display);text-transform:uppercase;letter-spacing:.03em}
+.panel .src{margin-top:6px;font:500 12px/1.4 var(--font-data);color:var(--muted)}
+.panel>svg{width:100%;height:auto;margin-top:18px}
+.panel p.note{margin-top:14px;font-size:15px;color:var(--muted)}
+.bars{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:7px}
+.bars li{display:grid;grid-template-columns:120px minmax(0,1fr) 112px;align-items:center;gap:12px;font:500 12px/1.2 var(--font-data);color:var(--muted)}
+.bars .b{height:12px;background:var(--before);border-radius:1px;transform-origin:left;width:calc(var(--w) * 100%)}
+.bars .r{text-align:left;white-space:nowrap}
+.bars .r.miss{color:var(--muted)}
+.bars li.us{color:var(--ink)}
+.bars li.us .b{background:var(--rule);min-width:3px}
+.bars li.us .r{color:var(--rule)}
+.pairs{display:grid;gap:14px;margin-top:18px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;align-items:end;font-size:15px;color:var(--paper)}
+.pair .bar{grid-column:1/-1;height:10px;background:var(--before);border-radius:1px;width:calc(var(--w) * 100%)}
+.pair.us .bar{background:var(--rule)}
+.pair strong{font:800 26px/1 var(--font-display);letter-spacing:.03em}
+.facts{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:10px;font-size:15px;color:var(--paper)}
+.facts li{padding-top:10px;border-top:1px solid var(--hair)}
+.facts code{color:var(--ink)}
+
+/* ── honest ── */
+.quotes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:44px}
+blockquote{position:relative;padding:30px 26px 24px;border-radius:4px;background:rgba(42,38,34,.32);box-shadow:0 0 0 1px var(--hair)}
+blockquote::before{content:"";position:absolute;left:26px;top:0;width:44px;height:3px;background:var(--rule)}
+blockquote p{font-size:18px;line-height:1.55;color:var(--ink)}
+blockquote footer{margin-top:16px;font:500 12px/1.4 var(--font-data);color:var(--muted)}
+
+/* ── faq ── */
+.faq{margin-top:36px;border-top:1px solid var(--hair);max-width:960px}
+.faq details{border-bottom:1px solid var(--hair)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 2px;font:800 clamp(22px,2.3vw,28px)/1.1 var(--font-display);text-transform:uppercase;letter-spacing:.02em;transition:color .2s}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:hover{color:var(--amber-hi)}
+.faq summary i{flex:none;width:22px;height:22px;position:relative}
+.faq summary i::before,.faq summary i::after{content:"";position:absolute;left:3px;right:3px;top:10px;height:2px;background:var(--rule);transition:transform .3s var(--ease)}
+.faq summary i::after{transform:rotate(90deg)}
+.faq details[open] summary i::after{transform:rotate(0)}
+.faq .a{padding:0 2px 24px;color:var(--paper);max-width:72ch;font-size:17px}
+.faq .a p+p{margin-top:10px}
+
+/* ── footer ── */
+footer.site{border-top:1px solid var(--hair);padding:56px 0 64px;color:var(--muted);font-size:15px}
+footer.site .wrap{display:grid;grid-template-columns:minmax(0,1.2fr) repeat(2,minmax(0,1fr));gap:36px}
+footer.site h4{margin:0 0 12px;font:500 12px/1 var(--font-data);letter-spacing:.14em;text-transform:uppercase;color:var(--rule)}
+footer.site ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+footer.site a{color:var(--paper);text-decoration:none}
+footer.site a:hover{color:var(--amber-hi)}
+footer.site .small{margin-top:14px;font-size:14px;line-height:1.55}
+.ver{font:500 12px/1 var(--font-data);color:var(--before);margin-top:18px}
+
+/* one orchestrated load: hero lines develop like a print, from an already-visible default */
+@media (prefers-reduced-motion:no-preference){
+  .js .dev{animation:develop 1s var(--ease) both}
+  .js .dev.d1{animation-delay:.05s}.js .dev.d2{animation-delay:.16s}.js .dev.d3{animation-delay:.28s}.js .dev.d4{animation-delay:.4s}.js .dev.d5{animation-delay:.52s}.js .dev.d6{animation-delay:.64s}
+  @keyframes develop{from{opacity:0;filter:blur(6px) brightness(1.8);transform:translateY(10px)}to{opacity:1;filter:none;transform:none}}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+
+/* ── responsive ── */
+@media (max-width:1120px){
+  .hero .wrap{grid-template-columns:1fr}
+  .stage{max-width:820px}
+  .sheet-head{grid-template-columns:1fr}
+  .tvgrid{grid-template-columns:1fr}
+  .boxread{grid-template-columns:1fr}
+  .nav ul li.opt{display:none}
+}
+@media (max-width:900px){
+  .receipts .wrap{grid-template-columns:1fr 1fr}
+  .rc{border-left:0;padding-left:0;border-top:1px solid var(--hair)}
+  .rc:nth-child(-n+2){border-top:0}
+  .bento{grid-template-columns:1fr 1fr}
+  .c4,.c3{grid-column:1/-1}.c2{grid-column:span 1}
+  .ev{grid-template-columns:1fr}
+  .quotes{grid-template-columns:1fr}
+  footer.site .wrap{grid-template-columns:1fr 1fr}
+  footer.site .wrap>div:first-child{grid-column:1/-1}
+}
+@media (max-width:640px){
+  body{font-size:17px}
+  .nav ul{display:none}
+  .nav .wrap{justify-content:space-between}
+  .sub,.lede{font-size:17px}
+  .readout{grid-template-columns:repeat(2,auto)}
+  .sheet{grid-template-columns:minmax(0,1fr);padding:16px 8px}
+  .sheet::before,.sheet::after{left:8px;right:8px;height:5px}
+  .rows{display:none}
+  .bento{grid-template-columns:1fr}.c2{grid-column:1/-1}
+  .receipts .wrap{grid-template-columns:1fr}
+  .rc,.rc:nth-child(-n+2){border-top:1px solid var(--hair)}.rc:first-child{border-top:0}
+  .shots2{grid-template-columns:1fr}
+  .bars li{grid-template-columns:72px minmax(0,1fr);}
+  .bars .r{grid-column:2}
+  .crop{grid-template-columns:52px minmax(0,1fr);}
+  .crop .k{grid-column:2}
+  .split{margin-left:66px}
+  footer.site .wrap{grid-template-columns:1fr}
+  .key{width:52px;height:44px}
+  .track .tick em{display:none}
+  .bif-l .lg{display:none}
+  .status{gap:2px 10px}
+}
+@media print{
+  .nav,.controls,.skip,body::before,.leak{display:none!important}
+  body{background:#141110;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sec{padding-block:40px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="leak" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Flipbook home"><img src="assets/icon.svg" alt="" width="32" height="32"><span class="wm">FLIP<i>BOOK</i></span></a>
+    <ul>
+      <li><a href="#sheet">The sheet</a></li>
+      <li><a href="#tv">On the TV</a></li>
+      <li class="opt"><a href="#how">How it works</a></li>
+      <li class="opt"><a href="#evidence">Evidence</a></li>
+      <li class="opt"><a href="#honest">Honest</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="pitch/">Deck</a></li>
+    </ul>
+    <a class="btn primary" href="https://github.com/edycutjong/flipbook"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <p class="edge dev d1">Fire TV track · Amazon Developer Hackathon</p>
+      <h1 class="dev d2"><span>Skip to the goal.</span><span class="l2">Not the score.</span></h1>
+      <p class="sub dev d3">Arif watches last night's replay at lunch, and every scrub for a goal shows him the score. Flipbook reads the trickplay file the player already downloaded — <b>one small JPEG every 10&nbsp;s</b> — marks where the score box changes and holds, and <svg class="kbd" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="fast-forward"><path d="M3.5 6.2v11.6l7.7-5.8z"/><path d="M12.5 6.2v11.6l7.7-5.8z"/></svg> lands <b>30&nbsp;s</b> before the last frame with the old score. <b>0 bytes of video decoded.</b></p>
+      <div class="ctas dev d4">
+        <a class="btn primary" href="https://github.com/edycutjong/flipbook"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>View on GitHub</a>
+        <a class="btn" href="pitch/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M12 16v4M8 20h8"/><path d="M7 12l3-3 2 2 4-4"/></svg>Pitch deck</a>
+      </div>
+      <div class="proof dev d5">
+        <span class="cmd"><code>npm run trace</code><button type="button" data-copy="npm run trace" aria-label="Copy the command npm run trace"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="1.5"/><path d="M5 15V5a1 1 0 011-1h10"/></svg></button></span>
+        <span class="dots"><span>no backend</span><span>no event feed</span><span>no video decode</span></span>
+      </div>
+    </div>
+
+    <figure class="stage dev d4" aria-labelledby="stage-cap">
+      <div class="screen" id="screen">
+        <img class="pic" id="pic" src="assets/sheet/pic-0014.jpg" width="320" height="180" alt="The development match at 2:20, a wide shot of the pitch">
+        <span class="tag" id="tag"><b>PICTURE</b> · 2:20 · dev match</span>
+        <p class="toast" id="toast" role="status" aria-live="polite"></p>
+        <div class="osd">
+          <p class="status" aria-live="polite"><b id="st-head">READY</b><span id="st-detail">&gt;&gt; next change · &lt;&lt; previous</span></p>
+          <div class="strip" id="strip"><i class="fill" id="strip-fill"></i></div>
+          <div class="seek">
+            <span id="t-now">2:20</span>
+            <div class="track" id="track" aria-hidden="true"><i class="played" id="played"></i><i class="thumb" id="thumb"></i><div class="preview" id="preview"><i></i><em></em></div></div>
+            <span id="t-dur">86:10</span>
+          </div>
+        </div>
+      </div>
+      <div class="bif" id="bif">
+        <p class="bif-l"><span>The trickplay file<span class="lg"> · 517 thumbnails</span></span><span class="bif-s"><span id="bif-r">engine view</span><button type="button" class="mini tiny" id="rescan" aria-label="Replay the scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg>replay</button></span></p>
+        <div class="bif-c"><canvas id="bif-cv" aria-hidden="true"></canvas></div>
+        <p class="bif-t" aria-hidden="true"><span>0:00</span><span>15:00</span><span>30:00</span><span>45:00</span><span>60:00</span><span>75:00</span><span>86:00</span></p>
+      </div>
+      <div class="controls" id="controls">
+        <div class="seg" role="radiogroup" aria-label="Flipbook mode">
+          <button type="button" role="radio" aria-checked="true" data-mode="blind">Blind</button>
+          <button type="button" role="radio" aria-checked="false" data-mode="highlights">Highlights</button>
+        </div>
+        <button type="button" class="key" id="rw" aria-label="Previous change (rewind key)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.5 6.2v11.6L3.8 12z"/><path d="M20.5 6.2v11.6L12.8 12z"/></svg></button>
+        <button type="button" class="key" id="ff" aria-label="Next change (fast-forward key)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 6.2v11.6l7.7-5.8z"/><path d="M12.5 6.2v11.6l7.7-5.8z"/></svg></button>
+        <button type="button" class="mini" id="play" disabled><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l11-7z"/></svg>Play the lead-in</button>
+      </div>
+      <figcaption class="cap" id="stage-cap"><span class="now" id="cap-now">The picture shows the present. Every thumbnail of the future is masked — hover the seek bar.</span>A web replay of the app's own status line and seek bar, driven by the recorded scan of our development match (<code>npm run trace</code>). The picture is the trickplay thumbnail at the playhead; this page has no video.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="sheet-sec" id="sheet" aria-labelledby="sheet-h">
+  <div class="wrap">
+    <div class="sheet-head">
+      <div>
+        <p class="edge">The trickplay file, as the player downloaded it</p>
+        <h2 class="h2" id="sheet-h">It reads the one box it hides from you.</h2>
+        <p class="lede">Here is the whole development match as one contact sheet: <b>517 thumbnails, one every 10&nbsp;s</b>, every score box masked. The amber rule replays the scan's recorded read order — 66 sprocket samples first, then 11 bisect reads only where the box differed, then pass 2 through everything else.</p>
+      </div>
+      <div class="readout" aria-live="off">
+        <div><b id="r-pass">2</b>pass</div>
+        <div><b id="r-dec">517</b>decoded</div>
+        <div><b id="r-p1" class="amber">77</b>pass-1 decodes</div>
+        <div><b id="r-mk">2</b>markers</div>
+      </div>
+    </div>
+    <figure class="sheet" aria-label="Contact sheet: all 517 trickplay thumbnails of the development match, score boxes masked">
+      <div class="rows" aria-hidden="true"><span>0:00</span><span>4:00</span><span>8:00</span><span>12:00</span><span>16:00</span><span>20:00</span><span>24:00</span><span>28:00</span><span>32:00</span><span>36:00</span><span>40:00</span><span>44:00</span><span>48:00</span><span>52:00</span><span>56:00</span><span>1:00:00</span><span>1:04:00</span><span>1:08:00</span><span>1:12:00</span><span>1:16:00</span><span>1:20:00</span><span>1:24:00</span></div>
+      <div class="plate">
+        <img id="sheet-img" src="assets/sheet/sheet.jpg" width="2688" height="1386" alt="517 trickplay thumbnails of the development match in 22 rows of 24, each with its score box masked in black" loading="eager" decoding="async">
+        <canvas id="sheet-cv" aria-hidden="true"></canvas>
+      </div>
+    </figure>
+    <div class="legend" aria-hidden="true">
+      <span><i class="lg-unread"></i>not read yet</span><span><i class="lg-s"></i>pass 1 · sprocket (every 8th)</span><span><i class="lg-b"></i>pass 1 · bisect</span><span><i class="lg-v"></i>pass 2 · verify</span><span><i class="lg-x"></i>change, held (highlights)</span>
+    </div>
+    <p class="sheet-note">Rows run four minutes each, 0:00 to 86:00. Frames 0–2 and 515–516 carry no score graphic (title card, credits); pass 2 counts them as skipped. On the TV, blind mode shows none of this — only how far the scan has read.</p>
+
+    <div class="boxread">
+      <div>
+        <p class="edge">What the detector sees</p>
+        <h3 class="h2" style="font-size:clamp(34px,3.6vw,52px)">Three frames before, three after. It has to hold.</h3>
+        <p class="lede">These are the actual pixels inside the calibrated box around the first change, unmasked. Flipbook never reads the digits: it shrinks the box to a 64×5 luma grid, takes the median of three present frames on each side, and fires only if the top-3 cell distance clears τ&nbsp;=&nbsp;20. The marker sits on the <b>anchor</b> — the last frame that still shows the old score — and <svg class="kbd" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="fast-forward"><path d="M3.5 6.2v11.6l7.7-5.8z"/><path d="M12.5 6.2v11.6l7.7-5.8z"/></svg> goes 30&nbsp;s before it.</p>
+      </div>
+      <div class="crops" role="list" aria-label="The score box in frames 99 to 104">
+        <div class="crop" role="listitem"><span class="k">before</span><img src="assets/sheet/box-0099.jpg" width="504" height="54" alt="Score box at 16:30: Belmont 0, Winchester 0" loading="lazy"><time>16:30</time></div>
+        <div class="crop" role="listitem"><span class="k">before</span><img src="assets/sheet/box-0100.jpg" width="504" height="54" alt="Score box at 16:40: Belmont 0, Winchester 0" loading="lazy"><time>16:40</time></div>
+        <div class="crop anchor" role="listitem"><span class="k">anchor</span><img src="assets/sheet/box-0101.jpg" width="504" height="54" alt="Score box at 16:50, the anchor: Belmont 0, Winchester 0" loading="lazy"><time>16:50</time></div>
+        <div class="split" aria-hidden="true"></div>
+        <div class="crop change" role="listitem"><span class="k">change</span><img src="assets/sheet/box-0102.jpg" width="504" height="54" alt="Score box at 17:00, the change: Belmont 0, Winchester 1" loading="lazy"><time>17:00</time></div>
+        <div class="crop" role="listitem"><span class="k">holds</span><img src="assets/sheet/box-0103.jpg" width="504" height="54" alt="Score box at 17:10: Belmont 0, Winchester 1" loading="lazy"><time>17:10</time></div>
+        <div class="crop" role="listitem"><span class="k">holds</span><img src="assets/sheet/box-0104.jpg" width="504" height="54" alt="Score box at 17:20: Belmont 0, Winchester 1" loading="lazy"><time>17:20</time></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="receipts" id="receipts" aria-label="Receipts">
+  <div class="wrap">
+    <div class="rc"><div class="n" data-count="0">0</div><p>bytes of video decoded — only the trickplay JPEGs are</p><a href="https://github.com/edycutjong/flipbook/blob/main/evidence/bench/dev-winchester-320.json">bench · videoBytesDecoded</a></div>
+    <div class="rc"><div class="n"><span data-count="2">2</span><small>/</small>2</div><p>jumps landed before the play on the development match — our labels, not ground truth</p><a href="https://github.com/edycutjong/flipbook/blob/main/evidence/bench/dev-winchester-320.json">bench · goalJumpsBeforePlay</a></div>
+    <div class="rc"><div class="n">0<small>vs</small><span data-count="237">237</span></div><p>false markers: Flipbook vs a plain frame differ at its best threshold for the same two goals</p><a href="https://github.com/edycutjong/flipbook/blob/main/evidence/bench/dev-winchester-320.json">bench · ablationBaseline</a></div>
+    <div class="rc"><div class="n"><span data-count="4085" data-sep="1">4,085</span><small>ms</small></div><p>pass 1 on the Vega virtual device over Amazon's own 428-frame BIF (203 decoded)</p><a href="https://github.com/edycutjong/flipbook/blob/main/evidence/vvd/witness-v1-flipbook-lines.log">VVD log · pass1 done</a></div>
+  </div>
+</section>
+
+<section class="sec" id="tv" aria-labelledby="tv-h">
+  <div class="wrap">
+    <p class="edge">Vega virtual device · Apple M-series · Vega SDK 0.24</p>
+    <h2 class="h2" id="tv-h">Running on the TV, not in a browser.</h2>
+    <p class="lede">These are captures from the Vega Virtual Device with Amazon's own webinar trickplay file — the "witness", the one title we can show without footage rights in play, scanned by the detector's first build (5be6a4a). Beside them, the device's log from that run, line for line.</p>
+    <div class="tvgrid">
+      <figure class="shot">
+        <img src="assets/vvd/vvd-jump-toast.jpg" width="1600" height="900" alt="Flipbook on the Vega Virtual Device: after pressing fast-forward, a toast reads '→ 3:49 (−30 s lead-in)' and the playhead moved to the next detected change minus 30 seconds" loading="lazy">
+        <figcaption><b><svg class="kbd" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="fast-forward"><path d="M3.5 6.2v11.6l7.7-5.8z"/><path d="M12.5 6.2v11.6l7.7-5.8z"/></svg> pressed.</b> The toast reads <code>→ 3:49 (−30 s lead-in)</code>; the seek bar's thumbnail area stays covered.</figcaption>
+      </figure>
+      <div class="term typing" id="term">
+        <header><i></i><i></i><i></i><span>VVD · loggingctl log -f · [flipbook] lines · device UTC</span></header>
+<pre><span class="ln"><span class="t">15:45:57.572236</span> <span class="k">[flipbook]</span> scan start frames=428 rect=0.050,0.050,0.900,0.900</span>
+<span class="ln"><span class="t">15:45:57.838317</span> <span class="k">[flipbook]</span> ref frame=344 area=12,163,0,240</span>
+<span class="ln"><span class="t">15:45:58.010412</span> <span class="k">[flipbook]</span> marker anchor=19926ms change=69741ms d=105.4 pass=1</span>
+<span class="ln"><span class="t">15:45:58.134384</span> <span class="k">[flipbook]</span> marker anchor=229147ms change=239110ms d=26.2 pass=1</span>
+<span class="ln"><span class="t">15:45:58.217397</span> <span class="k">[flipbook]</span> marker anchor=259036ms change=268999ms d=20.8 pass=1</span>
+<span class="ln el">··· 31 more pass-1 marker lines and 1 line “box saved for witness-amazon-tv-webinar” ···</span>
+<span class="ln"><span class="t">15:46:01.656692</span> <span class="k">[flipbook]</span> <span class="v">pass1 done</span> n=203/428 markers=34 <span class="z">ms=4085</span></span>
+<span class="ln el">··· 2 pass-2 marker lines ···</span>
+<span class="ln"><span class="t">15:46:06.401225</span> <span class="k">[flipbook]</span> <span class="v">pass2 done</span> added=2 lost=0 absent=0 ms=4745</span>
+<span class="ln"><span class="t">15:46:06.401320</span> <span class="k">[flipbook]</span> thumb mode=overlay <span class="z">video bytes decoded=0</span></span>
+<span class="ln"><span class="t">15:46:42.838350</span> <span class="k">[flipbook]</span> <span class="v">seek from</span>=50572ms <span class="z">currentTime=199.1</span> anchor=229147ms</span>
+<span class="ln"><span class="t">15:46:44.342362</span> <span class="k">[flipbook]</span> <span class="v">after seek</span> <span class="z">currentTime=199.1</span></span>
+<span class="ln"><span class="t">15:47:07.621282</span> <span class="k">[flipbook]</span> <span class="v">seek from</span>=226280ms currentTime=229.0 anchor=259036ms</span>
+<span class="ln"><span class="t">15:47:09.122096</span> <span class="k">[flipbook]</span> <span class="v">after seek</span> currentTime=229.0</span></pre>
+      </div>
+    </div>
+    <div class="shots2">
+      <figure class="shot">
+        <img src="assets/vvd/vvd-scrub-mask.jpg" width="1600" height="900" alt="Scrubbing on the Vega Virtual Device: the score rectangle of the scrub thumbnail is covered by a dark mask" loading="lazy">
+        <figcaption><b>Scrubbing.</b> The thumbnail's calibrated rectangle is covered — on this title the box sits over the slide.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/vvd/vvd-calibration.jpg" width="1600" height="900" alt="Calibration on the Vega Virtual Device: an amber box drawn around the broadcaster graphic with the instruction 'Put the box on the score'" loading="lazy">
+        <figcaption><b>Calibration.</b> Arrows move the box, SELECT resizes, PLAY confirms — once per broadcaster graphic.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="how" aria-labelledby="how-h" style="padding-top:0">
+  <div class="wrap">
+    <p class="edge">How it works</p>
+    <h2 class="h2" id="how-h">Scan. Mark. Jump. On the TV.</h2>
+    <p class="lede">No backend, no feed, no model. A forked Amazon sample, a TypeScript detector with no UI dependencies, and four Vega platform surfaces.</p>
+    <div class="bento">
+      <article class="card c4">
+        <svg class="ico" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="32" height="22" rx="1.5"/><path d="M4 13h32M4 27h32"/><path d="M8 11h2M14 11h2M20 11h2M26 11h2M32 11h1M8 29h2M14 29h2M20 29h2M26 29h2M32 29h1"/><path d="M15 15v8M25 15v8"/></svg>
+        <h3>The file the player already has</h3>
+        <p>A BIF is a contact sheet of the whole match — one JPEG roughly every 10&nbsp;s, downloaded so the seek bar can preview. Flipbook reads it as a corpus through Amazon's own BIF service from the sample, which we forked and fixed: Amazon's <code>tv-webinar-hd.bif</code> has 428 frames at 240×180 and a timestamp-multiplier field of <code>0xFFFFD8F0</code>, so Flipbook sanity-checks the header and falls back to a 10&nbsp;s interval.</p>
+        <div class="chips"><span class="chip">BifParser</span><span class="chip">0xFFFFD8F0</span><span class="chip">10 s fallback</span></div>
+      </article>
+      <article class="card c2">
+        <svg class="ico" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="32" height="24" rx="1.5"/><rect x="9" y="24" width="18" height="4" fill="currentColor" stroke="none"/><path d="M20 4v32" stroke-dasharray="2 3"/></svg>
+        <h3>Only the box</h3>
+        <p><code>jpeg-js</code> decodes each thumbnail on the device; only the calibrated rectangle becomes a 64×5 luma grid. Cells that jitter — the pitch showing through — are masked out.</p>
+        <div class="chips"><span class="chip">jpeg-js 0.4.4</span><span class="chip">64×5</span></div>
+      </article>
+      <article class="card c2">
+        <svg class="ico" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 14h32"/><circle cx="6" cy="14" r="1.6" fill="currentColor"/><circle cx="16" cy="14" r="1.6" fill="currentColor"/><circle cx="26" cy="14" r="1.6" fill="currentColor"/><circle cx="36" cy="14" r="1.6" fill="currentColor"/><path d="M4 26h32" stroke-width="4" opacity=".5"/><path d="M20 10v8" stroke-width="2.2"/></svg>
+        <h3>Two passes</h3>
+        <p>Pass 1 reads every 8th frame and bisects only where the box differs: on the development match both ticks were up after 77 of 517 decodes. Pass 2 still reads all 517 and can only add.</p>
+        <div class="chips"><span class="chip">stride 8</span><span class="chip">bisect</span></div>
+      </article>
+      <article class="card c2">
+        <svg class="ico" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 28h14V12h18"/><path d="M18 6v28" stroke-dasharray="2 3"/></svg>
+        <h3>It has to hold</h3>
+        <p>Medians of three present frames on each side, so a replay wipe or a dropped graphic cannot fire. The anchor walks back over any graphic-absent run to the last old-score frame.</p>
+        <div class="chips"><span class="chip">τ = 20</span><span class="chip">3-frame median</span></div>
+      </article>
+      <article class="card c2">
+        <svg class="ico" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="34" height="22" rx="5"/><path d="M11 14v12l8-6zM20 14v12l8-6z" fill="currentColor"/></svg>
+        <h3><svg class="kbd" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="fast-forward"><path d="M3.5 6.2v11.6l7.7-5.8z"/><path d="M12.5 6.2v11.6l7.7-5.8z"/></svg> belongs to Flipbook</h3>
+        <p><code>useTVEventHandler</code> takes the skip keys and sets <code>currentTime</code> to anchor&nbsp;−&nbsp;30&nbsp;s. On the VVD the seek landed at 199.1&nbsp;s and was still 199.1&nbsp;s 1.5&nbsp;s later: no OS seek stacked on top.</p>
+        <div class="chips"><span class="chip">useTVEventHandler</span><span class="chip">partialDisablingConfiguration</span></div>
+      </article>
+      <article class="card c3">
+        <svg class="ico" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="6" width="30" height="18" rx="1.5"/><rect x="9" y="17" width="16" height="4" fill="currentColor" stroke="none"/><path d="M4 32h32"/><circle cx="20" cy="32" r="2.4" fill="currentColor"/><path d="M20 24v5"/></svg>
+        <h3>Thumbnails stay masked</h3>
+        <p>The KUI SeekBar's <code>displayAboveThumb</code> draws film-base black over the score box on every scrub thumbnail; before calibration, thumbnails stay off. Blind mode is the default: no ticks, no counts, only how far the scan has read.</p>
+        <div class="chips"><span class="chip">displayAboveThumb</span><span class="chip">blind by default</span></div>
+      </article>
+      <article class="card c3">
+        <svg class="ico" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="32" height="20" rx="1.5"/><path d="M14 33h12M20 27v6"/></svg>
+        <h3>Four Vega surfaces</h3>
+        <ul class="vega">
+          <li><span><code>VideoPlayer</code> (W3C media) — playback; the jump sets <code>currentTime</code></span></li>
+          <li><span>KUI <code>SeekBar</code> — <code>markers</code> for ticks, <code>displayAboveThumb</code> for the mask</span></li>
+          <li><span><code>useTVEventHandler</code>, <code>TVFocusGuideView</code> — skip keys and calibration</span></li>
+          <li><span>Vega Virtual Device + CLI — build, run, on-device logs and captures</span></li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="evidence" aria-labelledby="ev-h" style="padding-top:0">
+  <div class="wrap">
+    <p class="edge">Every number on this page is in the repo</p>
+    <h2 class="h2" id="ev-h">Measured, not drawn.</h2>
+    <p class="lede">The development match was labelled by the detector's author to tune thresholds, so these numbers show the pipeline works, not how well it generalises. The held-out result waits for a human's labels.</p>
+    <div class="ev">
+      <figure class="panel wide">
+        <h3>The change distance at every frame</h3>
+        <p class="src">evidence/bench/dev-winchester-320-trace.json · D, same computation as scripts/visibility.ts</p>
+        <svg viewBox="0 0 1200 250" role="img" aria-label="Change distance D at each of the 517 frames: two spikes above the threshold tau 20, at 17:00 (32.0) and 49:30 (31.8); the largest value elsewhere is 12.0."><line x1="44" x2="1186" y1="214.0" y2="214.0" stroke="rgba(242,235,221,.07)"/><text x="34" y="218.0" text-anchor="end" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#9A8F80">0</text><line x1="44" x2="1186" y1="159.6" y2="159.6" stroke="rgba(242,235,221,.07)"/><text x="34" y="163.6" text-anchor="end" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#9A8F80">10</text><line x1="44" x2="1186" y1="105.1" y2="105.1" stroke="rgba(242,235,221,.07)"/><text x="34" y="109.1" text-anchor="end" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#9A8F80">20</text><line x1="44" x2="1186" y1="50.7" y2="50.7" stroke="rgba(242,235,221,.07)"/><text x="34" y="54.7" text-anchor="end" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#9A8F80">30</text><path d="M55.1,214.0 L55.1,176.4 L57.3,180.2 L59.5,186.2 L61.7,186.2 L63.9,188.4 L66.1,191.7 L68.3,183.5 L70.6,190.0 L72.8,185.1 L75.0,186.8 L77.2,187.9 L79.4,187.9 L81.6,189.5 L83.8,179.7 L86.1,163.4 L88.3,161.7 L90.5,186.8 L92.7,165.5 L94.9,174.3 L97.1,189.5 L99.3,187.3 L101.5,185.1 L103.8,187.3 L106.0,185.7 L108.2,187.9 L110.4,191.1 L112.6,183.0 L114.8,181.9 L117.0,183.5 L119.2,186.2 L121.5,190.6 L123.7,185.1 L125.9,186.2 L128.1,190.0 L130.3,187.3 L132.5,187.3 L134.7,183.5 L137.0,178.6 L139.2,179.2 L141.4,192.2 L143.6,185.7 L145.8,182.4 L148.0,185.1 L150.2,189.0 L152.4,185.1 L154.7,190.6 L156.9,176.4 L159.1,178.1 L161.3,185.1 L163.5,175.9 L165.7,186.8 L167.9,187.3 L170.2,184.6 L172.4,183.5 L174.6,181.3 L176.8,169.4 L179.0,166.6 L181.2,178.6 L183.4,185.1 L185.6,186.2 L187.9,190.0 L190.1,192.8 L192.3,190.6 L194.5,186.8 L196.7,192.8 L198.9,190.0 L201.1,187.9 L203.3,189.5 L205.6,188.4 L207.8,188.4 L210.0,185.7 L212.2,183.5 L214.4,190.0 L216.6,190.6 L218.8,187.9 L221.1,184.6 L223.3,187.3 L225.5,189.5 L227.7,190.0 L229.9,186.2 L232.1,186.8 L234.3,183.5 L236.5,187.3 L238.8,184.6 L241.0,175.9 L243.2,188.4 L245.4,182.4 L247.6,173.7 L249.8,187.9 L252.0,192.2 L254.3,192.2 L256.5,192.8 L258.7,192.2 L260.9,188.4 L263.1,190.6 L265.3,177.5 L267.5,48.5 L269.7,39.8 L272.0,42.0 L274.2,185.1 L276.4,187.3 L278.6,191.7 L280.8,188.4 L283.0,183.0 L285.2,168.8 L287.4,163.4 L289.7,175.9 L291.9,163.4 L294.1,148.7 L296.3,155.2 L298.5,185.1 L300.7,184.1 L302.9,183.5 L305.2,169.9 L307.4,171.5 L309.6,166.6 L311.8,167.2 L314.0,176.4 L316.2,189.0 L318.4,175.9 L320.6,190.0 L322.9,186.8 L325.1,185.7 L327.3,184.1 L329.5,181.9 L331.7,184.1 L333.9,185.1 L336.1,168.3 L338.4,166.1 L340.6,181.9 L342.8,185.7 L345.0,175.3 L347.2,183.0 L349.4,184.6 L351.6,189.0 L353.8,185.1 L356.1,182.4 L358.3,183.5 L360.5,187.3 L362.7,180.2 L364.9,183.0 L367.1,179.7 L369.3,179.2 L371.6,183.5 L373.8,172.1 L376.0,171.0 L378.2,182.4 L380.4,179.7 L382.6,175.3 L384.8,183.5 L387.0,184.6 L389.3,180.2 L391.5,183.0 L393.7,184.1 L395.9,184.6 L398.1,182.4 L400.3,183.5 L402.5,184.6 L404.7,183.5 L407.0,186.2 L409.2,188.4 L411.4,187.3 L413.6,187.9 L415.8,181.9 L418.0,187.3 L420.2,185.1 L422.5,181.9 L424.7,181.3 L426.9,185.7 L429.1,186.2 L431.3,191.7 L433.5,189.0 L435.7,183.5 L437.9,179.2 L440.2,182.4 L442.4,174.8 L444.6,180.8 L446.8,184.1 L449.0,184.6 L451.2,183.0 L453.4,182.4 L455.7,182.4 L457.9,177.0 L460.1,187.9 L462.3,185.1 L464.5,182.4 L466.7,183.5 L468.9,182.4 L471.1,187.9 L473.4,183.0 L475.6,185.1 L477.8,185.1 L480.0,189.0 L482.2,190.0 L484.4,186.2 L486.6,186.8 L488.8,191.1 L491.1,190.0 L493.3,186.8 L495.5,184.1 L497.7,183.5 L499.9,183.0 L502.1,186.2 L504.3,184.6 L506.6,180.8 L508.8,176.4 L511.0,183.5 L513.2,178.1 L515.4,179.7 L517.6,184.1 L519.8,181.9 L522.0,180.8 L524.3,173.7 L526.5,177.0 L528.7,183.5 L530.9,178.1 L533.1,178.6 L535.3,185.7 L537.5,186.8 L539.8,190.0 L542.0,185.1 L544.2,187.9 L546.4,188.4 L548.6,182.4 L550.8,189.5 L553.0,185.1 L555.2,183.5 L557.5,189.5 L559.7,184.6 L561.9,187.3 L564.1,187.9 L566.3,182.4 L568.5,183.0 L570.7,181.9 L572.9,184.1 L575.2,185.1 L577.4,184.1 L579.6,184.6 L581.8,187.9 L584.0,172.6 L586.2,183.5 L588.4,185.1 L590.7,185.7 L592.9,185.1 L595.1,185.1 L597.3,189.0 L599.5,190.0 L601.7,192.8 L603.9,188.4 L606.1,178.1 L608.4,174.8 L610.6,184.6 L612.8,189.0 L615.0,186.2 L617.2,183.5 L619.4,185.1 L621.6,191.7 L623.9,187.9 L626.1,188.4 L628.3,183.5 L630.5,183.5 L632.7,183.5 L634.9,185.1 L637.1,187.3 L639.3,184.6 L641.6,181.9 L643.8,178.1 L646.0,189.0 L648.2,185.7 L650.4,190.6 L652.6,187.3 L654.8,186.2 L657.1,185.1 L659.3,188.4 L661.5,182.4 L663.7,175.3 L665.9,180.8 L668.1,190.0 L670.3,180.2 L672.5,183.5 L674.8,186.2 L677.0,177.0 L679.2,178.1 L681.4,184.6 L683.6,177.0 L685.8,177.0 L688.0,184.6 L690.2,184.6 L692.5,185.7 L694.7,186.2 L696.9,181.3 L699.1,46.9 L701.3,40.9 L703.5,44.7 L705.7,184.1 L708.0,183.0 L710.2,183.5 L712.4,187.3 L714.6,182.4 L716.8,186.2 L719.0,188.4 L721.2,184.6 L723.4,185.1 L725.7,179.7 L727.9,177.5 L730.1,179.7 L732.3,189.0 L734.5,172.6 L736.7,160.6 L738.9,154.7 L741.2,177.5 L743.4,186.8 L745.6,189.5 L747.8,190.6 L750.0,189.0 L752.2,191.1 L754.4,185.7 L756.6,185.1 L758.9,183.5 L761.1,182.4 L763.3,187.9 L765.5,186.2 L767.7,186.8 L769.9,187.9 L772.1,185.1 L774.3,184.6 L776.6,183.5 L778.8,186.8 L781.0,189.0 L783.2,182.4 L785.4,189.0 L787.6,182.4 L789.8,191.1 L792.1,191.7 L794.3,187.3 L796.5,190.0 L798.7,186.2 L800.9,186.2 L803.1,185.1 L805.3,189.0 L807.5,186.2 L809.8,186.2 L812.0,190.0 L814.2,186.2 L816.4,175.9 L818.6,179.2 L820.8,185.7 L823.0,181.9 L825.3,184.6 L827.5,181.9 L829.7,178.1 L831.9,183.0 L834.1,184.6 L836.3,187.9 L838.5,182.4 L840.7,187.3 L843.0,186.2 L845.2,189.0 L847.4,182.4 L849.6,183.5 L851.8,182.4 L854.0,186.2 L856.2,187.3 L858.4,188.4 L860.7,189.5 L862.9,185.1 L865.1,186.2 L867.3,184.1 L869.5,182.4 L871.7,187.3 L873.9,186.2 L876.2,185.1 L878.4,180.2 L880.6,180.2 L882.8,183.5 L885.0,183.5 L887.2,184.1 L889.4,190.0 L891.6,189.0 L893.9,186.2 L896.1,186.8 L898.3,183.0 L900.5,181.9 L902.7,184.6 L904.9,183.5 L907.1,184.1 L909.4,183.5 L911.6,185.1 L913.8,169.4 L916.0,179.2 L918.2,179.7 L920.4,179.7 L922.6,187.9 L924.8,185.1 L927.1,187.3 L929.3,181.9 L931.5,178.6 L933.7,180.2 L935.9,184.6 L938.1,180.8 L940.3,185.1 L942.6,179.2 L944.8,180.8 L947.0,177.5 L949.2,179.2 L951.4,190.6 L953.6,183.5 L955.8,186.8 L958.0,188.4 L960.3,183.0 L962.5,184.1 L964.7,183.5 L966.9,190.6 L969.1,185.7 L971.3,178.1 L973.5,189.5 L975.7,185.1 L978.0,185.1 L980.2,183.5 L982.4,185.1 L984.6,188.4 L986.8,180.8 L989.0,179.2 L991.2,183.5 L993.5,185.1 L995.7,178.1 L997.9,173.7 L1000.1,178.6 L1002.3,180.8 L1004.5,189.0 L1006.7,186.8 L1008.9,187.3 L1011.2,192.2 L1013.4,185.1 L1015.6,183.0 L1017.8,185.1 L1020.0,186.2 L1022.2,182.4 L1024.4,186.2 L1026.7,187.3 L1028.9,185.7 L1031.1,184.1 L1033.3,185.7 L1035.5,185.7 L1037.7,181.3 L1039.9,185.1 L1042.1,186.2 L1044.4,189.5 L1046.6,190.0 L1048.8,186.2 L1051.0,186.2 L1053.2,186.2 L1055.4,183.5 L1057.6,185.1 L1059.8,185.1 L1062.1,187.3 L1064.3,178.1 L1066.5,184.1 L1068.7,184.1 L1070.9,190.6 L1073.1,173.7 L1075.3,172.1 L1077.6,177.0 L1079.8,184.1 L1082.0,165.0 L1084.2,174.8 L1086.4,186.8 L1088.6,190.0 L1090.8,185.7 L1093.0,188.4 L1095.3,187.3 L1097.5,192.2 L1099.7,190.6 L1101.9,187.3 L1104.1,187.3 L1106.3,186.8 L1108.5,186.2 L1110.8,182.4 L1113.0,190.6 L1115.2,182.4 L1117.4,187.3 L1119.6,180.8 L1121.8,178.6 L1124.0,181.9 L1126.2,179.2 L1128.5,183.0 L1130.7,187.9 L1132.9,180.8 L1135.1,184.6 L1137.3,184.6 L1139.5,189.0 L1141.7,190.6 L1143.9,187.9 L1146.2,190.0 L1148.4,190.6 L1150.6,189.0 L1152.8,189.0 L1155.0,178.6 L1157.2,178.6 L1159.4,177.5 L1161.7,179.7 L1163.9,178.1 L1166.1,185.1 L1168.3,190.0 L1170.5,185.1 L1172.7,184.1 L1174.9,183.0 L1177.1,185.1 L1179.4,183.5 L1179.4,214.0 Z" fill="rgba(242,235,221,.06)"/><path d="M55.1,176.4 L57.3,180.2 L59.5,186.2 L61.7,186.2 L63.9,188.4 L66.1,191.7 L68.3,183.5 L70.6,190.0 L72.8,185.1 L75.0,186.8 L77.2,187.9 L79.4,187.9 L81.6,189.5 L83.8,179.7 L86.1,163.4 L88.3,161.7 L90.5,186.8 L92.7,165.5 L94.9,174.3 L97.1,189.5 L99.3,187.3 L101.5,185.1 L103.8,187.3 L106.0,185.7 L108.2,187.9 L110.4,191.1 L112.6,183.0 L114.8,181.9 L117.0,183.5 L119.2,186.2 L121.5,190.6 L123.7,185.1 L125.9,186.2 L128.1,190.0 L130.3,187.3 L132.5,187.3 L134.7,183.5 L137.0,178.6 L139.2,179.2 L141.4,192.2 L143.6,185.7 L145.8,182.4 L148.0,185.1 L150.2,189.0 L152.4,185.1 L154.7,190.6 L156.9,176.4 L159.1,178.1 L161.3,185.1 L163.5,175.9 L165.7,186.8 L167.9,187.3 L170.2,184.6 L172.4,183.5 L174.6,181.3 L176.8,169.4 L179.0,166.6 L181.2,178.6 L183.4,185.1 L185.6,186.2 L187.9,190.0 L190.1,192.8 L192.3,190.6 L194.5,186.8 L196.7,192.8 L198.9,190.0 L201.1,187.9 L203.3,189.5 L205.6,188.4 L207.8,188.4 L210.0,185.7 L212.2,183.5 L214.4,190.0 L216.6,190.6 L218.8,187.9 L221.1,184.6 L223.3,187.3 L225.5,189.5 L227.7,190.0 L229.9,186.2 L232.1,186.8 L234.3,183.5 L236.5,187.3 L238.8,184.6 L241.0,175.9 L243.2,188.4 L245.4,182.4 L247.6,173.7 L249.8,187.9 L252.0,192.2 L254.3,192.2 L256.5,192.8 L258.7,192.2 L260.9,188.4 L263.1,190.6 L265.3,177.5 L267.5,48.5 L269.7,39.8 L272.0,42.0 L274.2,185.1 L276.4,187.3 L278.6,191.7 L280.8,188.4 L283.0,183.0 L285.2,168.8 L287.4,163.4 L289.7,175.9 L291.9,163.4 L294.1,148.7 L296.3,155.2 L298.5,185.1 L300.7,184.1 L302.9,183.5 L305.2,169.9 L307.4,171.5 L309.6,166.6 L311.8,167.2 L314.0,176.4 L316.2,189.0 L318.4,175.9 L320.6,190.0 L322.9,186.8 L325.1,185.7 L327.3,184.1 L329.5,181.9 L331.7,184.1 L333.9,185.1 L336.1,168.3 L338.4,166.1 L340.6,181.9 L342.8,185.7 L345.0,175.3 L347.2,183.0 L349.4,184.6 L351.6,189.0 L353.8,185.1 L356.1,182.4 L358.3,183.5 L360.5,187.3 L362.7,180.2 L364.9,183.0 L367.1,179.7 L369.3,179.2 L371.6,183.5 L373.8,172.1 L376.0,171.0 L378.2,182.4 L380.4,179.7 L382.6,175.3 L384.8,183.5 L387.0,184.6 L389.3,180.2 L391.5,183.0 L393.7,184.1 L395.9,184.6 L398.1,182.4 L400.3,183.5 L402.5,184.6 L404.7,183.5 L407.0,186.2 L409.2,188.4 L411.4,187.3 L413.6,187.9 L415.8,181.9 L418.0,187.3 L420.2,185.1 L422.5,181.9 L424.7,181.3 L426.9,185.7 L429.1,186.2 L431.3,191.7 L433.5,189.0 L435.7,183.5 L437.9,179.2 L440.2,182.4 L442.4,174.8 L444.6,180.8 L446.8,184.1 L449.0,184.6 L451.2,183.0 L453.4,182.4 L455.7,182.4 L457.9,177.0 L460.1,187.9 L462.3,185.1 L464.5,182.4 L466.7,183.5 L468.9,182.4 L471.1,187.9 L473.4,183.0 L475.6,185.1 L477.8,185.1 L480.0,189.0 L482.2,190.0 L484.4,186.2 L486.6,186.8 L488.8,191.1 L491.1,190.0 L493.3,186.8 L495.5,184.1 L497.7,183.5 L499.9,183.0 L502.1,186.2 L504.3,184.6 L506.6,180.8 L508.8,176.4 L511.0,183.5 L513.2,178.1 L515.4,179.7 L517.6,184.1 L519.8,181.9 L522.0,180.8 L524.3,173.7 L526.5,177.0 L528.7,183.5 L530.9,178.1 L533.1,178.6 L535.3,185.7 L537.5,186.8 L539.8,190.0 L542.0,185.1 L544.2,187.9 L546.4,188.4 L548.6,182.4 L550.8,189.5 L553.0,185.1 L555.2,183.5 L557.5,189.5 L559.7,184.6 L561.9,187.3 L564.1,187.9 L566.3,182.4 L568.5,183.0 L570.7,181.9 L572.9,184.1 L575.2,185.1 L577.4,184.1 L579.6,184.6 L581.8,187.9 L584.0,172.6 L586.2,183.5 L588.4,185.1 L590.7,185.7 L592.9,185.1 L595.1,185.1 L597.3,189.0 L599.5,190.0 L601.7,192.8 L603.9,188.4 L606.1,178.1 L608.4,174.8 L610.6,184.6 L612.8,189.0 L615.0,186.2 L617.2,183.5 L619.4,185.1 L621.6,191.7 L623.9,187.9 L626.1,188.4 L628.3,183.5 L630.5,183.5 L632.7,183.5 L634.9,185.1 L637.1,187.3 L639.3,184.6 L641.6,181.9 L643.8,178.1 L646.0,189.0 L648.2,185.7 L650.4,190.6 L652.6,187.3 L654.8,186.2 L657.1,185.1 L659.3,188.4 L661.5,182.4 L663.7,175.3 L665.9,180.8 L668.1,190.0 L670.3,180.2 L672.5,183.5 L674.8,186.2 L677.0,177.0 L679.2,178.1 L681.4,184.6 L683.6,177.0 L685.8,177.0 L688.0,184.6 L690.2,184.6 L692.5,185.7 L694.7,186.2 L696.9,181.3 L699.1,46.9 L701.3,40.9 L703.5,44.7 L705.7,184.1 L708.0,183.0 L710.2,183.5 L712.4,187.3 L714.6,182.4 L716.8,186.2 L719.0,188.4 L721.2,184.6 L723.4,185.1 L725.7,179.7 L727.9,177.5 L730.1,179.7 L732.3,189.0 L734.5,172.6 L736.7,160.6 L738.9,154.7 L741.2,177.5 L743.4,186.8 L745.6,189.5 L747.8,190.6 L750.0,189.0 L752.2,191.1 L754.4,185.7 L756.6,185.1 L758.9,183.5 L761.1,182.4 L763.3,187.9 L765.5,186.2 L767.7,186.8 L769.9,187.9 L772.1,185.1 L774.3,184.6 L776.6,183.5 L778.8,186.8 L781.0,189.0 L783.2,182.4 L785.4,189.0 L787.6,182.4 L789.8,191.1 L792.1,191.7 L794.3,187.3 L796.5,190.0 L798.7,186.2 L800.9,186.2 L803.1,185.1 L805.3,189.0 L807.5,186.2 L809.8,186.2 L812.0,190.0 L814.2,186.2 L816.4,175.9 L818.6,179.2 L820.8,185.7 L823.0,181.9 L825.3,184.6 L827.5,181.9 L829.7,178.1 L831.9,183.0 L834.1,184.6 L836.3,187.9 L838.5,182.4 L840.7,187.3 L843.0,186.2 L845.2,189.0 L847.4,182.4 L849.6,183.5 L851.8,182.4 L854.0,186.2 L856.2,187.3 L858.4,188.4 L860.7,189.5 L862.9,185.1 L865.1,186.2 L867.3,184.1 L869.5,182.4 L871.7,187.3 L873.9,186.2 L876.2,185.1 L878.4,180.2 L880.6,180.2 L882.8,183.5 L885.0,183.5 L887.2,184.1 L889.4,190.0 L891.6,189.0 L893.9,186.2 L896.1,186.8 L898.3,183.0 L900.5,181.9 L902.7,184.6 L904.9,183.5 L907.1,184.1 L909.4,183.5 L911.6,185.1 L913.8,169.4 L916.0,179.2 L918.2,179.7 L920.4,179.7 L922.6,187.9 L924.8,185.1 L927.1,187.3 L929.3,181.9 L931.5,178.6 L933.7,180.2 L935.9,184.6 L938.1,180.8 L940.3,185.1 L942.6,179.2 L944.8,180.8 L947.0,177.5 L949.2,179.2 L951.4,190.6 L953.6,183.5 L955.8,186.8 L958.0,188.4 L960.3,183.0 L962.5,184.1 L964.7,183.5 L966.9,190.6 L969.1,185.7 L971.3,178.1 L973.5,189.5 L975.7,185.1 L978.0,185.1 L980.2,183.5 L982.4,185.1 L984.6,188.4 L986.8,180.8 L989.0,179.2 L991.2,183.5 L993.5,185.1 L995.7,178.1 L997.9,173.7 L1000.1,178.6 L1002.3,180.8 L1004.5,189.0 L1006.7,186.8 L1008.9,187.3 L1011.2,192.2 L1013.4,185.1 L1015.6,183.0 L1017.8,185.1 L1020.0,186.2 L1022.2,182.4 L1024.4,186.2 L1026.7,187.3 L1028.9,185.7 L1031.1,184.1 L1033.3,185.7 L1035.5,185.7 L1037.7,181.3 L1039.9,185.1 L1042.1,186.2 L1044.4,189.5 L1046.6,190.0 L1048.8,186.2 L1051.0,186.2 L1053.2,186.2 L1055.4,183.5 L1057.6,185.1 L1059.8,185.1 L1062.1,187.3 L1064.3,178.1 L1066.5,184.1 L1068.7,184.1 L1070.9,190.6 L1073.1,173.7 L1075.3,172.1 L1077.6,177.0 L1079.8,184.1 L1082.0,165.0 L1084.2,174.8 L1086.4,186.8 L1088.6,190.0 L1090.8,185.7 L1093.0,188.4 L1095.3,187.3 L1097.5,192.2 L1099.7,190.6 L1101.9,187.3 L1104.1,187.3 L1106.3,186.8 L1108.5,186.2 L1110.8,182.4 L1113.0,190.6 L1115.2,182.4 L1117.4,187.3 L1119.6,180.8 L1121.8,178.6 L1124.0,181.9 L1126.2,179.2 L1128.5,183.0 L1130.7,187.9 L1132.9,180.8 L1135.1,184.6 L1137.3,184.6 L1139.5,189.0 L1141.7,190.6 L1143.9,187.9 L1146.2,190.0 L1148.4,190.6 L1150.6,189.0 L1152.8,189.0 L1155.0,178.6 L1157.2,178.6 L1159.4,177.5 L1161.7,179.7 L1163.9,178.1 L1166.1,185.1 L1168.3,190.0 L1170.5,185.1 L1172.7,184.1 L1174.9,183.0 L1177.1,185.1 L1179.4,183.5" fill="none" stroke="#D8CFBF" stroke-width="1.3" stroke-linejoin="round"/><line x1="44" x2="1186" y1="105.1" y2="105.1" stroke="#D9A441" stroke-width="1.4" stroke-dasharray="6 5"/><text x="1186" y="98.1" text-anchor="end" font-family="IBM Plex Mono, Menlo, monospace" font-size="13" fill="#D9A441">τ = 20</text><line x1="44" x2="1186" y1="148.7" y2="148.7" stroke="#9A8F80" stroke-width="1" stroke-dasharray="2 4"/><circle cx="294.1" cy="148.7" r="3.5" fill="#9A8F80"/><text x="302.1" y="140.7" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#9A8F80">max elsewhere 12.0 · 18:50</text><circle cx="269.7" cy="39.8" r="5" fill="#E5432E"/><text x="279.7" y="43.8" font-family="IBM Plex Mono, Menlo, monospace" font-size="13" fill="#F2EBDD">17:00 · 32.0</text><circle cx="701.3" cy="40.9" r="5" fill="#E5432E"/><text x="711.3" y="44.9" font-family="IBM Plex Mono, Menlo, monospace" font-size="13" fill="#F2EBDD">49:30 · 31.8</text><text x="44.0" y="240" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#D9A441">0:00</text><text x="243.2" y="240" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#D9A441">15:00</text><text x="442.4" y="240" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#D9A441">30:00</text><text x="641.6" y="240" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#D9A441">45:00</text><text x="840.7" y="240" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#D9A441">1:00:00</text><text x="1039.9" y="240" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#D9A441">1:15:00</text></svg>
+        <p class="note">Two spikes clear τ&nbsp;=&nbsp;20: <b>32.0</b> at 17:00 and <b>31.8</b> at 49:30. The noisiest frame anywhere else reaches <b>12.0</b> (18:50) — a <b>2.64×</b> margin at 320&nbsp;px, 2.04× at 240×180 letterboxed.</p>
+      </figure>
+      <figure class="panel">
+        <h3>A plain differ cannot do it</h3>
+        <p class="src">bench · ablationBaseline: consecutive frames, every cell, no hold</p>
+        <ol class="bars" aria-label="False markers by threshold"><li class="us" style="--w:0.004"><span>Flipbook · τ 20</span><i class="b"></i><span class="r">0 false · 2/2</span></li><li style="--w:1.000"><span>differ · τ 8</span><i class="b"></i><span class="r">496 false · 2/2</span></li><li style="--w:0.917"><span>differ · τ 12</span><i class="b"></i><span class="r">455 false · 2/2</span></li><li style="--w:0.784"><span>differ · τ 16</span><i class="b"></i><span class="r">389 false · 2/2</span></li><li style="--w:0.702"><span>differ · τ 20</span><i class="b"></i><span class="r">348 false · 2/2</span></li><li style="--w:0.571"><span>differ · τ 25</span><i class="b"></i><span class="r">283 false · 2/2</span></li><li style="--w:0.478"><span>differ · τ 30</span><i class="b"></i><span class="r">237 false · 2/2</span></li><li style="--w:0.300"><span>differ · τ 40</span><i class="b"></i><span class="r miss">149 false · 0/2</span></li><li style="--w:0.192"><span>differ · τ 50</span><i class="b"></i><span class="r miss">95 false · 0/2</span></li><li style="--w:0.111"><span>differ · τ 60</span><i class="b"></i><span class="r miss">55 false · 0/2</span></li><li style="--w:0.038"><span>differ · τ 80</span><i class="b"></i><span class="r miss">19 false · 0/2</span></li></ol>
+        <p class="note">To keep both goals the differ fires <b>237</b> false markers; raise its threshold to 40 and it misses both and still fires 149. Without the hold and the jitter mask, Flipbook itself would mark 350 times.</p>
+      </figure>
+      <figure class="panel">
+        <h3>Where <svg class="kbd" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="fast-forward"><path d="M3.5 6.2v11.6l7.7-5.8z"/><path d="M12.5 6.2v11.6l7.7-5.8z"/></svg> lands</h3>
+        <p class="src">bench · score.jumps, ablationAnchor (development labels)</p>
+        <div class="pairs">
+          <div class="pair us" style="--w:.933"><span>Anchor = last old-score frame</span><strong>28 s</strong><i class="bar"></i></div>
+          <div class="pair" style="--w:.6"><span>Naive: first changed frame</span><strong>18 s</strong><i class="bar"></i></div>
+        </div>
+        <ul class="facts">
+          <li>Median lead before the play: 28&nbsp;s (16:20 → 16:48) and 30&nbsp;s (48:50 → 49:20); 2/2 before the play, 95&nbsp;% CI [0.158,&nbsp;1].</li>
+          <li>Parameters frozen before any truth commit: <code>PREREG.json</code>, detector-params sha256 <code>6f21e417…</code>; the bench refuses matches A and B without a committed truth file.</li>
+          <li>Node (tsx) on Apple M-series, 20 runs — not device timings: pass 1 p50 210.8&nbsp;ms, pass 2 p50 1,229.6&nbsp;ms.</li>
+        </ul>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="honest" aria-labelledby="honest-h" style="padding-top:0">
+  <div class="wrap">
+    <p class="edge">From the README's honest limits</p>
+    <h2 class="h2" id="honest-h">Honest by design.</h2>
+    <div class="quotes">
+      <blockquote><p>“Virtual device only. No Fire TV hardware was available; every timing is ‘Vega virtual device on Apple M-series’.”</p><footer>README · Honest limits 1</footer></blockquote>
+      <blockquote><p>“The held-out headline is pending. … Until then no such number is claimed.”</p><footer>README · Honest limits 2</footer></blockquote>
+      <blockquote><p>“The numbers above come from one development match with two labelled changes, labelled by the detector's author from 2 s stills. The 95 % confidence interval on 2/2 is [0.158, 1].”</p><footer>README · Honest limits 3</footer></blockquote>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="faq" aria-labelledby="faq-h" style="padding-top:0">
+  <div class="wrap">
+    <p class="edge">Questions a judge would ask</p>
+    <h2 class="h2" id="faq-h">FAQ</h2>
+    <div class="faq">
+      <details><summary>Does it really decode no video?<i aria-hidden="true"></i></summary><div class="a"><p>Yes. Flipbook decodes only the BIF's thumbnail JPEGs, with <code>jpeg-js</code>. The bench reports <code>videoBytesDecoded: 0</code> and the device log says <code>video bytes decoded=0</code>.</p></div></details>
+      <details><summary>Did it run on a Fire TV?<i aria-hidden="true"></i></summary><div class="a"><p>On the Vega Virtual Device (Vega SDK 0.24.12112) on an Apple M-series Mac. No Fire TV hardware was available, so every timing says so. Some on-device captures are still owed — a calibrated scan of the development match among them — and the README lists them.</p></div></details>
+      <details><summary>How good is it, really?<i aria-hidden="true"></i></summary><div class="a"><p>On the development match — two goals, labelled by the detector's author — it found 2 of 2 with 0 false markers, and both jumps landed before the play (95&nbsp;% CI [0.158,&nbsp;1]). That shows the pipeline works, not that it generalises.</p><p>The held-out number (goal jumps landing before the goal on match B) will exist only after a human labels matches A and B. The parameters are frozen in <code>PREREG.json</code> first.</p></div></details>
+      <details><summary>Why not read the digits?<i aria-hidden="true"></i></summary><div class="a"><p>Trickplay thumbnails are tiny — Amazon's are 240×180 — so Flipbook detects that the box changed and held, not what it says. No OCR, no ML, no LLM: arithmetic on a calibrated rectangle.</p></div></details>
+      <details><summary>Doesn't blind mode still give something away?<i aria-hidden="true"></i></summary><div class="a"><p>A little, and the README says so: a jump tells you a change lies ahead, "No later change" tells you none does, and a goal the detector missed is skipped without any sign.</p></div></details>
+      <details><summary>Is the footage OK to use?<i aria-hidden="true"></i></summary><div class="a"><p>The three matches are Belmont Media Center high-school broadcasts released CC0 1.0 on the Internet Archive. They show students and school marks; the marks are the schools', not ours, and CC0 does not cover trademarks. We mute the original commentary in everything we publish, use no close-ups, and mask the score box on every thumbnail on this page except the six crops above.</p></div></details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top" aria-label="Back to top"><img src="assets/icon.svg" alt="" width="32" height="32"><span class="wm">FLIP<i>BOOK</i></span></a>
+      <p class="small">Spoiler-safe chapters for recorded matches, read from trickplay thumbnails. Built for the Amazon Developer Hackathon 2026 — Fire TV track.</p>
+      <p class="ver">v0.0.0-dev · MIT-0</p>
+    </div>
+    <div>
+      <h4>Project</h4>
+      <ul>
+        <li><a href="https://github.com/edycutjong/flipbook">Repository</a></li>
+        <li><a href="pitch/">Pitch deck</a></li>
+        <li><a href="https://github.com/edycutjong/flipbook/blob/main/README.md">README</a></li>
+        <li><a href="https://github.com/edycutjong/flipbook/blob/main/FRICTION_LOG.md">Friction log</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Credits</h4>
+      <p class="small" style="margin-top:0">Match footage: Belmont Media Center, CC0 1.0 (Internet Archive) — see <a href="https://github.com/edycutjong/flipbook/blob/main/CREDITS.md">CREDITS.md</a>. Fork of <a href="https://github.com/AmazonAppDev/vega-video-sample">AmazonAppDev/vega-video-sample</a> (MIT-0). Type: Big Shoulders Display, Atkinson Hyperlegible, IBM Plex Mono (SIL OFL 1.1).</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/sheet/trace.js"></script>
+<script>
+document.documentElement.classList.add('js');
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var each = function (sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); };
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* copy buttons */
+  each('[data-copy]', function (b) {
+    b.addEventListener('click', function () {
+      var t = b.getAttribute('data-copy');
+      var done = function () {
+        b.setAttribute('aria-label', 'Copied');
+        b.classList.add('ok');
+        setTimeout(function () { b.setAttribute('aria-label', 'Copy the command ' + t); b.classList.remove('ok'); }, 1600);
+      };
+      if (navigator.clipboard) { navigator.clipboard.writeText(t).then(done, done); } else { done(); }
+    });
+  });
+
+  var F = window.FLIPBOOK;
+  if (!F) { return; }
+  var N = F.frames, IV = F.intervalMs, DUR = N * IV, LEAD = 30000, SP = F.sprite, ROWS = Math.ceil(N / SP.cols);
+  var clock = function (ms) {
+    var t = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+    return (h ? h + ':' + String(m).padStart(2, '0') : String(m)) + ':' + String(s).padStart(2, '0');
+  };
+  var pct = function (ms) { return (ms / DUR * 100).toFixed(3) + '%'; };
+  var PICS = {};
+  [14, 98, 99, 100, 101, 102, 103, 293, 294, 295, 296, 297, 298].forEach(function (i) { PICS[i] = 1; });
+  var picSrc = function (i) { return 'assets/sheet/pic-' + String(i).padStart(4, '0') + '.jpg'; };
+  var sprite = new Image();
+  sprite.decoding = 'async';
+  sprite.src = SP.src;
+
+  /* ── the recorded scan: F.reads is the shipped scan's read order (npm run trace) ── */
+  var DT = { s: 52, b: 165, v: 8 };
+  var at = [], acc = 450;
+  F.reads.forEach(function (r) { acc += DT[r[2]]; at.push(acc); });
+  var evAfter = {};
+  F.events.forEach(function (e) { evAfter[e.afterRead] = e; });
+  var probe = {};
+  F.probes.forEach(function (p) { probe[p] = 1; });
+  var absent = {};
+  F.absent.forEach(function (a) { absent[a] = 1; });
+  var S, readState = new Uint8Array(N), readAt = new Float64Array(N);
+
+  function fresh(done) {
+    S = { k: 0, readTo1: 0, readTo2: 0, decodes: F.probes.length, nonProbe: 0, emitted: [], p1done: false, done: false, head: -1 };
+    readState.fill(0);
+    readAt.fill(-1e9);
+    if (done) { advance(F.reads.length, -1e9); }
+  }
+  function advance(n, now) {
+    while (S.k < n) {
+      var r = F.reads[S.k], f = r[0];
+      readState[f] = r[2] === 's' ? 1 : r[2] === 'b' ? 2 : 3;
+      readAt[f] = now;
+      S.head = f;
+      if (r[1] === 1) {
+        if (r[2] === 's') { S.readTo1 = Math.max(S.readTo1, f); }
+        if (!probe[f]) { S.nonProbe++; S.decodes = F.probes.length + S.nonProbe; }
+      } else {
+        S.readTo2 = f;
+      }
+      S.k++;
+      var e = evAfter[S.k];
+      if (e && S.emitted.indexOf(e.frame) < 0) { S.emitted.push(e.frame); flashTick(e.frame); }
+      if (S.k === F.pass1.reads) { S.p1done = true; }
+    }
+    if (S.k >= F.reads.length) { S.done = true; S.head = -1; }
+  }
+
+  /* ── the stage: the app's own status strings (FlipbookOverlay.statusText) ── */
+  var mode = 'blind', playMs = 14 * IV, toastT = 0, playing = 0, lastJump = null, touched = false;
+  var track = $('track'), strip = $('strip'), fill = $('strip-fill');
+  var ticks = F.markers.map(function (m) {
+    var t = document.createElement('i');
+    t.className = 'tick';
+    t.style.left = pct(m.changeMs);
+    var em = document.createElement('em');
+    em.textContent = m.changeAt;
+    t.appendChild(em);
+    track.appendChild(t);
+    return t;
+  });
+  var holes = [];
+  for (var i = 0; i < N; i += F.params.stride) {
+    var h = document.createElement('i');
+    h.className = 'hole';
+    h.style.left = pct(i * IV);
+    h.hidden = true;
+    strip.appendChild(h);
+    holes.push(h);
+  }
+  function status() {
+    var readTo = clock((S.p1done ? S.readTo2 : S.readTo1) * IV), n = S.emitted.length;
+    var ch = n + ' CHANGE' + (n === 1 ? '' : 'S');
+    if (!S.p1done) { return mode === 'blind' ? ['SCANNING', 'read to ' + readTo] : [ch, 'read ' + S.decodes + ' of ' + N + ' frames']; }
+    if (mode === 'blind') { return ['READY', S.done ? '>> next change · << previous' : '>> next change · still reading, at ' + readTo]; }
+    if (!S.done) { return [ch, 'verifying · read to ' + readTo]; }
+    return [ch + ' FOUND', N + ' frames read · skipped ' + F.skippedAbsent + ' frames without the score graphic'];
+  }
+  function renderStage() {
+    var st = status(), blind = mode === 'blind';
+    if ($('st-head').textContent !== st[0]) { $('st-head').textContent = st[0]; }
+    if ($('st-detail').textContent !== st[1]) { $('st-detail').textContent = st[1]; }
+    var p1 = S.p1done ? 1 : S.readTo1 / N, p2 = S.done ? 1 : S.p1done ? S.readTo2 / N : 0;
+    fill.style.width = ((blind ? (S.done ? 1 : S.p1done ? p2 : p1) : p2) * 100).toFixed(2) + '%';
+    holes.forEach(function (hh, j) { hh.hidden = blind || (j * F.params.stride) / N > p1; });
+    ticks.forEach(function (t, j) { t.classList.toggle('on', !blind && S.emitted.indexOf(F.markers[j].frame) >= 0); });
+    $('played').style.width = pct(playMs);
+    $('thumb').style.left = pct(playMs);
+    $('t-now').textContent = clock(playMs);
+    $('bif-r').textContent = S.done ? N + ' of ' + N + ' read' : 'reading · pass ' + (S.p1done ? 2 : 1);
+  }
+  function toast(msg) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.classList.add('on');
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { t.classList.remove('on'); }, 2600);
+  }
+  function setPic(i, label) {
+    var p = $('pic');
+    if (PICS[i]) {
+      p.src = picSrc(i);
+      p.alt = 'The development match at ' + clock(i * IV) + ': the trickplay thumbnail at the playhead';
+    }
+    $('tag').innerHTML = '<b>PICTURE</b> · ' + clock(i * IV) + ' · ' + (label || 'dev match');
+  }
+  function flashTick(frame) {
+    if (mode === 'blind' || reduce) { return; }
+    var j = -1;
+    F.markers.forEach(function (m, k) { if (m.frame === frame) { j = k; } });
+    if (j < 0) { return; }
+    ticks[j].classList.remove('flash');
+    void ticks[j].offsetWidth;
+    ticks[j].classList.add('flash');
+  }
+
+  /* jumps: the rule in src/flipbook/core/jump.ts (nextJump: target > now + 1 s; prevJump: target < now − 10 s) */
+  function jump(dir) {
+    touched = true;
+    stopPlay();
+    var known = F.markers.filter(function (m) { return S.emitted.indexOf(m.frame) >= 0; }), t = null, a, tt;
+    if (dir > 0) {
+      for (a = 0; a < known.length; a++) { tt = Math.max(0, known[a].anchorMs - LEAD); if (tt > playMs + 1000) { t = { ms: tt, m: known[a] }; break; } }
+    } else {
+      for (a = known.length - 1; a >= 0; a--) { tt = Math.max(0, known[a].anchorMs - LEAD); if (tt < playMs - 10000) { t = { ms: tt, m: known[a] }; break; } }
+    }
+    if (!t) {
+      toast(dir > 0 ? (S.p1done ? 'No later change' : 'Still reading — no later change yet') : 'No earlier change');
+      return;
+    }
+    playMs = t.ms;
+    lastJump = t;
+    setPic(Math.floor(playMs / IV), 'landed');
+    toast('→ ' + clock(t.ms) + '  (−30 s lead-in)');
+    var j = null;
+    F.jumps.forEach(function (x) { if (x.targetMs === t.ms) { j = x; } });
+    $('cap-now').innerHTML = 'Landed at <b>' + clock(t.ms) + '</b>, the old score still on screen.' +
+      (j ? ' The goal: <b>' + clock(j.playMs) + '</b> (our label), ' + Math.round(j.leadMs / 1000) + '&nbsp;s later.' : '');
+    $('play').disabled = false;
+    $('ff').classList.remove('nudge');
+    clean(false);
+    clean(true, 2400);
+    renderStage();
+  }
+  var cleanT = 0;
+  function clean(on, delay) {
+    clearTimeout(cleanT);
+    var scr = $('screen');
+    if (!on) { scr.classList.remove('clean'); return; }
+    cleanT = setTimeout(function () { scr.classList.add('clean'); }, delay || 0);
+  }
+  function stopPlay() {
+    if (playing) { clearInterval(playing); playing = 0; }
+  }
+  function playLeadIn() {
+    if (!lastJump) { return; }
+    touched = true;
+    stopPlay();
+    var i = Math.floor(lastJump.ms / IV), end = lastJump.m.frame + 1;
+    $('play').disabled = true;
+    clean(true, 0);
+    playing = setInterval(function () {
+      i++;
+      if (i > end) { stopPlay(); $('play').disabled = false; clean(false); clean(true, 2600); return; }
+      playMs = i * IV;
+      setPic(i, i === lastJump.m.frame ? 'score changes' : 'thumbnails · 10 s apart');
+      if (i === lastJump.m.frame) {
+        $('cap-now').innerHTML = '<b>' + clock(i * IV) + '</b>: the score graphic changes — after the goal you just watched.';
+        flashTick(lastJump.m.frame);
+      }
+      renderStage();
+    }, reduce ? 1500 : 1000);
+  }
+  $('ff').addEventListener('click', function () { jump(1); });
+  $('rw').addEventListener('click', function () { jump(-1); });
+  $('play').addEventListener('click', playLeadIn);
+  each('.seg button', function (b) {
+    b.addEventListener('click', function () {
+      touched = true;
+      mode = b.getAttribute('data-mode');
+      each('.seg button', function (x) { x.setAttribute('aria-checked', String(x === b)); x.tabIndex = x === b ? 0 : -1; });
+      toast(mode === 'blind' ? 'BLIND — no ticks, no counts' : 'HIGHLIGHTS — changes marked on the bar');
+      clean(false);
+      if (lastJump) { clean(true, 2600); }
+      renderStage();
+      drawAll(performance.now());
+    });
+    b.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        var o = b.parentNode.querySelectorAll('button'), n = o[o[0] === b ? 1 : 0];
+        n.focus();
+        n.click();
+      }
+    });
+  });
+
+  /* hover the seek bar: a thumbnail of the future, from the sheet — masked */
+  var prev = $('preview'), prevI = prev.querySelector('i'), prevT = prev.querySelector('em');
+  function showPreview(clientX) {
+    var r = track.getBoundingClientRect(), x = Math.min(Math.max(clientX - r.left, 0), r.width);
+    var f = Math.min(N - 1, Math.floor(x / r.width * N));
+    var w = prevI.clientWidth || 160, sc = w / SP.cw;
+    prevI.style.backgroundImage = 'url(' + SP.src + ')';
+    prevI.style.backgroundSize = (SP.cols * SP.cw * sc) + 'px auto';
+    prevI.style.backgroundPosition = (-(f % SP.cols) * SP.cw * sc) + 'px ' + (-Math.floor(f / SP.cols) * SP.ch * sc) + 'px';
+    prevT.textContent = clock(f * IV) + ' · score masked';
+    prev.style.left = Math.min(Math.max(x, w / 2), r.width - w / 2) + 'px';
+    prev.classList.add('on');
+  }
+  track.addEventListener('pointermove', function (e) { showPreview(e.clientX); });
+  track.addEventListener('pointerdown', function (e) { showPreview(e.clientX); });
+  track.addEventListener('pointerleave', function () { prev.classList.remove('on'); });
+  track.addEventListener('pointerup', function (e) { if (e.pointerType !== 'mouse') { setTimeout(function () { prev.classList.remove('on'); }, 900); } });
+
+  /* ── canvases: the BIF barcode under the stage, and the contact sheet ── */
+  function fit(cv) {
+    var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), c = cv.getContext('2d');
+    cv.width = Math.max(1, Math.round(r.width * dpr));
+    cv.height = Math.max(1, Math.round(r.height * dpr));
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { c: c, w: r.width, h: r.height };
+  }
+  var BC = null, SH = null;
+  function sizeAll() {
+    BC = fit($('bif-cv'));
+    SH = fit($('sheet-cv'));
+    drawAll(performance.now());
+  }
+  var FLASH = 650;
+  function glow(now, f) { var d = now - readAt[f]; return d >= 0 && d < FLASH ? 1 - d / FLASH : 0; }
+  function drawBarcode(now) {
+    if (!BC || !sprite.complete || !sprite.naturalWidth) { return; }
+    var c = BC.c, W = BC.w, H = BC.h, blind = mode === 'blind';
+    c.clearRect(0, 0, W, H);
+    for (var f = 0; f < N; f++) {
+      var x0 = f / N * W, x1 = (f + 1) / N * W, st = readState[f], g = glow(now, f);
+      c.globalAlpha = st ? (absent[f] ? .32 : .78) : .17;
+      c.drawImage(sprite, (f % SP.cols) * SP.cw, Math.floor(f / SP.cols) * SP.ch, SP.cw, SP.ch, x0, 0, Math.max(1, x1 - x0) + .4, H);
+      if (g > 0) {
+        c.globalAlpha = g * .9;
+        c.fillStyle = st === 2 ? '#F0C873' : '#D9A441';
+        c.fillRect(x0 - 1, 0, Math.max(2, x1 - x0) + 2, H);
+      }
+    }
+    c.globalAlpha = 1;
+    if (!blind) {
+      F.markers.forEach(function (m) {
+        if (S.emitted.indexOf(m.frame) < 0) { return; }
+        var x = (m.frame + .5) / N * W;
+        c.fillStyle = '#E5432E';
+        c.fillRect(x - 1.5, 0, 3, H);
+      });
+    }
+    if (S.head >= 0) {
+      var hx = (S.head + 1) / N * W;
+      c.save();
+      c.shadowColor = 'rgba(240,200,115,.95)';
+      c.shadowBlur = 12;
+      c.fillStyle = '#F0C873';
+      c.fillRect(hx - 1, 0, 2, H);
+      c.restore();
+    }
+  }
+  function drawSheet(now) {
+    if (!SH) { return; }
+    var c = SH.c, cw = SH.w / SP.cols, chh = SH.h / ROWS, blind = mode === 'blind';
+    c.clearRect(0, 0, SH.w, SH.h);
+    for (var f = 0; f < SP.cols * ROWS; f++) {
+      var x = (f % SP.cols) * cw, y = Math.floor(f / SP.cols) * chh, st = f < N ? readState[f] : 9;
+      if (st === 9) { c.fillStyle = '#0B0908'; c.fillRect(x, y, cw + .5, chh + .5); continue; }
+      if (st === 0) { c.fillStyle = 'rgba(20,17,16,.82)'; c.fillRect(x, y, cw + .5, chh + .5); continue; }
+      if (absent[f] && st === 3) { c.fillStyle = 'rgba(20,17,16,.5)'; c.fillRect(x, y, cw, chh); }
+      var g = glow(now, f);
+      if (g > 0) { c.fillStyle = 'rgba(240,200,115,' + (g * .55).toFixed(3) + ')'; c.fillRect(x, y, cw, chh); }
+      if (st === 1 || st === 2) {
+        c.fillStyle = st === 1 ? '#D9A441' : '#F0C873';
+        c.fillRect(x + 2, y + 2, Math.max(3, cw * .12), Math.max(3, chh * .14));
+      }
+      if (st === 2) { c.strokeStyle = '#F0C873'; c.lineWidth = 1.5; c.strokeRect(x + 1, y + 1, cw - 2, chh - 2); }
+    }
+    if (S.head >= 0) {
+      var hx = (S.head % SP.cols) * cw, hy = Math.floor(S.head / SP.cols) * chh;
+      c.save();
+      c.shadowColor = 'rgba(217,164,65,.95)';
+      c.shadowBlur = 14;
+      c.fillStyle = '#F0C873';
+      c.fillRect(hx + cw - 2, hy - 3, 2.5, chh + 6);
+      c.restore();
+    }
+    if (!blind) {
+      S.emitted.forEach(function (fr) {
+        var x2 = (fr % SP.cols) * cw + cw / 2, y2 = Math.floor(fr / SP.cols) * chh + chh / 2;
+        c.save();
+        c.strokeStyle = '#E5432E';
+        c.lineCap = 'round';
+        c.lineWidth = Math.max(2, cw * .05);
+        c.beginPath();
+        c.ellipse(x2, y2, cw * .74, chh * .8, -.12, .3, Math.PI * 2 + .1);
+        c.stroke();
+        c.globalAlpha = .7;
+        c.lineWidth = Math.max(1.2, cw * .028);
+        c.beginPath();
+        c.ellipse(x2 + 1, y2 - 1, cw * .69, chh * .74, -.07, 0, Math.PI * 1.85);
+        c.stroke();
+        c.restore();
+      });
+    }
+  }
+  function renderReadout() {
+    $('r-pass').textContent = S.p1done ? '2' : '1';
+    $('r-dec').textContent = String(S.p1done ? F.pass1.jpegDecodes + (S.k - F.pass1.reads) : S.k ? S.decodes : 0);
+    $('r-p1').textContent = String(S.p1done ? F.pass1.jpegDecodes : S.k ? S.decodes : 0);
+    $('r-mk').textContent = mode === 'blind' ? 'hidden' : String(S.emitted.length);
+  }
+  function drawAll(now) { drawBarcode(now); drawSheet(now); renderReadout(); }
+
+  /* ── run ── */
+  var raf = 0, t0 = 0, tail = 0;
+  function frame(now) {
+    if (!t0) { t0 = now; }
+    var el = now - t0, n = S.k;
+    while (n < at.length && at[n] <= el) { n++; }
+    advance(n, now);
+    renderStage();
+    drawAll(now);
+    if (!S.done) { raf = requestAnimationFrame(frame); return; }
+    if (!tail) { tail = now; $('ff').classList.add('nudge'); preload(); }
+    if (now - tail < FLASH + 50) { raf = requestAnimationFrame(frame); } else { raf = 0; tail = 0; }
+  }
+  function start() {
+    cancelAnimationFrame(raf);
+    stopPlay();
+    clean(false);
+    fresh(false);
+    playMs = 14 * IV;
+    setPic(14);
+    lastJump = null;
+    tail = 0;
+    $('play').disabled = true;
+    $('cap-now').textContent = 'The picture shows the present. Every thumbnail of the future is masked — hover the seek bar.';
+    $('ff').classList.remove('nudge');
+    t0 = 0;
+    raf = requestAnimationFrame(frame);
+  }
+  var preloaded = false;
+  function preload() {
+    if (preloaded) { return; }
+    preloaded = true;
+    Object.keys(PICS).forEach(function (k) { var im = new Image(); im.src = picSrc(+k); });
+  }
+  $('rescan').addEventListener('click', function () { touched = true; start(); });
+
+  fresh(true);
+  renderStage();
+  sizeAll();
+  sprite.addEventListener('load', function () { drawAll(performance.now()); });
+  window.addEventListener('resize', function () { clearTimeout(window.__fbrs); window.__fbrs = setTimeout(sizeAll, 120); });
+  if (reduce) {
+    preload();
+  } else {
+    start();
+    /* the sheet section replays once more when it first comes into view, unless the visitor has taken over */
+    if ('IntersectionObserver' in window) {
+      var sio = new IntersectionObserver(function (es) {
+        if (!es[0].isIntersecting) { return; }
+        sio.disconnect();
+        if (S.done && !touched) { start(); }
+      }, { threshold: .35 });
+      sio.observe($('sheet-cv'));
+    }
+  }
+
+  /* receipts count up once (the final value is already in the HTML) */
+  if (!reduce && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) { return; }
+        io.unobserve(e.target);
+        var el = e.target, to = +el.getAttribute('data-count'), sep = el.hasAttribute('data-sep'), t1 = 0;
+        if (!to) { return; }
+        var step = function (now) {
+          if (!t1) { t1 = now; }
+          var p = Math.min(1, (now - t1) / 1100), v = Math.round(to * (1 - Math.pow(1 - p, 3)));
+          el.textContent = sep ? v.toLocaleString('en-US') : String(v);
+          if (p < 1) { requestAnimationFrame(step); }
+        };
+        requestAnimationFrame(step);
+      });
+    }, { threshold: .6 });
+    each('[data-count]', function (el) { io.observe(el); });
+  }
+
+  /* the device log prints line by line, once */
+  var term = $('term');
+  if (term) {
+    var lines = term.querySelectorAll('.ln');
+    if (reduce || !('IntersectionObserver' in window)) {
+      term.classList.remove('typing');
+    } else {
+      var tio = new IntersectionObserver(function (es) {
+        if (!es[0].isIntersecting) { return; }
+        tio.disconnect();
+        var k = 0;
+        (function next() {
+          if (k >= lines.length) { term.classList.remove('typing'); return; }
+          lines[k++].classList.add('shown');
+          setTimeout(next, 140);
+        })();
+      }, { threshold: .3 });
+      tio.observe(term);
+    }
+  }
+})();
+</script>
+</body>
+</html>
