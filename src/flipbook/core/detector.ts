@@ -1,39 +1,52 @@
 /**
- * Change-and-hold detector over BIF frame signatures (spec: complexity.md §1).
+ * Change-and-hold detector over BIF frame signatures.
  *
- *  present_i  ⇔ d(sig_i, ref) < τ_abs                       (ref = signature at calibration)
- *  change at c ⇔ present_c, d(sig_c, state) > τ, and the next `holdFrames` present frames stay within τ_hold of sig_c
- *  anchor(c)  = last present frame before c that still showed the OLD state — any graphic-absent run
- *               (replay, celebration) between it and c is walked back over (E1).
+ *  mask       = cells whose median change between pass-1 samples is ≤ jitterMax (static parts of the graphic)
+ *  present_i  ⇔ masked mean d(sig_i, ref) < τ_abs              (ref = medoid of the pass-1 samples)
+ *  D(c)       = topK( median(sig of c and the next W−1 present frames) − median(sig of the W present frames before c) )
+ *  change at c ⇔ D(c) > τ and c is the first frame closer to the new state than to the old one — i.e. the new
+ *               graphic HOLDS for most of a W-frame window (a one-frame flash or a noisy frame cannot)
+ *  anchor(c)  = last present frame before c (still the OLD score) — any graphic-absent run (replay,
+ *               celebration) between it and c is walked back over (E1).
  *
- * Pass 1 ("sprocket", E2) samples every `stride`-th frame and bisects only the windows whose two ends differ.
- * Pass 2 ("verify") reads every frame in order with the sequential rule; it can only add markers.
- * Both passes share one memoised frame oracle, so pass 2 never decodes a frame twice.
+ * Pass 1 ("sprocket", E2) decodes every `stride`-th frame, learns the mask and the reference from them, and
+ * bisects only the windows whose two ends differ by more than τ_cand. Pass 2 ("verify") reads every frame with the
+ * sequential rule and can only add markers. Both passes share one memoised frame oracle.
+ * Thresholds were tuned on the development match only (see DEMO.md); held-out matches never tune them.
  */
-import { Sig, sigDistance } from './signature';
+import { CellMask, cellMask, medianSig, Sig, sigDistance, topKDistance } from './signature';
 
 export interface DetectorParams {
-  /** Change threshold on d(sig, state). */
+  /** Windowed change threshold (top-K units, luma). */
   tau: number;
-  /** Hold threshold: frames after a change must stay this close to it. */
-  tauHold: number;
-  /** Presence threshold: d(sig, ref) above this means the score graphic is not on screen. */
+  /** Pass-1 candidate threshold between two single sprocket samples. */
+  tauCand: number;
+  /** Presence threshold: masked mean distance to the reference. */
   tauAbs: number;
+  /** Cells averaged for the change distance. */
+  topK: number;
+  /** Frames in each median window (odd). */
+  window: number;
+  /** A cell whose median change between samples exceeds this is masked out. */
+  jitterMax: number;
+  /** F3: when fewer than this fraction of cells survive the mask, the box is "moving". */
+  movingKeptMin: number;
   /** Pass-1 sampling stride, frames. */
   stride: number;
-  /** Present frames after a change that must hold. */
-  holdFrames: number;
-  /** How far (frames) to look for those holding frames. */
-  holdWindow: number;
+  /** How far (frames) to look for the W present neighbours on each side. */
+  reach: number;
 }
 
 export const DEFAULT_PARAMS: DetectorParams = {
-  tau: 10,
-  tauHold: 7,
-  tauAbs: 45,
+  tau: 20,
+  tauCand: 12,
+  tauAbs: 20,
+  topK: 3,
+  window: 3,
+  jitterMax: 2.5,
+  movingKeptMin: 0.4,
   stride: 8,
-  holdFrames: 2,
-  holdWindow: 6,
+  reach: 30,
 };
 
 /** Detector output. `ms`/`changeMs` hold frame INDICES inside the passes; `scan.ts` converts them to ms. */
@@ -46,7 +59,7 @@ export interface Marker {
   frameIndex: number;
   /** Frame index of the anchor. */
   anchorIndex: number;
-  /** d(sig_change, old state). */
+  /** D(c), the windowed change distance. */
   delta: number;
   /** Pass that first found it. */
   pass: 1 | 2;
@@ -57,16 +70,22 @@ export class FrameOracle {
   readonly n: number;
   private sigs: (Sig | undefined)[];
   private pres: Int8Array; // -1 unknown, 0 absent, 1 present
+  private ref: Sig | null = null;
+  mask: CellMask | null = null;
   decodes = 0;
   constructor(
     n: number,
     private decodeSig: (i: number) => Sig,
-    private ref: Sig,
     private tauAbs: number,
   ) {
     this.n = n;
     this.sigs = new Array(n);
     this.pres = new Int8Array(n).fill(-1);
+  }
+  setReference(ref: Sig, mask: CellMask) {
+    this.ref = ref;
+    this.mask = mask;
+    this.pres.fill(-1);
   }
   has(i: number) {
     return this.sigs[i] !== undefined;
@@ -81,31 +100,83 @@ export class FrameOracle {
     return s;
   }
   present(i: number): boolean {
+    if (!this.ref) {
+      return true;
+    }
     if (this.pres[i] < 0) {
-      this.pres[i] = sigDistance(this.sig(i), this.ref) < this.tauAbs ? 1 : 0;
+      this.pres[i] = sigDistance(this.sig(i), this.ref, this.mask || undefined) < this.tauAbs ? 1 : 0;
     }
     return this.pres[i] === 1;
   }
-  refDistance(i: number): number {
-    return sigDistance(this.sig(i), this.ref);
-  }
 }
 
-/** True if the next `holdFrames` present frames after c (within holdWindow) stay within τ_hold of sig_c. */
-export function holds(o: FrameOracle, c: number, p: DetectorParams): boolean {
-  const sc = o.sig(c);
-  let seen = 0;
-  for (let j = c + 1; j < o.n && j <= c + p.holdWindow && seen < p.holdFrames; j++) {
-    if (!o.present(j)) {
-      continue;
+/** Up to `w` present frame indices before c (nearest last), looking back at most `reach` frames. */
+export function presentBefore(o: FrameOracle, c: number, w: number, reach: number): number[] {
+  const out: number[] = [];
+  for (let j = c - 1; j >= 0 && j >= c - reach && out.length < w; j--) {
+    if (o.present(j)) {
+      out.unshift(j);
     }
-    if (sigDistance(o.sig(j), sc) >= p.tauHold) {
-      return false;
-    }
-    seen++;
   }
-  // At the very end of the file fewer frames exist: one confirming frame is enough there, none is not.
-  return seen >= p.holdFrames || (seen >= 1 && c + p.holdWindow >= o.n - 1);
+  return out;
+}
+
+/** c (if present) and the next present frames, up to `w`, looking ahead at most `reach` frames. */
+export function presentFrom(o: FrameOracle, c: number, w: number, reach: number): number[] {
+  const out: number[] = [];
+  for (let j = c; j < o.n && j <= c + reach && out.length < w; j++) {
+    if (o.present(j)) {
+      out.push(j);
+    }
+  }
+  return out;
+}
+
+/** D(c) with its two medians, or null when there are not enough present frames on a side. */
+export function windowStep(o: FrameOracle, c: number, p: DetectorParams) {
+  const before = presentBefore(o, c, p.window, p.reach);
+  const after = presentFrom(o, c, p.window, p.reach);
+  const need = Math.ceil(p.window / 2);
+  if (before.length < need || after.length < need) {
+    return null;
+  }
+  const oldS = medianSig(before.map(i => o.sig(i)));
+  const newS = medianSig(after.map(i => o.sig(i)));
+  return { d: topKDistance(newS, oldS, o.mask || undefined, p.topK), oldS, newS };
+}
+
+const closerToNew = (o: FrameOracle, j: number, oldS: Sig, newS: Sig, p: DetectorParams) =>
+  topKDistance(o.sig(j), newS, o.mask || undefined, p.topK) < topKDistance(o.sig(j), oldS, o.mask || undefined, p.topK);
+
+/** Confirms a change near c: returns the first frame of the new state and its D, or null. */
+export function confirmAt(o: FrameOracle, c: number, p: DetectorParams): { c: number; d: number } | null {
+  if (!o.present(c)) {
+    return null;
+  }
+  const ws = windowStep(o, c, p);
+  if (!ws || ws.d <= p.tau) {
+    return null;
+  }
+  // Settle on the first frame that already looks like the new state (c may sit one frame early in a window).
+  let first = c;
+  const back = presentBefore(o, c, 1, p.reach);
+  if (back.length && closerToNew(o, back[0], ws.oldS, ws.newS, p)) {
+    first = back[0];
+  } else if (!closerToNew(o, c, ws.oldS, ws.newS, p)) {
+    const next = presentFrom(o, c + 1, 1, p.reach);
+    if (!next.length) {
+      return null;
+    }
+    first = next[0];
+  }
+  const ws2 = first === c ? ws : windowStep(o, first, p);
+  return ws2 && ws2.d > p.tau ? { c: first, d: ws2.d } : null;
+}
+
+function markerAt(o: FrameOracle, c: number, d: number, pass: 1 | 2): Marker {
+  const prev = presentBefore(o, c, 1, Number.MAX_SAFE_INTEGER);
+  const anchor = prev.length ? prev[0] : c;
+  return { ms: anchor, changeMs: c, frameIndex: c, anchorIndex: anchor, delta: d, pass };
 }
 
 export interface PassProgress {
@@ -115,162 +186,136 @@ export interface PassProgress {
   decodes: number;
 }
 
+export function sprocketSamples(n: number, stride: number): number[] {
+  const k = Math.max(1, stride);
+  const s: number[] = [];
+  for (let i = 0; i < n; i += k) {
+    s.push(i);
+  }
+  if (s[s.length - 1] !== n - 1) {
+    s.push(n - 1);
+  }
+  return s;
+}
+
+/** Medoid of the given frames under the (masked) mean distance: the most typical look of the graphic. */
+export function medoid(o: FrameOracle, idx: number[], mask: CellMask, radius: number): number {
+  let best = idx[0];
+  let bestCount = -1;
+  let bestSum = Infinity;
+  for (const a of idx) {
+    let count = 0;
+    let sum = 0;
+    for (const b of idx) {
+      const d = sigDistance(o.sig(a), o.sig(b), mask);
+      sum += d;
+      if (d <= radius) {
+        count++;
+      }
+    }
+    if (count > bestCount || (count === bestCount && sum < bestSum)) {
+      best = a;
+      bestCount = count;
+      bestSum = sum;
+    }
+  }
+  return best;
+}
+
 /**
- * Pass 2 — sequential. Generator: yields after every frame so the caller can pace work on the JS thread.
- * Returns markers (pass = 2 for all; the caller merges with pass 1) and the absent-frame count.
+ * Pass 1 — sprocket + bisect. Phase A decodes the sprocket samples (left to right) and learns the cell mask and
+ * the presence reference from them. Phase B compares consecutive present samples; a pair that differs by more
+ * than τ_cand is bisected (single frames, classified as nearer the old or the new sample) and the found frame must
+ * pass the windowed hold test. Generator: yields after every sample so the caller can pace the JS thread.
+ */
+export function* sprocketPass(
+  o: FrameOracle,
+  p: DetectorParams,
+  sink?: (m: Marker) => void,
+  refFrame?: number,
+): Generator<PassProgress, { markers: Marker[]; mask: CellMask; kept: number; ref: number }, void> {
+  const samples = sprocketSamples(o.n, p.stride);
+  for (const s of samples) {
+    o.sig(s);
+    yield { pass: 1, readTo: s, decodes: o.decodes };
+  }
+  const { mask, kept } = cellMask(
+    samples.map(s => o.sig(s)),
+    p.jitterMax,
+  );
+  const ref = refFrame !== undefined ? refFrame : medoid(o, samples, mask, p.tauAbs / 2);
+  o.setReference(o.sig(ref), mask);
+
+  const markers: Marker[] = [];
+  const present = samples.filter(s => o.present(s));
+  for (let k = 1; k < present.length; k++) {
+    const a = present[k - 1];
+    const b = present[k];
+    if (topKDistance(o.sig(a), o.sig(b), mask, p.topK) > p.tauCand) {
+      const sa = o.sig(a);
+      const sb = o.sig(b);
+      let lo = a;
+      let hi = b;
+      let linear = false;
+      while (hi - lo > 1) {
+        const mid = Math.floor((lo + hi) / 2);
+        if (!o.present(mid)) {
+          linear = true;
+          break;
+        }
+        if (closerToNew(o, mid, sa, sb, p)) {
+          hi = mid;
+        } else {
+          lo = mid;
+        }
+      }
+      if (linear) {
+        hi = b;
+        for (let j = lo + 1; j <= b; j++) {
+          if (o.present(j) && closerToNew(o, j, sa, sb, p)) {
+            hi = j;
+            break;
+          }
+        }
+      }
+      const found = confirmAt(o, hi, p);
+      if (found && !markers.some(m => Math.abs(m.frameIndex - found.c) <= p.window)) {
+        const m = markerAt(o, found.c, found.d, 1);
+        markers.push(m);
+        sink?.(m);
+      }
+    }
+    yield { pass: 1, readTo: b, decodes: o.decodes };
+  }
+  return { markers, mask, kept, ref };
+}
+
+/**
+ * Pass 2 — sequential verify over every frame (after pass 1 set the mask and reference).
+ * Returns markers (pass = 2; the caller merges with pass 1) and the absent-frame count.
  */
 export function* sequentialPass(
   o: FrameOracle,
   p: DetectorParams,
 ): Generator<PassProgress, { markers: Marker[]; absent: number }, void> {
   const markers: Marker[] = [];
-  let state: Sig | null = null;
-  let lastOld = -1;
   let absent = 0;
+  let skipUntil = -1;
   for (let i = 0; i < o.n; i++) {
     if (!o.present(i)) {
       absent++;
-    } else {
-      const s = o.sig(i);
-      if (state === null) {
-        state = s;
-        lastOld = i;
-      } else {
-        const d = sigDistance(s, state);
-        if (d <= p.tau) {
-          state = s;
-          lastOld = i;
-        } else if (holds(o, i, p)) {
-          markers.push({ ms: lastOld, changeMs: i, frameIndex: i, anchorIndex: lastOld, delta: d, pass: 2 });
-          state = s;
-          lastOld = i;
-        }
-        // else: transient (animation, flash) — state unchanged
+    } else if (i > skipUntil) {
+      const found = confirmAt(o, i, p);
+      if (found) {
+        markers.push(markerAt(o, found.c, found.d, 2));
+        // Leave the window that straddles this change before testing again.
+        const after = presentFrom(o, found.c, p.window, p.reach);
+        skipUntil = after.length ? after[after.length - 1] - 1 : found.c;
       }
     }
     yield { pass: 2, readTo: i, decodes: o.decodes };
   }
   return { markers, absent };
-}
-
-/**
- * Pass 1 — sprocket + bisect. Samples 0, k, 2k, … (and the last frame). When a present sample differs from
- * the state, the window since the previous present sample is bisected on present frames (falling back to a
- * linear read when a midpoint is absent) to find the first changed frame; the hold rule confirms it.
- */
-export function* sprocketPass(
-  o: FrameOracle,
-  p: DetectorParams,
-  sink?: (m: Marker) => void,
-): Generator<PassProgress, { markers: Marker[] }, void> {
-  const markers: Marker[] = [];
-  const k = Math.max(1, p.stride);
-  const samples: number[] = [];
-  for (let i = 0; i < o.n; i += k) {
-    samples.push(i);
-  }
-  if (samples[samples.length - 1] !== o.n - 1) {
-    samples.push(o.n - 1);
-  }
-
-  let state: Sig | null = null;
-  let a = -1; // last present sample consistent with state
-
-  const differs = (i: number, st: Sig) => sigDistance(o.sig(i), st) > p.tau;
-
-  for (const b of samples) {
-    if (o.present(b)) {
-      if (state === null) {
-        state = o.sig(b);
-        a = b;
-      } else if (!differs(b, state)) {
-        state = o.sig(b);
-        a = b;
-      } else {
-        // Resolve every change inside (a, b].
-        let cur = a; // a present frame known to show curState
-        let curState: Sig = state;
-        let lastOld = a;
-        let linear = false; // after a transient or an absent midpoint, read the rest of the window in order
-        for (;;) {
-          let c = -1;
-          if (!linear) {
-            let lo = cur;
-            let hi = b;
-            while (hi - lo > 1) {
-              const mid = (lo + hi) >> 1;
-              if (!o.present(mid)) {
-                linear = true;
-                break;
-              }
-              if (differs(mid, curState)) {
-                hi = mid;
-              } else {
-                lo = mid;
-              }
-            }
-            if (!linear) {
-              c = hi;
-              lastOld = lo;
-            } else {
-              cur = lo;
-              lastOld = lo;
-            }
-          }
-          if (linear) {
-            for (let j = cur + 1; j <= b; j++) {
-              if (!o.present(j)) {
-                continue;
-              }
-              if (differs(j, curState)) {
-                c = j;
-                break;
-              }
-              lastOld = j;
-            }
-          }
-          if (c < 0) {
-            break; // nothing differs any more inside the window
-          }
-          if (holds(o, c, p)) {
-            const m: Marker = {
-              ms: lastOld,
-              changeMs: c,
-              frameIndex: c,
-              anchorIndex: lastOld,
-              delta: sigDistance(o.sig(c), curState),
-              pass: 1,
-            };
-            markers.push(m);
-            sink?.(m);
-            curState = o.sig(c);
-            cur = c;
-            lastOld = c;
-            if (c === b || !differs(b, curState)) {
-              break;
-            }
-          } else {
-            // transient at c: keep the old state, keep reading in order after it
-            cur = c;
-            linear = true;
-            if (c === b) {
-              break;
-            }
-          }
-        }
-        // The state follows b only if b is a confirmed part of the current state.
-        if (!differs(b, curState)) {
-          state = o.sig(b);
-          a = b;
-        } else {
-          state = curState;
-          a = lastOld;
-        }
-      }
-    }
-    yield { pass: 1, readTo: b, decodes: o.decodes };
-  }
-  return { markers };
 }
 
 /**
@@ -293,15 +338,10 @@ export function mergePasses(pass1: Marker[], pass2: Marker[], tolerance = 1) {
   return { merged, added, lostFromPass1 };
 }
 
-/** F3: a box that never holds (e.g. over a running clock). True when > 50% of consecutive present pairs move. */
-export function boxIsMoving(sigs: Sig[], tauHold: number): { moving: boolean; movingFraction: number; jitter: number[] } {
-  const jitter: number[] = [];
-  for (let i = 1; i < sigs.length; i++) {
-    jitter.push(sigDistance(sigs[i], sigs[i - 1]));
-  }
-  const movingCount = jitter.filter(j => j >= tauHold).length;
-  const movingFraction = jitter.length ? movingCount / jitter.length : 0;
-  return { moving: movingFraction > 0.5, movingFraction, jitter };
+/** F3: a box that is mostly jitter (e.g. over a running clock, or the pitch). */
+export function boxIsMoving(sigs: Sig[], p: Pick<DetectorParams, 'jitterMax' | 'movingKeptMin'>) {
+  const { kept } = cellMask(sigs, p.jitterMax);
+  return { moving: kept < p.movingKeptMin, kept };
 }
 
 /** Drives a pass generator to completion synchronously (Node: tests, bench). */

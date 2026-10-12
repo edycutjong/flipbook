@@ -15,8 +15,7 @@ import {
   sprocketPass,
 } from './detector';
 import { decodeLuma, LumaFrame, medianPictureArea, PictureArea, pictureAreaOf } from './luma';
-import { pickReference, referenceCandidates } from './reference';
-import { NormRect, Sig, signature } from './signature';
+import { DEFAULT_GRID, NormRect, Sig, signature } from './signature';
 
 export interface TimedMarker extends Marker {
   /** Anchor time, ms (jump target = ms − leadIn). */
@@ -41,6 +40,8 @@ export interface ScanResult {
   intervalSource: BifIndex['intervalSource'];
   rect: NormRect;
   refFrame: number;
+  /** Fraction of grid cells kept by the jitter mask. */
+  maskKept: number;
   area: PictureArea;
   frameSize: { width: number; height: number };
   markers: TimedMarker[];
@@ -90,7 +91,7 @@ export function areaProbeFrames(n: number, stride: number, count = 5): number[] 
 }
 
 /** Builds the frame-signature function for one BIF + rect: decodes, finds the picture area once, crops. */
-export function makeSigSource(buffer: ArrayBuffer, index: BifIndex, rect: NormRect, stride: number) {
+export function makeSigSource(buffer: ArrayBuffer, index: BifIndex, rect: NormRect, stride: number, grid = DEFAULT_GRID) {
   const lumaCache = new Map<number, LumaFrame>();
   let jpegDecodes = 0;
   const decode = (i: number) => {
@@ -111,7 +112,7 @@ export function makeSigSource(buffer: ArrayBuffer, index: BifIndex, rect: NormRe
   });
   const { width, height } = probeFrames[0];
   const area = medianPictureArea(probeFrames.map(pictureAreaOf), width, height);
-  const sigOf = (i: number): Sig => signature(decode(i), area, rect);
+  const sigOf = (i: number): Sig => signature(decode(i), area, rect, grid.cols, grid.rows);
   return { sigOf, area, frameSize: { width, height }, jpegDecodes: () => jpegDecodes };
 }
 
@@ -127,22 +128,7 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
 
   const t0 = now();
   const src = makeSigSource(buffer, index, opts.rect, params.stride);
-  const early = new Map<number, Sig>();
-  const sigEarly = (i: number) => {
-    let s = early.get(i);
-    if (!s) {
-      s = src.sigOf(i);
-      early.set(i, s);
-    }
-    return s;
-  };
-  const refFrame =
-    opts.refFrame === 'auto'
-      ? pickReference(referenceCandidates(n, params.stride), sigEarly, params.tauAbs / 2)
-      : Math.max(0, Math.min(n - 1, opts.refFrame));
-  const ref = sigEarly(refFrame);
-  const oracle = new FrameOracle(n, i => early.get(i) || src.sigOf(i), ref, params.tauAbs);
-  log(`ref frame=${refFrame} area=${src.area.top},${src.area.bottom},${src.area.left},${src.area.right}`);
+  const oracle = new FrameOracle(n, src.sigOf, params.tauAbs);
   let cancelled = false;
 
   const drive = async <R>(gen: Generator<PassProgress, R, void>, onStep: (p: PassProgress) => void): Promise<R | null> => {
@@ -167,15 +153,25 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
   // Pass 1 — sprocket + bisect. Markers are emitted as soon as each is confirmed.
   let emitted = 0;
   let pass1Markers: Marker[] = [];
-  const p1 = sprocketPass(oracle, params, m => {
-    emitted++;
-    opts.onMarker?.(toTimed(m));
-  });
+  const p1 = sprocketPass(
+    oracle,
+    params,
+    m => {
+      emitted++;
+      opts.onMarker?.(toTimed(m));
+    },
+    opts.refFrame === 'auto' ? undefined : Math.max(0, Math.min(n - 1, opts.refFrame)),
+  );
   const p1res = await drive(p1, step => {
     opts.onProgress?.({ pass: 1, readToMs: index.timeMs[step.readTo], decodes: src.jpegDecodes(), frames: n, markers: emitted });
   });
+  let refFrame = -1;
+  let maskKept = 0;
   if (p1res) {
     pass1Markers = p1res.markers;
+    refFrame = p1res.ref;
+    maskKept = p1res.kept;
+    log(`ref frame=${refFrame} mask kept=${(maskKept * 100).toFixed(0)}% area=${src.area.top},${src.area.bottom},${src.area.left},${src.area.right}`);
   }
   const t1 = now();
   const pass1 = { decodes: src.jpegDecodes(), ms: t1 - t0, markers: pass1Markers.length };
@@ -216,6 +212,7 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
     intervalSource: index.intervalSource,
     rect: opts.rect,
     refFrame,
+    maskKept,
     area: src.area,
     frameSize: src.frameSize,
     markers: finalMarkers.map(toTimed),

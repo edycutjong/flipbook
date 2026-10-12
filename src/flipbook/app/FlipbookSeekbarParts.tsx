@@ -20,6 +20,8 @@ export const THUMB_W = 320;
 export const THUMB_H = 180;
 /** Safety margin around the box when masking, fraction of the box size per side. */
 export const MASK_MARGIN = 0.15;
+/** Distance of the scan strip above the bottom of the SeekBar's focus container (1080p units). */
+export const STRIP_BOTTOM = 44;
 
 export const ScanStrip = ({ fb, durationMs }: { fb: FlipbookApi; durationMs: number }) => {
   if (!fb.enabled || fb.phase === 'off' || fb.phase === 'loading' || fb.phase === 'no-index' || !durationMs) {
@@ -121,11 +123,14 @@ export const ThumbnailMask = ({ mask, children }: { mask: NormRect | null; child
 );
 
 const styles = StyleSheet.create({
+  // Absolutely placed just above the bar so it does not move when the KUI opens the thumbnail.
   strip: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: scaleUxToDp(STRIP_BOTTOM),
     height: scaleUxToDp(6),
-    width: '100%',
     backgroundColor: FB.before,
-    marginBottom: scaleUxToDp(14),
     overflow: 'hidden',
   },
   fill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: FB.rule },

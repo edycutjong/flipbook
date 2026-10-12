@@ -41,7 +41,7 @@ export function statusText(fb: FlipbookApi): { head: string; detail: string } | 
     if (fb.phase === 'scanning') {
       return { head: 'SCANNING', detail: `read to ${readTo}` };
     }
-    return { head: 'READY', detail: verifying ? `⏩ next change · still reading, at ${readTo}` : '⏩ next change · ⏪ previous' };
+    return { head: 'READY', detail: verifying ? `>> next change · still reading, at ${readTo}` : '>> next change · << previous' };
   }
   const n = fb.markers.length;
   const changes = `${n} CHANGE${n === 1 ? '' : 'S'}`;
@@ -104,7 +104,7 @@ const Calibration = ({ fb }: { fb: FlipbookApi }) => {
         <Text style={styles.calHead}>PUT THE BOX ON THE SCORE</Text>
         <Text style={styles.calBody}>Keep the clock outside it. Once per broadcaster graphic.</Text>
         <Text style={styles.calKeys}>
-          {fb.resizing ? '◀ ▶ ▲ ▼  resize' : '◀ ▶ ▲ ▼  move'} · SELECT {fb.resizing ? 'move' : 'resize'} · ▶❚❚ confirm
+          {fb.resizing ? 'arrows: resize' : 'arrows: move'} · SELECT: {fb.resizing ? 'move' : 'resize'} · PLAY/PAUSE: confirm
         </Text>
         <Text style={[styles.calState, { color: moving ? FB.after : FB.rule }]}>
           {fb.boxState === null ? '' : moving ? 'Box is moving — shrink it off the clock' : 'steady'}
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   statusRow: {
     position: 'absolute',
     left: '7%',
-    bottom: scaleUxToDp(250),
+    bottom: scaleUxToDp(300),
     flexDirection: 'row',
     alignItems: 'baseline',
     backgroundColor: FB.scrim,

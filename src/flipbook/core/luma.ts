@@ -5,7 +5,6 @@
  * thumbnail JPEGs ever reach this decoder; Flipbook never decodes a video byte.
  */
 // Import the decoder only: jpeg-js's index also loads the encoder.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const decodeJpeg: (data: Uint8Array, opts: Record<string, unknown>) => DecodedImage = require('jpeg-js/lib/decoder');
 
 interface DecodedImage {
@@ -41,6 +40,7 @@ export function decodeLuma(jpeg: Uint8Array): LumaFrame {
   const rgb = img.data;
   for (let i = 0, j = 0; i < n; i++, j += 3) {
     // BT.601 luma, integer form
+    // eslint-disable-next-line no-bitwise
     y[i] = (77 * rgb[j] + 150 * rgb[j + 1] + 29 * rgb[j + 2]) >> 8;
   }
   return { width: img.width, height: img.height, y };
@@ -103,7 +103,7 @@ export function medianPictureArea(areas: PictureArea[], width: number, height: n
   }
   const med = (vals: number[]) => {
     const s = [...vals].sort((a, b) => a - b);
-    return s[s.length >> 1];
+    return s[Math.floor(s.length / 2)];
   };
   return {
     top: med(areas.map(a => a.top)),

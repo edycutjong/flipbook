@@ -368,7 +368,12 @@ const PlayerScreen = ({
           const bif = await getBifFile(data.bifUrl);
           bifFrameImagesRef.current = bif.frameImageSource;
           // Flipbook reads the same BIF as a corpus (scan runs alongside playback).
-          flipbookAttachRef.current?.(bif.arrayBuffer, bif.fetchMs, data.duration ? data.duration * 1000 : undefined);
+          const videoDuration = videoRef.current?.duration;
+          flipbookAttachRef.current?.(
+            bif.arrayBuffer,
+            bif.fetchMs,
+            videoDuration && isFinite(videoDuration) ? videoDuration * 1000 : undefined,
+          );
         } catch (e) {
           console.error('[PlayerScreen.tsx] - BIF unavailable', e);
           flipbookAttachRef.current?.(new ArrayBuffer(0), 0);

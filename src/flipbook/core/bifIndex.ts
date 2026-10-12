@@ -150,7 +150,7 @@ export function readBif(buffer: ArrayBuffer, opts: ReadBifOptions = {}): BifRead
     gaps.push(timeMs[i] - timeMs[i - 1]);
   }
   gaps.sort((a, b) => a - b);
-  const intervalMs = gaps.length ? gaps[gaps.length >> 1] : unitMs;
+  const intervalMs = gaps.length ? gaps[Math.floor(gaps.length / 2)] : unitMs;
   // A BIF whose spacing varies wildly cannot be mapped to positions honestly.
   if (gaps.length && gaps[gaps.length - 1] > 4 * intervalMs) {
     return {
@@ -193,7 +193,7 @@ export function frameAtMs(index: BifIndex, positionMs: number): number {
     return hi;
   }
   while (hi - lo > 1) {
-    const mid = (lo + hi) >> 1;
+    const mid = Math.floor((lo + hi) / 2);
     if (t[mid] <= positionMs) {
       lo = mid;
     } else {

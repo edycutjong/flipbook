@@ -19,7 +19,6 @@ import {
   formatClock,
   frameBytes,
   makePreview,
-  pickReference,
   probeArea,
   PictureArea,
   nextJump,
@@ -29,6 +28,8 @@ import {
   scanBif,
   ScanProgress,
   ScanResult,
+  Sig,
+  sigDistance,
   TimedMarker,
 } from '../core';
 
@@ -120,6 +121,23 @@ const disabledApi: FlipbookApi = {
 
 const FlipbookCtx = createContext<FlipbookApi>(disabledApi);
 export const useFlipbook = () => useContext(FlipbookCtx);
+
+/** Index of the signature with the smallest total distance to the others (the most typical early frame). */
+function mostTypical(sigs: Sig[]): number {
+  let best = 0;
+  let bestSum = Infinity;
+  for (let a = 0; a < sigs.length; a++) {
+    let sum = 0;
+    for (let b = 0; b < sigs.length; b++) {
+      sum += sigDistance(sigs[a], sigs[b]);
+    }
+    if (sum < bestSum) {
+      best = a;
+      bestSum = sum;
+    }
+  }
+  return best;
+}
 
 const rectKey = (source: string) => `flipbook.rect.${source}`;
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
@@ -268,10 +286,10 @@ export const FlipbookProvider = ({
       setPhase('calibrating');
       // Live preview (F3): the first 60 frames decoded once; each nudge only re-crops them.
       const preview = makePreview(bif.buffer, bif.index, PREVIEW_FRAMES, params.stride);
-      previewRef.current = (r: NormRect) => (boxIsMoving(preview.sigsFor(r), params.tauHold).moving ? 'moving' : 'steady');
+      previewRef.current = (r: NormRect) => (boxIsMoving(preview.sigsFor(r), params).moving ? 'moving' : 'steady');
       // Backdrop = the most typical of the first frames (graphic on screen, early in the match: no later score shown).
       const early = preview.sigsFor(clampRect(initial));
-      const pick = pickReference(early.map((_, i) => i), i => early[i], params.tauAbs / 2);
+      const pick = mostTypical(early);
       setBackdrop({ jpeg: frameBytes(bif.buffer, bif.index, pick), area: preview.area, width: preview.width, height: preview.height });
       log(`calibrate on frame=${pick} (${formatClock(bif.index.timeMs[pick])})`);
       try {

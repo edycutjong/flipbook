@@ -1,15 +1,27 @@
 /** Test helpers: synthetic signatures and minimal BIF/JPEG builders (independent of the code under test). */
 import { encode } from 'jpeg-js';
-import { FrameOracle, Sig, SIG_LEN } from '../../src/flipbook/core';
+import { DEFAULT_GRID, FrameOracle, Sig } from '../../src/flipbook/core';
+
+export const SIG_LEN = DEFAULT_GRID.cols * DEFAULT_GRID.rows;
+const COLS = DEFAULT_GRID.cols;
 
 export const flat = (v: number): Sig => new Float32Array(SIG_LEN).fill(v);
 
-/** A "score graphic" signature: base level with a digit-like block whose brightness encodes the score. */
+/**
+ * A synthetic score-graphic signature (64×5 grid): a static graphic, a 4×3-cell digit block whose level encodes
+ * the score, and a transparent gap (cols 20–23) where the pitch shows through and jitters every frame.
+ */
 export const scoreSig = (score: number, noise = 0, rnd: () => number = Math.random): Sig => {
   const s = new Float32Array(SIG_LEN).fill(120);
-  // 16 of 64 cells carry the digits: one score step moves d by 16*45/64 ≈ 11 (τ = 10); 0→3 ≈ 34 (< τ_abs = 45)
-  for (let k = 0; k < 16; k++) {
-    s[40 + k] = 60 + (score % 4) * 45;
+  for (let r = 1; r <= 3; r++) {
+    for (let c = 50; c < 54; c++) {
+      s[r * COLS + c] = 60 + (score % 4) * 45;
+    }
+  }
+  for (let r = 0; r < 5; r++) {
+    for (let c = 20; c < 24; c++) {
+      s[r * COLS + c] = 40 + rnd() * 150;
+    }
   }
   if (noise) {
     for (let k = 0; k < SIG_LEN; k++) {
@@ -19,10 +31,16 @@ export const scoreSig = (score: number, noise = 0, rnd: () => number = Math.rand
   return s;
 };
 
-/** Graphic absent (replay / ad): far from any score signature. */
-export const absentSig = (v = 20): Sig => flat(v);
+/** Graphic absent (replay / ad): the pitch everywhere. */
+export const absentSig = (rnd: () => number = Math.random): Sig => {
+  const s = new Float32Array(SIG_LEN);
+  for (let k = 0; k < SIG_LEN; k++) {
+    s[k] = 60 + rnd() * 50;
+  }
+  return s;
+};
 
-export const oracleFor = (sigs: Sig[], ref: Sig, tauAbs = 45) => new FrameOracle(sigs.length, i => sigs[i], ref, tauAbs);
+export const oracleFor = (sigs: Sig[], tauAbs = 20) => new FrameOracle(sigs.length, i => sigs[i], tauAbs);
 
 /** Deterministic PRNG (mulberry32). */
 export function rng(seed: number) {

@@ -82,14 +82,14 @@ const Seekbar = ({
   const renderAboveThumb = useCallback(
     (props: DisplayAboveThumbProps) =>
       flipbook.enabled ? (
-        <ThumbnailMask mask={thumbMask}>
+        <ThumbnailMask mask={disableThumbnail ? null : thumbMask}>
           <FastForwardRewindIcon {...props} />
         </ThumbnailMask>
       ) : (
         <FastForwardRewindIcon {...props} />
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [flipbook.enabled, thumbMask?.x, thumbMask?.y, thumbMask?.w, thumbMask?.h],
+    [flipbook.enabled, disableThumbnail, thumbMask?.x, thumbMask?.y, thumbMask?.w, thumbMask?.h],
   );
   const flipbookMarkers =
     flipbook.enabled && flipbook.mode === 'highlights'
