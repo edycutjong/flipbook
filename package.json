@@ -90,7 +90,7 @@
     "@amazon-devices/kepler-cli-platform": "~0.22.7",
     "@amazon-devices/kepler-performance-api": "~0.1.0",
     "@amazon-devices/keplerscript-commonmodules": "~1.1.0",
-    "@babel/core": "^7.25.2",
+    "@babel/core": "^8.0.7",
     "@babel/runtime": "^7.25.0",
     "@react-native-community/cli": "^20.0.0",
     "@react-native/babel-preset": "0.83.0",
