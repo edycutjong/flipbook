@@ -50,6 +50,8 @@ export interface ScanResult {
   /** Pass-1 markers pass 2 did not reproduce (invariant: 0). */
   lostFromPass1: number;
   skippedAbsent: number;
+  /** Share of frames without the graphic (pass 2). Over half: the box is probably not on the score graphic. */
+  absentFraction: number;
   jpegDecodes: number;
   params: DetectorParams;
   /** Flipbook only ever decodes BIF thumbnail JPEGs. */
@@ -73,9 +75,12 @@ export interface ScanOptions {
   isCancelled?: () => boolean;
   onProgress?: (p: ScanProgress) => void;
   onMarker?: (m: TimedMarker) => void;
-  onPass1Done?: (r: { decodes: number; ms: number; markers: TimedMarker[] }) => void;
+  onPass1Done?: (r: { decodes: number; ms: number; markers: TimedMarker[]; maskKept: number }) => void;
   log?: (line: string) => void;
 }
+
+/** Longest graphic-absent stretch a change may span. */
+export const REACH_MS = 15 * 60_000;
 
 const defaultNow = () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now());
 const defaultYield = () => new Promise<void>(resolve => setTimeout(resolve, 0));
@@ -117,7 +122,9 @@ export function makeSigSource(buffer: ArrayBuffer, index: BifIndex, rect: NormRe
 }
 
 export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
-  const params: DetectorParams = { ...DEFAULT_PARAMS, ...(opts.params || {}) };
+  const base: DetectorParams = { ...DEFAULT_PARAMS, ...(opts.params || {}) };
+  // Reach is a time, not a frame count: look across up to 15 min of graphic-absent frames (half-time, long replays).
+  const params: DetectorParams = { ...base, reach: Math.max(base.reach, Math.ceil(REACH_MS / Math.max(1, opts.index.intervalMs))) };
   const now = opts.now || defaultNow;
   const yieldFn = opts.yieldFn || defaultYield;
   // Small batches: one decode is ~20 ms on the VVD, so 8 keeps each JS turn under ~200 ms.
@@ -153,6 +160,7 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
 
   // Pass 1 — sprocket + bisect. Markers are emitted as soon as each is confirmed.
   let emitted = 0;
+  let readTo = 0; // monotonic: phase B of pass 1 revisits earlier frames
   let pass1Markers: Marker[] = [];
   const p1 = sprocketPass(
     oracle,
@@ -164,7 +172,8 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
     opts.refFrame === 'auto' ? undefined : Math.max(0, Math.min(n - 1, opts.refFrame)),
   );
   const p1res = await drive(p1, step => {
-    opts.onProgress?.({ pass: 1, readToMs: index.timeMs[step.readTo], decodes: src.jpegDecodes(), frames: n, markers: emitted });
+    readTo = Math.max(readTo, step.readTo);
+    opts.onProgress?.({ pass: 1, readToMs: index.timeMs[readTo], decodes: src.jpegDecodes(), frames: n, markers: emitted });
   });
   let refFrame = -1;
   let maskKept = 0;
@@ -176,8 +185,12 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
   }
   const t1 = now();
   const pass1 = { decodes: src.jpegDecodes(), ms: t1 - t0, markers: pass1Markers.length };
-  log(`pass1 done n=${pass1.decodes}/${n} markers=${pass1.markers} ms=${Math.round(pass1.ms)}`);
-  opts.onPass1Done?.({ decodes: pass1.decodes, ms: pass1.ms, markers: pass1Markers.map(toTimed) });
+  if (cancelled) {
+    log('scan cancelled');
+  } else {
+    log(`pass1 done n=${pass1.decodes}/${n} markers=${pass1.markers} ms=${Math.round(pass1.ms)}`);
+    opts.onPass1Done?.({ decodes: pass1.decodes, ms: pass1.ms, markers: pass1Markers.map(toTimed), maskKept });
+  }
 
   let finalMarkers: Marker[] = pass1Markers;
   let added = 0;
@@ -190,9 +203,13 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
     });
     if (p2res) {
       const merged = mergePasses(pass1Markers, p2res.markers);
-      finalMarkers = merged.merged;
+      // Pass 2 can only ADD: a pass-1 marker it did not reproduce is kept (and counted), never dropped.
+      finalMarkers = [...merged.merged, ...merged.lostFromPass1].sort((a, b) => a.frameIndex - b.frameIndex);
       added = merged.added;
       lost = merged.lostFromPass1.length;
+      if (lost) {
+        log(`warning: ${lost} pass-1 marker(s) not reproduced by pass 2 — kept`);
+      }
       skippedAbsent = p2res.absent;
       for (const m of finalMarkers) {
         if (m.pass === 2) {
@@ -203,8 +220,12 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
   }
   const t2 = now();
   const pass2 = { decodes: src.jpegDecodes() - pass1.decodes, ms: t2 - t1, added };
-  if (!opts.pass1Only) {
-    log(`pass2 done added=${added} lost=${lost} absent=${skippedAbsent} ms=${Math.round(pass2.ms)}`);
+  if (cancelled) {
+    if (!opts.pass1Only) {
+      log('scan cancelled');
+    }
+  } else if (!opts.pass1Only) {
+    log(`pass2 done n=${pass2.decodes} added=${added} lost=${lost} absent=${skippedAbsent} ms=${Math.round(pass2.ms)}`);
   }
 
   return {
@@ -221,6 +242,7 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
     pass2,
     lostFromPass1: lost,
     skippedAbsent,
+    absentFraction: n ? skippedAbsent / n : 0,
     jpegDecodes: src.jpegDecodes(),
     params,
     videoBytesDecoded: 0,

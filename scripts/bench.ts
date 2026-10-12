@@ -12,6 +12,7 @@
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { performance } from 'node:perf_hooks';
 
 import { DEFAULT_PARAMS, DetectorParams, formatClock, readBif, scanBif, ScanResult, TimedMarker } from '../src/flipbook/core';
@@ -36,6 +37,50 @@ const pct = (xs: number[], p: number) => {
   return s[Math.min(s.length - 1, Math.max(0, Math.ceil((p / 100) * s.length) - 1))];
 };
 const median = (xs: number[]) => pct(xs, 50);
+
+/** Clopper-Pearson exact 95 % interval for k successes in n trials. */
+export function clopperPearson(k: number, n: number, alpha = 0.05): [number, number] {
+  if (n === 0) return [0, 1];
+  const logC = (m: number, i: number) => {
+    let v = 0;
+    for (let j = 1; j <= i; j++) v += Math.log(m - i + j) - Math.log(j);
+    return v;
+  };
+  // P(X <= x) for X ~ Bin(n, p), 0 < p < 1
+  const cdf = (x: number, p: number) => {
+    let sum = 0;
+    for (let i = 0; i <= x; i++) sum += Math.exp(logC(n, i) + i * Math.log(p) + (n - i) * Math.log(1 - p));
+    return sum;
+  };
+  const bisect = (f: (p: number) => number, target: number, increasing: boolean) => {
+    let lo = 1e-12;
+    let hi = 1 - 1e-12;
+    for (let it = 0; it < 80; it++) {
+      const mid = (lo + hi) / 2;
+      if ((f(mid) < target) === increasing) lo = mid;
+      else hi = mid;
+    }
+    return (lo + hi) / 2;
+  };
+  const lower = k === 0 ? 0 : bisect(p => 1 - cdf(k - 1, p), alpha / 2, true);
+  const upper = k === n ? 1 : bisect(p => cdf(k, p), alpha / 2, false);
+  return [+lower.toFixed(3), +upper.toFixed(3)];
+}
+
+/** Held-out matches (match-*.bif) are scored only against a committed human truth file. */
+function guardHeldOut(bifPath: string, labelsPath: string | undefined) {
+  if (!/^match-/.test(path.basename(bifPath))) return;
+  if (!labelsPath) throw new Error(`${path.basename(bifPath)} is a held-out match: a committed human truth file is required (--labels fixtures/<match>.truth.json)`);
+  const doc = JSON.parse(fs.readFileSync(labelsPath, 'utf8'));
+  if (!/GROUND TRUTH/.test(doc.status || '') || !doc.labelledBy) throw new Error('labels file is not a human ground-truth file');
+  let committed = '';
+  try {
+    committed = execFileSync('git', ['log', '--format=%H', '--', labelsPath], { encoding: 'utf8' }).trim();
+  } catch {
+    committed = '';
+  }
+  if (!committed) throw new Error(`truth file ${labelsPath} is not committed: commit it before any detector run (independence rule)`);
+}
 
 async function scan(buf: ArrayBuffer, rect: { x: number; y: number; w: number; h: number }, params: Partial<DetectorParams>) {
   const r = readBif(buf);
@@ -81,11 +126,15 @@ function score(markers: TimedMarker[], labels: Labels, intervalMs: number, durat
     changesLabelled: labels.changes.length,
     changesFound: found,
     recall: labels.changes.length ? found / labels.changes.length : null,
+    recallCI95: clopperPearson(found, labels.changes.length),
+    matchToleranceMs: tol,
     falseMarkers,
     falseMarkersPer90min: durationMs ? (falseMarkers * 5_400_000) / durationMs : null,
     goalJumps: jumps.length,
     goalJumpsBeforePlay: jumps.filter(j => j.beforePlay).length,
     goalJumpsSpoiled: jumps.filter(j => j.spoiled).length,
+    goalJumpsBeforePlayCI95: clopperPearson(jumps.filter(j => j.beforePlay).length, jumps.length),
+    graphicLagS: goals.map(g => (g.change.graphicMs - g.change.playMs!) / 1000),
     medianLeadS: jumps.filter(j => j.leadMs !== null).length ? median(jumps.filter(j => j.leadMs !== null).map(j => j.leadMs!)) / 1000 : null,
     jumps,
   };
@@ -125,10 +174,11 @@ async function main() {
   if (rectArg.length !== 4 || rectArg.some(v => !Number.isFinite(v))) throw new Error('--rect x,y,w,h required');
   const rect = { x: rectArg[0], y: rectArg[1], w: rectArg[2], h: rectArg[3] };
   const params: Partial<DetectorParams> = arg('params') ? JSON.parse(arg('params')!) : {};
-  const runs = Number(arg('runs') || 5);
+  const runs = Math.max(1, Number(arg('runs') || 5));
   const leadInMs = Number(arg('lead-in') || 30) * 1000;
   const labels: Labels | null = arg('labels') ? JSON.parse(fs.readFileSync(arg('labels')!, 'utf8')) : null;
   const ablate = (arg('ablate') || '').split(',').filter(Boolean);
+  guardHeldOut(file, arg('labels'));
 
   const b = fs.readFileSync(file);
   const buf = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
@@ -170,9 +220,21 @@ async function main() {
     out.score = score(res.markers, labels, res.intervalMs, durationMs, leadInMs);
     if (ablate.includes('anchor')) {
       out.ablationAnchor = {
-        what: 'naive anchor: jump to (first changed frame − leadIn) instead of (last old-score frame − leadIn)',
+        what: 'naive anchor: jump to (first changed frame − leadIn) instead of (last old-score frame − leadIn). Compare lead and before-play counts; on footage where the graphic is never hidden after goals, E1 only changes the lead.',
         score: score(res.markers, labels, res.intervalMs, durationMs, leadInMs, true),
       };
+    }
+    if (ablate.includes('baseline')) {
+      // A fair simple differ: no hold window, no mask, its OWN best τ chosen on the same labels (dev match only).
+      const grid = [8, 12, 16, 20, 25, 30, 40, 50, 60, 80];
+      const rows: { tau: number; markers: number; recall: number | null; falseMarkers: number }[] = [];
+      for (const tau of grid) {
+        const s = await scan(buf, rect, { ...params, window: 1, jitterMax: 255, tau, tauCand: tau });
+        const sc = score(s.res.markers, labels, s.res.intervalMs, durationMs, leadInMs);
+        rows.push({ tau, markers: s.res.markers.length, recall: sc.recall, falseMarkers: sc.falseMarkers });
+      }
+      const best = [...rows].sort((a, b) => (b.recall ?? 0) - (a.recall ?? 0) || a.falseMarkers - b.falseMarkers)[0];
+      out.ablationBaseline = { what: 'simple frame differ (window 1, every cell), τ swept and the best kept', sweep: rows, best };
     }
     if (ablate.includes('hold')) {
       const s = await scan(buf, rect, { ...params, window: 1, jitterMax: 255 });
@@ -194,7 +256,9 @@ async function main() {
   console.log(json);
 }
 
-main().catch(e => {
-  console.error(e instanceof Error ? e.message : String(e));
-  process.exit(1);
-});
+if (/bench\.ts$/.test(process.argv[1] || '')) {
+  main().catch(e => {
+    console.error(e instanceof Error ? e.message : String(e));
+    process.exit(1);
+  });
+}

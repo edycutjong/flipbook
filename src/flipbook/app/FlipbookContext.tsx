@@ -55,6 +55,14 @@ const PANEL_ITEMS = ['mode', 'box', 'log', 'close'] as const;
 export type PanelItem = (typeof PANEL_ITEMS)[number];
 
 const STEP = 0.01; // box nudge, fraction of the picture
+
+/** Log lines that reveal where or how many changes there are — hidden from the on-screen tail in blind mode. */
+export const REVEALING_LOG = /marker|markers=|added=|absent=|anchor=|lost=|next:|prev:|seek|warning/;
+
+/** The on-screen engine log: blind mode shows only lines that reveal nothing about changes. */
+export function visibleLog(lines: string[], mode: FlipbookMode): string[] {
+  return (mode === 'blind' ? lines.filter(l => !REVEALING_LOG.test(l)) : lines).slice(-LOG_LINES);
+}
 const PREVIEW_FRAMES = 30;
 const LOG_LINES = 8;
 
@@ -144,6 +152,11 @@ function mostTypical(sigs: Sig[]): number {
 const rectKey = (source: string) => `flipbook.rect.${source}`;
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
+export function isValidRect(r: unknown): r is NormRect {
+  const o = r as NormRect;
+  return !!o && [o.x, o.y, o.w, o.h].every(v => typeof v === 'number' && Number.isFinite(v));
+}
+
 export function clampRect(r: NormRect): NormRect {
   const w = Math.max(0.02, Math.min(1, r.w));
   const h = Math.max(0.02, Math.min(1, r.h));
@@ -190,9 +203,8 @@ export const FlipbookProvider = ({
   const lastProgressAt = useRef(0);
 
   const log = useCallback((line: string) => {
-    const stamped = `[flipbook] ${line}`;
-    console.info(stamped);
-    setLogTail(prev => [...prev.slice(-(LOG_LINES - 1)), line]);
+    console.info(`[flipbook] ${line}`);
+    setLogTail(prev => [...prev.slice(-(LOG_LINES * 3 - 1)), line]);
   }, []);
 
   const showToast = useCallback((text: string, ms = 2000) => {
@@ -224,6 +236,8 @@ export const FlipbookProvider = ({
       setMarkers([]);
       setResult(null);
       setPass1(null);
+      setProgress(null);
+      setFailure(null);
       setPhase('scanning');
       log(`scan start frames=${bif.index.frameCount} rect=${r.x.toFixed(3)},${r.y.toFixed(3)},${r.w.toFixed(3)},${r.h.toFixed(3)}`);
       try {
@@ -255,6 +269,14 @@ export const FlipbookProvider = ({
             if (scanIdRef.current === id) {
               setPass1({ decodes: p.decodes, ms: p.ms });
               setPhase('ready');
+              if (p.maskKept < params.movingKeptMin) {
+                // F3 after the fact: the box sits mostly on moving content — say so, and do not keep it.
+                setFailure('Box is moving — shrink it off the clock (MENU)');
+                log(`box moving: ${(p.maskKept * 100).toFixed(0)}% of cells steady`);
+                if (config) {
+                  AsyncStorage.removeItem(rectKey(config.source)).catch(() => {});
+                }
+              }
             }
           },
         });
@@ -266,14 +288,18 @@ export const FlipbookProvider = ({
         setResult(res);
         setProgress({ pass: 2, readToMs: bif.index.timeMs[bif.index.frameCount - 1], decodes: res.jpegDecodes, frames: res.frames, markers: res.markers.length });
         setPhase('ready');
-        log(`thumb mode=${'overlay'} video bytes decoded=${res.videoBytesDecoded}`);
+        if (res.absentFraction > 0.5) {
+          // Over half the match "without the graphic" means the box is off the graphic; reveals nothing about goals.
+          setFailure('Score graphic not found for most of this match — redraw the box (MENU)');
+        }
+        log(`scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)`);
       } catch (e) {
         log(`scan failed: ${String(e)}`);
         setFailure('Scan failed — playback unaffected');
         setPhase('no-index');
       }
     },
-    [log, params],
+    [config, log, params],
   );
 
   const enterCalibration = useCallback(
@@ -288,6 +314,9 @@ export const FlipbookProvider = ({
       setResizing(false);
       setBoxState(null);
       setPhase('calibrating');
+      if (videoRef.current && !videoRef.current.paused) {
+        videoRef.current.pause();
+      }
       // Live preview (F3): the first frames decoded once, in small chunks; each nudge only re-crops them.
       makePreviewAsync(bif.buffer, bif.index, PREVIEW_FRAMES, params.stride)
         .then(preview => {
@@ -304,7 +333,7 @@ export const FlipbookProvider = ({
         })
         .catch(e => log(`calibration preview failed: ${String(e)}`));
     },
-    [log, params],
+    [log, params, videoRef],
   );
 
   const attachBif = useCallback(
@@ -340,8 +369,9 @@ export const FlipbookProvider = ({
       }
       AsyncStorage.getItem(rectKey(config.source))
         .then(saved => {
-          if (saved) {
-            const parsed = clampRect(JSON.parse(saved));
+          const savedRect = saved ? JSON.parse(saved) : null;
+          if (isValidRect(savedRect)) {
+            const parsed = clampRect(savedRect);
             setRect(parsed);
             setPersistence('saved');
             log(`box restored for ${config.source}`);
@@ -371,7 +401,10 @@ export const FlipbookProvider = ({
         log(`box kept for this session only (${String(e)})`);
       });
     startScan(rect);
-  }, [config, log, rect, startScan]);
+    if (videoRef.current?.paused) {
+      videoRef.current.play();
+    }
+  }, [config, log, rect, startScan, videoRef]);
 
   const nudge = useCallback(
     (dx: number, dy: number) => {

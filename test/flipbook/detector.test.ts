@@ -56,6 +56,15 @@ describe('detector — change and hold (v2: masked top-K distance, 3-frame media
     expect(r.absent).toBe(9);
   });
 
+  it('finds a change across a long absent run (half-time) when reach covers it', () => {
+    const sigs = seq([[0, 100], ['absent', 60], [1, 60]]);
+    const o = oracleFor(sigs, P.tauAbs);
+    const p = { ...P, reach: 90 }; // scanBif sets reach = 15 min ÷ interval (90 frames at 10 s)
+    runToEnd(sprocketPass(o, p));
+    const r = runToEnd(sequentialPass(o, p));
+    expect(r.markers.map(m => [m.anchorIndex, m.frameIndex])).toEqual([[99, 160]]);
+  });
+
   it('absent frames (ads, half-time) never produce a change', () => {
     const r = run(seq([[0, 50], ['absent', 90], [0, 50]]));
     expect(r.p2).toHaveLength(0);

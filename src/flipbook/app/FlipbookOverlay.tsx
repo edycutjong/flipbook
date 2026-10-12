@@ -9,7 +9,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { scaleUxToDp } from '../../utils/pixelUtils';
 import { formatClock } from '../core';
 import { FB } from '../theme';
-import { FlipbookApi, useFlipbook } from './FlipbookContext';
+import { FlipbookApi, useFlipbook, visibleLog } from './FlipbookContext';
 
 const pct = (v: number) => `${v * 100}%` as `${number}%`;
 
@@ -37,11 +37,21 @@ export function statusText(fb: FlipbookApi): { head: string; detail: string } | 
   const p = fb.progress;
   const readTo = p ? formatClock(p.readToMs) : '0:00';
   const verifying = fb.phase === 'ready' && !fb.result;
+  if (fb.failure && fb.phase === 'ready') {
+    return { head: 'CHECK BOX', detail: fb.failure };
+  }
   if (fb.mode === 'blind') {
     if (fb.phase === 'scanning') {
       return { head: 'SCANNING', detail: `read to ${readTo}` };
     }
     return { head: 'READY', detail: verifying ? `>> next change · still reading, at ${readTo}` : '>> next change · << previous' };
+  }
+  if (fb.failure) {
+    // F3 / off-graphic box: identical in both modes, reveals nothing about changes.
+    return { head: 'CHECK BOX', detail: fb.failure };
+  }
+  if (fb.phase === 'scanning' && !p) {
+    return { head: 'SCANNING', detail: 'reading trickplay index…' };
   }
   const n = fb.markers.length;
   const changes = `${n} CHANGE${n === 1 ? '' : 'S'}`;
@@ -150,7 +160,7 @@ export const FlipbookOverlay = ({ controlsVisible }: { controlsVisible: boolean 
       )}
       {fb.showLog && (
         <View style={styles.log} testID="flipbook-log">
-          {fb.logTail.map((l, i) => (
+          {visibleLog(fb.logTail, fb.mode).map((l, i) => (
             <Text key={i} style={styles.logLine} numberOfLines={1}>
               {l}
             </Text>

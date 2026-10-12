@@ -33,7 +33,7 @@ export interface DetectorParams {
   movingKeptMin: number;
   /** Pass-1 sampling stride, frames. */
   stride: number;
-  /** How far (frames) to look for the W present neighbours on each side. */
+  /** How far (frames) to look for the W present neighbours on each side. scanBif raises it to cover 15 min. */
   reach: number;
 }
 
@@ -243,7 +243,10 @@ export function* sprocketPass(
     samples.map(s => o.sig(s)),
     p.jitterMax,
   );
-  const ref = refFrame !== undefined ? refFrame : medoid(o, samples, mask, p.tauAbs / 2);
+  // Reference = medoid of at most 24 evenly spaced samples (O(m²), so capped to stay short on the JS thread).
+  const step = Math.max(1, Math.ceil(samples.length / 24));
+  const candidates = samples.filter((_, k) => k % step === 0);
+  const ref = refFrame !== undefined ? refFrame : medoid(o, candidates, mask, p.tauAbs / 2);
   o.setReference(o.sig(ref), mask);
 
   const markers: Marker[] = [];

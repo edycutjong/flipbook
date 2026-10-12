@@ -23,6 +23,7 @@ import {
   changeMarkers,
   maskRectOnThumbnail,
   ScanStrip,
+  seekbarKeyPolicy,
   thumbnailDisabled,
   ThumbnailMask,
 } from '../flipbook/app/FlipbookSeekbarParts';
@@ -79,17 +80,27 @@ const Seekbar = ({
           flipbook.geometry.height,
         )
       : null;
+  const maskLogged = useRef(false);
+  const logMaskShown = useCallback(() => {
+    if (!maskLogged.current && thumbMask) {
+      maskLogged.current = true;
+      flipbook.log(
+        `thumb mode=overlay mask shown x=${thumbMask.x.toFixed(3)} y=${thumbMask.y.toFixed(3)} w=${thumbMask.w.toFixed(3)} h=${thumbMask.h.toFixed(3)}`,
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [thumbMask?.x, thumbMask?.y, thumbMask?.w, thumbMask?.h]);
   const renderAboveThumb = useCallback(
     (props: DisplayAboveThumbProps) =>
       flipbook.enabled ? (
-        <ThumbnailMask mask={disableThumbnail ? null : thumbMask}>
+        <ThumbnailMask mask={disableThumbnail ? null : thumbMask} onShown={logMaskShown}>
           <FastForwardRewindIcon {...props} />
         </ThumbnailMask>
       ) : (
         <FastForwardRewindIcon {...props} />
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [flipbook.enabled, disableThumbnail, thumbMask?.x, thumbMask?.y, thumbMask?.w, thumbMask?.h],
+    [flipbook.enabled, disableThumbnail, logMaskShown, thumbMask?.x, thumbMask?.y, thumbMask?.w, thumbMask?.h],
   );
   const flipbookMarkers =
     flipbook.enabled && flipbook.mode === 'highlights'
@@ -399,11 +410,7 @@ const Seekbar = ({
             thumbnailImageResizeMode={flipbook.enabled ? 'stretch' : undefined}
             markers={flipbookMarkers}
             disabled={flipbook.capturesKeys}
-            partialDisablingConfiguration={
-              flipbook.ownsSkipKeys
-                ? { skipForward: true, skipBackward: true }
-                : undefined
-            }
+            partialDisablingConfiguration={seekbarKeyPolicy(flipbook)}
             step={SEEKBAR_STEP}
             stepMultiplierFactor={STEP_MULTIPLIER_FACTOR}
             stepMultiplierFactorInterval={STEP_MULTIPLIER_INTERVAL}

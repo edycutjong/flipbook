@@ -53,12 +53,12 @@
     "label": "Node (tsx) on Apple M-series — NOT device timings",
     "runs": 20,
     "pass1Ms": {
-      "p50": 214.8,
-      "p95": 221.3
+      "p50": 211.1,
+      "p95": 236.3
     },
     "pass2Ms": {
-      "p50": 1234.5,
-      "p95": 1241.7
+      "p50": 1237.8,
+      "p95": 1268.3
     }
   },
   "labels": {
@@ -69,11 +69,24 @@
     "changesLabelled": 2,
     "changesFound": 2,
     "recall": 1,
+    "recallCI95": [
+      0.158,
+      1
+    ],
+    "matchToleranceMs": 12000,
     "falseMarkers": 0,
     "falseMarkersPer90min": 0,
     "goalJumps": 2,
     "goalJumpsBeforePlay": 2,
     "goalJumpsSpoiled": 0,
+    "goalJumpsBeforePlayCI95": [
+      0.158,
+      1
+    ],
+    "graphicLagS": [
+      10,
+      4
+    ],
     "medianLeadS": 28,
     "jumps": [
       {
@@ -93,16 +106,29 @@
     ]
   },
   "ablationAnchor": {
-    "what": "naive anchor: jump to (first changed frame − leadIn) instead of (last old-score frame − leadIn)",
+    "what": "naive anchor: jump to (first changed frame − leadIn) instead of (last old-score frame − leadIn). Compare lead and before-play counts; on footage where the graphic is never hidden after goals, E1 only changes the lead.",
     "score": {
       "changesLabelled": 2,
       "changesFound": 2,
       "recall": 1,
+      "recallCI95": [
+        0.158,
+        1
+      ],
+      "matchToleranceMs": 12000,
       "falseMarkers": 0,
       "falseMarkersPer90min": 0,
       "goalJumps": 2,
       "goalJumpsBeforePlay": 2,
       "goalJumpsSpoiled": 0,
+      "goalJumpsBeforePlayCI95": [
+        0.158,
+        1
+      ],
+      "graphicLagS": [
+        10,
+        4
+      ],
       "medianLeadS": 18,
       "jumps": [
         {
@@ -122,6 +148,77 @@
       ]
     }
   },
+  "ablationBaseline": {
+    "what": "simple frame differ (window 1, every cell), τ swept and the best kept",
+    "sweep": [
+      {
+        "tau": 8,
+        "markers": 498,
+        "recall": 1,
+        "falseMarkers": 496
+      },
+      {
+        "tau": 12,
+        "markers": 457,
+        "recall": 1,
+        "falseMarkers": 455
+      },
+      {
+        "tau": 16,
+        "markers": 391,
+        "recall": 1,
+        "falseMarkers": 389
+      },
+      {
+        "tau": 20,
+        "markers": 350,
+        "recall": 1,
+        "falseMarkers": 348
+      },
+      {
+        "tau": 25,
+        "markers": 285,
+        "recall": 1,
+        "falseMarkers": 283
+      },
+      {
+        "tau": 30,
+        "markers": 239,
+        "recall": 1,
+        "falseMarkers": 237
+      },
+      {
+        "tau": 40,
+        "markers": 149,
+        "recall": 0,
+        "falseMarkers": 149
+      },
+      {
+        "tau": 50,
+        "markers": 95,
+        "recall": 0,
+        "falseMarkers": 95
+      },
+      {
+        "tau": 60,
+        "markers": 55,
+        "recall": 0,
+        "falseMarkers": 55
+      },
+      {
+        "tau": 80,
+        "markers": 19,
+        "recall": 0,
+        "falseMarkers": 19
+      }
+    ],
+    "best": {
+      "tau": 30,
+      "markers": 239,
+      "recall": 1,
+      "falseMarkers": 237
+    }
+  },
   "ablationHold": {
     "what": "no hold window and no jitter mask (window = 1, every cell kept)",
     "markers": 350,
@@ -129,11 +226,24 @@
       "changesLabelled": 2,
       "changesFound": 2,
       "recall": 1,
+      "recallCI95": [
+        0.158,
+        1
+      ],
+      "matchToleranceMs": 12000,
       "falseMarkers": 348,
       "falseMarkersPer90min": 363.4816247582205,
       "goalJumps": 2,
       "goalJumpsBeforePlay": 2,
       "goalJumpsSpoiled": 0,
+      "goalJumpsBeforePlayCI95": [
+        0.158,
+        1
+      ],
+      "graphicLagS": [
+        10,
+        4
+      ],
       "medianLeadS": 28,
       "jumps": [
         {

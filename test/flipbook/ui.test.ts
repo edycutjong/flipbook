@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { FlipbookApi } from '../../src/flipbook/app/FlipbookContext';
+import { FlipbookApi, visibleLog } from '../../src/flipbook/app/FlipbookContext';
 import { statusText } from '../../src/flipbook/app/FlipbookOverlay';
 import { maskRectOnThumbnail, thumbnailDisabled } from '../../src/flipbook/app/FlipbookSeekbarParts';
 
@@ -37,6 +37,36 @@ describe('blind mode leaks nothing (ui.md S1/S2, a2a r02 #3)', () => {
     for (const mode of ['blind', 'highlights']) {
       const s = statusText({ ...base, mode, phase: 'no-index', failure: null } as unknown as FlipbookApi)!;
       expect(s.detail).toBe('No trickplay index for this title');
+    }
+  });
+});
+
+describe('engine log tail in blind mode', () => {
+  const lines = [
+    'bif fetched bytes=6575564 ms=823',
+    'scan start frames=517 rect=0.155,0.868,0.497,0.058',
+    'marker anchor=1010000ms change=1020000ms d=32.0 pass=1',
+    'pass1 done n=77/517 markers=2 ms=2392',
+    'pass2 done n=440 added=0 lost=0 absent=5 ms=6545',
+    'seek from=50572ms currentTime=199.1 anchor=229147ms',
+    'next: none from 4000000ms',
+  ];
+  it('blind mode hides every line that reveals change positions or counts', () => {
+    const shown = visibleLog(lines, 'blind').join('\n');
+    expect(shown).toMatch(/bif fetched/);
+    expect(shown).not.toMatch(/marker|markers=|added=|absent=|anchor=|next:/);
+  });
+  it('highlights mode shows everything', () => {
+    expect(visibleLog(lines, 'highlights')).toHaveLength(lines.length);
+  });
+});
+
+describe('failure lines are identical in both modes', () => {
+  it('a moving / off-graphic box says CHECK BOX, nothing else', () => {
+    for (const mode of ['blind', 'highlights']) {
+      const s = statusText({ ...base, mode, phase: 'ready', failure: 'Box is moving — shrink it off the clock (MENU)' } as unknown as FlipbookApi)!;
+      expect(s.head).toBe('CHECK BOX');
+      expect(s.detail).not.toMatch(/\d+ CHANGE/);
     }
   });
 });

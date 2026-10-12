@@ -70,6 +70,18 @@ export function thumbnailDisabled(isSkipping: boolean, fb: Pick<FlipbookApi, 'en
   return !isSkipping || (fb.enabled && !fb.thumbnailsAllowed);
 }
 
+/**
+ * Which remote keys the KUI SeekBar may handle. The KUI ignores `disabled` once a partial configuration is set,
+ * so while Flipbook captures every key (calibration, options panel) EVERY action is disabled here; while Flipbook
+ * owns ⏩/⏪ only those two are.
+ */
+export function seekbarKeyPolicy(fb: Pick<FlipbookApi, 'capturesKeys' | 'ownsSkipKeys'>) {
+  if (fb.capturesKeys) {
+    return { back: true, playPause: true, skipForward: true, skipBackward: true, left: true, right: true, select: true };
+  }
+  return fb.ownsSkipKeys ? { skipForward: true, skipBackward: true } : undefined;
+}
+
 /** Highlights-mode ticks for the KUI SeekBar `markers` prop (ReactNodeMarker: position in the bar's units = seconds). */
 export function changeMarkers(markers: TimedMarker[], pulseIndex: number | null) {
   return markers.map((m, i) => ({
@@ -103,10 +115,21 @@ export function maskRectOnThumbnail(rect: NormRect, area: PictureArea, width: nu
  * The KUI draws this node right after the SeekThumbnail inside the same centred column, so a 320-wide wrapper's
  * top edge is the thumbnail's bottom edge and its left edge is the thumbnail's left edge.
  */
-export const ThumbnailMask = ({ mask, children }: { mask: NormRect | null; children?: React.ReactNode }) => (
+export const ThumbnailMask = ({
+  mask,
+  onShown,
+  children,
+}: {
+  mask: NormRect | null;
+  /** Called when the mask view lays out (i.e. a masked thumbnail is actually on screen). */
+  onShown?: () => void;
+  children?: React.ReactNode;
+}) => (
   <View style={styles.maskWrap} testID="flipbook-thumbnail-mask">
     {mask && (
       <View
+        onLayout={onShown}
+        testID="flipbook-thumbnail-mask-block"
         style={[
           styles.mask,
           {

@@ -1,0 +1,43 @@
+{
+  "purpose": "Pre-registration for the held-out evaluation: detector parameters and calibration boxes are frozen BEFORE the human ground-truth commits for match A and match B, and before any detector run on either match.",
+  "frozenAt": "2026-10-13",
+  "detectorParams": {
+    "tau": 20,
+    "tauCand": 12,
+    "tauAbs": 20,
+    "topK": 3,
+    "window": 3,
+    "jitterMax": 2.5,
+    "movingKeptMin": 0.4,
+    "stride": 8,
+    "reach": 30
+  },
+  "detectorParamsSha256": "39afe3f53684abb0c13ce6aabc8544228d019346c7c56332ab7cad3addb0dbae",
+  "leadInMs": {
+    "default": 30000,
+    "rule": "tuned on match A only from {20000, 30000, 45000, 60000} ms as the smallest value where every labelled goal jump lands before playMs; frozen before match B is run"
+  },
+  "boxes": {
+    "match-a": {
+      "rect": {
+        "x": 0.155,
+        "y": 0.868,
+        "w": 0.497,
+        "h": 0.058
+      },
+      "how": "same broadcaster graphic (Belmont Media Center 2023 design) as the development match: the box saved for that broadcaster is reused unchanged \u2014 the once-per-broadcaster calibration the product promises"
+    },
+    "match-b": {
+      "rect": {
+        "x": 0.29,
+        "y": 0.858,
+        "w": 0.36,
+        "h": 0.05
+      },
+      "how": "2024 design (different overlay): box drawn on the 2:00 frame only, around both score boxes and team names, excluding the period box"
+    }
+  },
+  "disclosure": "To place the boxes, the detector's author (agent) looked at one frame of each match at 2:00. Match A's graphic at that frame reads 'BELMONT 0 WOBURN 1, 1st, 40:00' (game clock not yet running); match B's reads 0-0. No other frame of A or B was viewed and no detector, bench or visibility run has been made on A or B.",
+  "matchTolerance": "a marker matches a labelled change when |changeMs - graphicMs| <= BIF interval (10 s) + label precision",
+  "headlineRule": "claimed only as k/N goal jumps landing before the play on match B, with a Clopper-Pearson 95% interval; never as a bare rate"
+}

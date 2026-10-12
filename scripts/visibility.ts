@@ -48,8 +48,8 @@ const out = {
   changeD: atChange.map(v => +v.toFixed(1)),
   noiseMaxD: +noiseMax.toFixed(1),
   noiseMaxAtFrame: noiseAt,
-  margin: +(Math.min(...atChange) / noiseMax).toFixed(2),
-  pass: Math.min(...atChange) / noiseMax >= 2,
+  margin: atChange.length && noiseMax > 0 ? +(Math.min(...atChange) / noiseMax).toFixed(2) : null,
+  pass: atChange.length > 0 && noiseMax > 0 && Math.min(...atChange) / noiseMax >= 2,
 };
 if (arg('out')) fs.writeFileSync(arg('out')!, JSON.stringify(out, null, 2) + '\n');
 console.log(JSON.stringify(out));

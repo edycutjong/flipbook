@@ -30,7 +30,7 @@ describe('scanBif end to end on real JPEG frames (letterboxed like Amazon’s 24
   });
 
   it('marks the change at frame 60 with the anchor before the replay (E1), and reads only BIF JPEGs', async () => {
-    const before = decodeStats.jpegBytes;
+    const before = decodeStats.frames;
     const r = await scanBif({ buffer: bif, index: parsed.index, rect, refFrame: 'auto', yieldFn: async () => {} });
     expect(r.markers.map(m => m.frameIndex)).toEqual([60]);
     expect(r.markers[0].anchorIndex).toBe(53);
@@ -39,9 +39,24 @@ describe('scanBif end to end on real JPEG frames (letterboxed like Amazon’s 24
     expect(r.skippedAbsent).toBe(6);
     expect(r.lostFromPass1).toBe(0);
     expect(r.videoBytesDecoded).toBe(0);
-    // every decoded byte came out of the BIF buffer
-    expect(decodeStats.jpegBytes - before).toBeLessThanOrEqual(bif.byteLength);
+    // every JPEG decode the scan made is accounted for in its own counter (no hidden decodes elsewhere)
+    expect(decodeStats.frames - before).toBe(r.jpegDecodes);
     expect(r.pass1.decodes).toBeLessThan(r.frames * 0.35);
+  });
+
+  it('reports scan progress monotonically (pass 1 phase B revisits earlier frames)', async () => {
+    const seen: number[] = [];
+    await scanBif({ buffer: bif, index: parsed.index, rect, refFrame: 'auto', yieldFn: async () => {}, onProgress: p => seen.push(p.pass * 1e9 + p.readToMs) });
+    for (let i = 1; i < seen.length; i++) {
+      expect(seen[i]).toBeGreaterThanOrEqual(seen[i - 1]);
+    }
+  });
+
+  it('flags a box that is off the graphic: absent for most of the match', async () => {
+    const off = { x: 0.6, y: 0.5, w: 0.3, h: 0.3 }; // grass only
+    const r = await scanBif({ buffer: bif, index: parsed.index, rect: off, refFrame: 'auto', yieldFn: async () => {} });
+    expect(r.markers).toHaveLength(0);
+    expect(r.maskKept).toBeLessThan(0.4);
   });
 
   it('can be cancelled between batches', async () => {

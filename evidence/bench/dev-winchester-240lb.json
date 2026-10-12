@@ -53,12 +53,12 @@
     "label": "Node (tsx) on Apple M-series — NOT device timings",
     "runs": 5,
     "pass1Ms": {
-      "p50": 159.6,
-      "p95": 212.3
+      "p50": 157.6,
+      "p95": 212.9
     },
     "pass2Ms": {
-      "p50": 912.1,
-      "p95": 920
+      "p50": 913.1,
+      "p95": 933.6
     }
   },
   "labels": {
@@ -69,11 +69,24 @@
     "changesLabelled": 2,
     "changesFound": 2,
     "recall": 1,
+    "recallCI95": [
+      0.158,
+      1
+    ],
+    "matchToleranceMs": 12000,
     "falseMarkers": 0,
     "falseMarkersPer90min": 0,
     "goalJumps": 2,
     "goalJumpsBeforePlay": 2,
     "goalJumpsSpoiled": 0,
+    "goalJumpsBeforePlayCI95": [
+      0.158,
+      1
+    ],
+    "graphicLagS": [
+      10,
+      4
+    ],
     "medianLeadS": 28,
     "jumps": [
       {
@@ -91,5 +104,76 @@
         "leadMs": 30000
       }
     ]
+  },
+  "ablationBaseline": {
+    "what": "simple frame differ (window 1, every cell), τ swept and the best kept",
+    "sweep": [
+      {
+        "tau": 8,
+        "markers": 498,
+        "recall": 1,
+        "falseMarkers": 496
+      },
+      {
+        "tau": 12,
+        "markers": 494,
+        "recall": 1,
+        "falseMarkers": 492
+      },
+      {
+        "tau": 16,
+        "markers": 490,
+        "recall": 1,
+        "falseMarkers": 488
+      },
+      {
+        "tau": 20,
+        "markers": 480,
+        "recall": 1,
+        "falseMarkers": 478
+      },
+      {
+        "tau": 25,
+        "markers": 465,
+        "recall": 1,
+        "falseMarkers": 463
+      },
+      {
+        "tau": 30,
+        "markers": 439,
+        "recall": 1,
+        "falseMarkers": 437
+      },
+      {
+        "tau": 40,
+        "markers": 378,
+        "recall": 1,
+        "falseMarkers": 376
+      },
+      {
+        "tau": 50,
+        "markers": 326,
+        "recall": 1,
+        "falseMarkers": 324
+      },
+      {
+        "tau": 60,
+        "markers": 276,
+        "recall": 1,
+        "falseMarkers": 274
+      },
+      {
+        "tau": 80,
+        "markers": 152,
+        "recall": 0.5,
+        "falseMarkers": 151
+      }
+    ],
+    "best": {
+      "tau": 60,
+      "markers": 276,
+      "recall": 1,
+      "falseMarkers": 274
+    }
   }
 }

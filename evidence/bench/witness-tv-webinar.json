@@ -453,12 +453,12 @@
     "label": "Node (tsx) on Apple M-series — NOT device timings",
     "runs": 5,
     "pass1Ms": {
-      "p50": 531.5,
-      "p95": 577
+      "p50": 534.6,
+      "p95": 589.1
     },
     "pass2Ms": {
-      "p50": 613.3,
-      "p95": 618.4
+      "p50": 619,
+      "p95": 622.6
     }
   }
 }
