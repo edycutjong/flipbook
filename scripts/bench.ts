@@ -72,10 +72,13 @@ export function guardHeldOut(bifPath: string, labelsPath: string | undefined) {
   if (!/^match-/.test(path.basename(bifPath))) return;
   if (!labelsPath) throw new Error(`${path.basename(bifPath)} is a held-out match: a committed human truth file is required (--labels fixtures/<match>.truth.json)`);
   const doc = JSON.parse(fs.readFileSync(labelsPath, 'utf8'));
-  if (!/GROUND TRUTH/.test(doc.status || '') || !doc.labelledBy || /</.test(JSON.stringify(doc))) {
+  const placeholder = /<name>|<YYYY/.test(JSON.stringify(doc));
+  if (!/GROUND TRUTH/.test(doc.status || '') || !doc.labelledBy || placeholder) {
     throw new Error('labels file is not a filled-in human ground-truth file');
   }
   if (!(doc.changes || []).some((c: Change) => c.graphicMs > 0)) throw new Error('truth file has no labelled change');
+  const match = path.basename(bifPath).replace(/-(320|240lb)\.bif$/, '');
+  if (doc.match !== match) throw new Error(`truth file is for "${doc.match}", BIF is "${match}"`);
   let committed = '';
   try {
     committed = execFileSync('git', ['log', '--format=%H', '--', labelsPath], { encoding: 'utf8' }).trim();

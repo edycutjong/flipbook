@@ -43,6 +43,6 @@
   "detectorParamsSha256Recipe": "python3: hashlib.sha256(json.dumps(detectorParams, sort_keys=True).encode()).hexdigest()",
   "pass2Reach": "ceil(15 min / BIF interval) frames (90 at 10 s) \u2014 scan.ts REACH_MS",
   "revisions": [
-    "2026-10-13 ~01:00 WIB: reach split (pass 1 = 12 frames, pass 2 = 15 min) after QA round 2 for responsiveness; no A/B data had been seen or run."
+    "2026-10-13 00:37 WIB (commit aa4a4f6): reach split (pass 1 = 12 frames, pass 2 = 15 min) after QA round 2, for responsiveness; no A/B data had been seen or run."
   ]
 }

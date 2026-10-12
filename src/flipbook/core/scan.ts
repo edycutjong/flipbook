@@ -47,7 +47,7 @@ export interface ScanResult {
   markers: TimedMarker[];
   pass1: { decodes: number; ms: number; markers: number };
   pass2: { decodes: number; ms: number; added: number };
-  /** Pass-1 markers pass 2 did not reproduce (invariant: 0). */
+  /** Pass-1 markers pass 2 did not reproduce anywhere near (kept in the final list; expected 0). */
   lostFromPass1: number;
   skippedAbsent: number;
   /** Share of frames without the graphic (pass 2). Over half: the box is probably not on the score graphic. */
@@ -211,9 +211,9 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
       const kept = merged.lostFromPass1.filter(m => !merged.merged.some(x => Math.abs(x.frameIndex - m.frameIndex) <= params.window));
       finalMarkers = [...merged.merged, ...kept].sort((a, b) => a.frameIndex - b.frameIndex);
       added = merged.added;
-      lost = merged.lostFromPass1.length;
-      if (lost) {
-        log(`warning: ${lost} pass-1 marker(s) not reproduced by pass 2 — kept`);
+      lost = kept.length;
+      if (merged.lostFromPass1.length) {
+        log(`warning: ${merged.lostFromPass1.length} pass-1 marker(s) not reproduced by pass 2 at the same frame — ${kept.length} kept, ${merged.lostFromPass1.length - kept.length} replaced by a nearby pass-2 placement`);
       }
       skippedAbsent = p2res.absent;
       for (const m of finalMarkers) {
