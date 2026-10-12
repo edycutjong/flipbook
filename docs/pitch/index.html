@@ -61,6 +61,7 @@ h2 em{font-style:normal;color:var(--rule)}
 .foot .wm i,.wm i{font-style:normal;color:var(--rule)}
 .kbd{display:inline-block;width:1em;height:1em;vertical-align:-.14em;color:currentColor;border:.08em solid currentColor;border-radius:.2em;padding:.08em;box-sizing:content-box;margin:0 .06em}
 aside.speaker-notes{display:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* 01 cover */
 .s1{display:grid;grid-template-columns:1.14fr .86fr;gap:56px;align-content:start}
@@ -115,9 +116,9 @@ aside.speaker-notes{display:none}
 .seek3{position:relative;width:1060px;height:12px;margin-top:70px;background:#3A342E;border-radius:6px}
 .seek3 .tick{position:absolute;top:-14px;width:8px;height:40px;margin-left:-4px;background:var(--after);border-radius:3px;transform:rotate(5deg)}
 .seek3 .tick em,.seek3 .land em{position:absolute;top:50px;left:50%;transform:translateX(-50%);font:500 22px/1 var(--font-data);font-style:normal;color:var(--rule);white-space:nowrap}
-.seek3 .land{position:absolute;top:50%;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:#FFC266;transform:translateY(-50%);box-shadow:0 0 0 5px rgba(20,17,16,.7);z-index:1}
+.seek3 .land{position:absolute;top:50%;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:#FFC266;transform:translateY(-50%);box-shadow:0 0 0 5px rgba(20,17,16,.7);z-index:1}
 .seek3 .tick{z-index:2}
-.seek3 .land em{top:-56px;left:0;transform:translateX(-80%);color:var(--ink)}
+.seek3 .land em{top:-56px;left:50%;transform:translateX(-50%);color:var(--ink)}
 
 /* 04 how */
 .arch{margin-top:58px;width:100%}
@@ -176,6 +177,7 @@ aside.speaker-notes{display:none}
 .found .hex{display:block;margin-top:0;font:500 76px/1 var(--font-data);color:var(--amber-hi);letter-spacing:.02em}
 .found code{color:var(--amber-hi)}
 .found2{margin-top:30px;font:500 25px/1.5 var(--font-data);color:var(--paper)}
+.found2 .lab{color:var(--rule);text-transform:uppercase;letter-spacing:.1em;font-size:.8em;margin-right:10px}
 
 /* 09 pending */
 .rows9{margin-top:54px;display:grid;gap:0;max-width:none}
@@ -204,7 +206,8 @@ a.qr{display:block;text-decoration:none;transition:box-shadow .2s}a.qr:hover,a.q
 body.moving .hud{opacity:1}
 .count{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .navbtn{position:fixed;top:50%;z-index:6;transform:translateY(-50%);width:44px;height:72px;border:0;border-radius:4px;background:rgba(20,17,16,.55);color:var(--ink);cursor:pointer;opacity:0;transition:opacity .2s}
-body .navbtn:hover,body .navbtn:focus-visible{opacity:1;background:rgba(20,17,16,.92)}
+body:hover .navbtn:hover,body .navbtn:hover,body .navbtn:focus-visible{opacity:1;background:rgba(20,17,16,.92)}
+@media (pointer:coarse){.navbtn{opacity:.55}}
 .navbtn svg{width:22px;height:22px;margin:auto}
 .navbtn.prev{left:6px}.navbtn.next{right:6px}
 .navbtn:focus-visible{outline:2px solid var(--rule)}
@@ -237,6 +240,7 @@ body.debug-contrast .slide :is(h2,p,li,span,b,em,code,figcaption,time,div.call){
 <body>
 <div class="viewport" id="viewport">
 <main class="stage" id="stage">
+<h1 class="sr">Flipbook — pitch deck</h1>
 
 <!-- 01 COVER -->
 <section class="slide s1" data-title="Cover" aria-label="Slide 1: Flipbook">
@@ -279,7 +283,7 @@ body.debug-contrast .slide :is(h2,p,li,span,b,em,code,figcaption,time,div.call){
 <!-- 03 THE CONTACT SHEET (frozen) -->
 <section class="slide s3" data-title="The contact sheet" aria-label="Slide 3: the contact sheet">
   <p class="edge">The contact sheet</p>
-  <h2>The player already has every frame.</h2>
+  <h2>The player already has every thumbnail.</h2>
   <div class="sheetwrap">
     <div class="plate">
       <img src="../assets/sheet/sheet.jpg" alt="All 517 trickplay thumbnails of the development match, every score box masked; the frames at 17:00 and 49:30 are circled in red" width="2688" height="1386">
@@ -421,7 +425,7 @@ body.debug-contrast .slide :is(h2,p,li,span,b,em,code,figcaption,time,div.call){
       </div>
       <p>Amazon's own header: no sane interval, so Flipbook falls back to 10&nbsp;s.</p>
     </div>
-    <p class="found2">11 friction-log entries · 18 tests by Kiro</p>
+    <p class="found2"><span class="lab">Process</span> 11 friction-log entries · 18 Kiro tests</p>
   </div>
   <div class="foot"><span class="wm">FLIP<i>BOOK</i></span><span>pre-release · 08 / 10</span></div>
   <aside class="speaker-notes">The judged path uses four Vega platform surfaces, plus the sample's BIF service, which we extended to hand over the raw bytes. Verifying against Amazon's own file we found a timestamp-multiplier value that would break a binary search, so Flipbook's own parser sanity-checks the header. Eleven friction-log entries document the rest; Kiro's CLI wrote the BIF writer and its tests.</aside>
@@ -489,6 +493,7 @@ body.debug-contrast .slide :is(h2,p,li,span,b,em,code,figcaption,time,div.call){
   document.addEventListener('keydown', function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) { return; }
     var k = e.key;
+    if ((k === ' ' || k === 'Enter') && e.target && e.target.closest && e.target.closest('a,button')) { return; }
     if (k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'ArrowDown') { e.preventDefault(); go(cur + 1); }
     else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'ArrowUp') { e.preventDefault(); go(cur - 1); }
     else if (k === 'Home') { go(0); }

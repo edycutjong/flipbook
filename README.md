@@ -29,7 +29,7 @@ Running on the **Vega Virtual Device** (Apple M-series Mac). These stills use Am
 
 | Jump | Scrub: the mask over the thumbnail |
 |---|---|
-| ![Press ⏩: jump to the next detected change, minus a 30 s lead-in](docs/images/vvd-jump-toast.png) | ![Scrubbing: the black block is the mask drawn over the scrub thumbnail; on this title the calibrated box covers most of the frame](docs/images/vvd-scrub-mask.png) |
+| ![Press ⏩: jump to 30 s before the next change's anchor, the last frame with the old score](docs/images/vvd-jump-toast.png) | ![Scrubbing: the black block is the mask drawn over the scrub thumbnail; on this title the calibrated box covers most of the frame](docs/images/vvd-scrub-mask.png) |
 
 ![Calibration: draw the box once around the broadcaster's score graphic](docs/images/vvd-calibration.png)
 
