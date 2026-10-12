@@ -124,7 +124,7 @@
     "run-s": "^0.0.0",
     "ts-jest": "^29.2.5",
     "tsx": "^4.23.15",
-    "typescript": "5.8.3"
+    "typescript": "7.0.2"
   },
   "resolutions": {
     "@types/react": "^19.2.0"
