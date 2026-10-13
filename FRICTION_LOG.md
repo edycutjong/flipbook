@@ -105,7 +105,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Steps:** the Mac's screen locked at 22:36 WIB with the VVD running; kept working; restarted the VVD at 23:27.
 - **Expected:** the VVD keeps running, or restarts.
 - **Actual:** the running VVD kept working for a while; from about 23:13 one title's React Native overlay stopped drawing; the restarted VVD never booted (QEMU "hanging thread 'QEMU2 main loop'" after GPU init, also with `--no-gui` and on a fresh instance). The lock is the most likely cause; it is not proven.
-- **Workaround:** unlock the Mac and keep the display awake before using the VVD. Confirmed 2026-10-13: with the screen unlocked and the display held awake (`caffeinate -dimsu`), `vega virtual-device start --gui` reported "Virtual device ready" within about 40 s and the owed captures were recorded (`evidence/vvd/README.md`).
+- **Workaround:** unlock the Mac and keep the display awake before using the VVD. Confirmed 2026-10-13: with the screen unlocked and the display held awake (`caffeinate -dimsu`), `vega virtual-device start --gui` booted within about 40 s and the owed captures were recorded (`evidence/vvd/README.md`).
 - **Suggestion:** detect a locked or asleep host display and say so; offer a software-GL fallback on macOS.
 
 ### 11 · `kirocrew run` produced nothing unattended — 2026-10-12 · high
@@ -154,7 +154,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Task:** use SELECT to toggle the calibration box between move and resize, and to pick an item in Flipbook's options panel.
 - **Steps:** registered `useTVEventHandler` in the player (it receives the arrows, PLAY/PAUSE, MENU and fast-forward); pressed SELECT with the KUI SeekBar focused.
 - **Expected:** a `select` event in the handler, like the other keys.
-- **Actual:** no `select` event: the platform consumes SELECT as a press on the focused view (the device log shows `Consumed key:Return`). Resize mode and the panel never reacted.
+- **Actual:** no `select` event: the platform consumes SELECT as a press on the focused view (the device log shows `Consumed key:Return`; excerpt in `evidence/vvd/p7-head-lines.log`). Resize mode and the panel never reacted.
 - **Workaround:** while Flipbook takes the keys, the seek bar's own `onPress` is routed to Flipbook (`src/components/Seekbar.tsx`, `FlipbookContext.select`), de-duplicated in case a platform delivers both; tests in `test/flipbook/selectRouting.test.tsx`.
 - **Suggestion:** document which keys reach `useTVEventHandler` when a focusable view has focus, or deliver SELECT to the handler as well.
 
@@ -181,5 +181,5 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 | F1 | A pixel read-back API for the player surface (or a frame-grab call) | Flipbook can only look at frames inside a BIF and decodes JPEGs in JS; a read-back call would let any app read live frames. | Important |
 | F2 | A BIF lookup in the sample that uses the file's own interval and offset (and a corrected hosted `tv-webinar-hd.bif`) | The sample's per-index lookup and the hosted file's multiplier are why Flipbook reads BIFs with its own parser (entries 6–7). | Important |
 | F3 | `vega logs <pkg>` — a per-app log tail with history | entry 9 | Nice-to-have |
-| F4 | A VVD that boots with the host display locked, or says it cannot | It cost every on-device capture after the VVD failed to boot (23:27 WIB) (entry 10); it matters most to anyone recording unattended. | Critical |
+| F4 | A VVD that boots with the host display locked, or says it cannot | It cost that evening's planned on-device captures after the VVD failed to boot (23:27 WIB); they were recorded the next day once the Mac was unlocked (entry 10); it matters most to anyone recording unattended. | Critical |
 | F5 | A short-row-safe carousel / grid, or documented minimum item counts | entry 3 | Nice-to-have |

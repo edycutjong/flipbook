@@ -1,7 +1,7 @@
 # Demo video — provenance
 
-How the demo video was made, so its claims can be checked. The video file itself is published on YouTube (link in the
-README once uploaded); everything on screen that is product footage was recorded on the Vega Virtual Device.
+How the demo video was made, so its claims can be checked. The video file itself is linked from the Devpost page once it is
+uploaded; everything on screen that is product footage was recorded on the Vega Virtual Device.
 
 ## Picture
 - **Device captures:** Vega Virtual Device (Vega SDK 0.24.12112) on an Apple M-series Mac, recorded with the emulator
@@ -21,7 +21,7 @@ README once uploaded); everything on screen that is product footage was recorded
   (real BIF frames, scripted scrub).
 
 ## Narration
-Synthetic voice, ElevenLabs text-to-speech, one voice for every take. The captions file (`.en.srt`, uploaded with the
+Synthetic voice, ElevenLabs text-to-speech, one voice for every take. The captions file (`.en.srt`, to be uploaded with the
 video) is the narration script.
 
 | Take | Generated (UTC) | Voice id ("Daniel") | Model | Length |

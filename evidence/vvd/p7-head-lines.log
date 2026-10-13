@@ -27,3 +27,8 @@ Oct 13 09:52:17.818919  [flipbook] bif frames=517 interval=10000ms (header)
 Oct 13 09:52:17.996004  [flipbook] picture area rows 0-179 cols 0-319 of 320x180
 Oct 13 09:52:17.996291  [flipbook] bif already attached — ignoring a second surface
 Oct 13 09:52:19.025430  [flipbook] calibrate on frame=10 (1:40)
+# SELECT (KEY_ENTER) during calibration, same session: the platform consumes it as a press on the focused view (friction entry 16)
+Oct 13 09:49:43.533781 I GWSI_LOG:173 Consumed key:Return state:1 evtId:32
+Oct 13 09:49:43.788350 I GWSI_LOG:175 Consumed key:Return state:0 evtId:33
+Oct 13 09:51:15.637740 I GWSI_LOG:53 Consumed key:Return state:1 evtId:3
+Oct 13 09:51:15.942224 I GWSI_LOG:55 Consumed key:Return state:0 evtId:4
