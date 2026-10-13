@@ -235,6 +235,8 @@ export const FlipbookProvider = ({
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previewRef = useRef<((r: NormRect) => BoxState) | null>(null);
   const lastProgressAt = useRef(0);
+  /** False once the provider has unmounted: a BIF (or a saved box) that lands after the viewer left starts nothing. */
+  const aliveRef = useRef(true);
 
   const log = useCallback((line: string) => {
     console.info(`[flipbook] ${line}`);
@@ -257,8 +259,12 @@ export const FlipbookProvider = ({
     }
   }, [config]);
 
+  useEffect(() => {
+    aliveRef.current = true; // set on (re)mount, so it survives StrictMode's mount → unmount → mount
+  }, []);
   useEffect(
     () => () => {
+      aliveRef.current = false; // stops work that has not started yet (a late BIF attach, a saved box read late)
       scanIdRef.current++; // cancels a running scan
       if (toastTimer.current) {
         clearTimeout(toastTimer.current);
@@ -270,7 +276,7 @@ export const FlipbookProvider = ({
   const startScan = useCallback(
     async (r: NormRect) => {
       const bif = bifRef.current;
-      if (!bif) {
+      if (!bif || !aliveRef.current) {
         return;
       }
       const id = ++scanIdRef.current;
@@ -289,7 +295,7 @@ export const FlipbookProvider = ({
           rect: r,
           refFrame: 'auto',
           params,
-          isCancelled: () => scanIdRef.current !== id,
+          isCancelled: () => !aliveRef.current || scanIdRef.current !== id,
           log,
           onProgress: p => {
             const now = Date.now();
@@ -346,7 +352,7 @@ export const FlipbookProvider = ({
   const enterCalibration = useCallback(
     (initial: NormRect) => {
       const bif = bifRef.current;
-      if (!bif) {
+      if (!bif || !aliveRef.current) {
         return;
       }
       scanIdRef.current++;
@@ -379,7 +385,7 @@ export const FlipbookProvider = ({
 
   const attachBif = useCallback(
     (buffer: ArrayBuffer, fetchMs: number, durationMs?: number) => {
-      if (!config) {
+      if (!config || !aliveRef.current) {
         return;
       }
       if (bifRef.current) {
@@ -410,6 +416,9 @@ export const FlipbookProvider = ({
       }
       AsyncStorage.getItem(rectKey(config.source))
         .then(saved => {
+          if (!aliveRef.current) {
+            return; // the viewer left while the saved box was being read
+          }
           const savedRect = saved ? JSON.parse(saved) : null;
           if (isValidRect(savedRect)) {
             const parsed = clampRect(savedRect);
@@ -421,7 +430,7 @@ export const FlipbookProvider = ({
             enterCalibration(config.defaultRect);
           }
         })
-        .catch(() => enterCalibration(config.defaultRect));
+        .catch(() => aliveRef.current && enterCalibration(config.defaultRect));
     },
     [config, enterCalibration, log, params.stride, startScan],
   );
