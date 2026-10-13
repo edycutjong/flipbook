@@ -13,8 +13,9 @@ Everything here is first-hand and has a log in [`evidence/kiro/`](../evidence/ki
 - **`kirocrew run`** (Kiro Crew 0.8.0), unattended, on the first task: no files produced in about 40 minutes. Its write and shell
   tools were denied by the approval policy and the backend returned HTTP 429 `CREDIT_CONSUMPTION_RATE_EXCEEDED` repeatedly. We
   gave up on it and used `kiro-cli` instead (the run was left unfinished). Run-level transcript: `evidence/kiro/kirocrew-run-attempt.md`. (Friction log entry 11.)
-- **No performance profiling.** `analyze_perfetto_traces` / `get_app_hot_functions` were not run: no perfetto trace was captured
-  because the Vega Virtual Device has not booted since 23:27 WIB on 2026-10-12 (the host screen lock is the most likely cause; not proven; friction log entry 10).
+- **No performance profiling.** `analyze_perfetto_traces` / `get_app_hot_functions` were not run: no perfetto trace was
+  captured. The Vega Virtual Device was down from 23:27 WIB on 2026-10-12 until the morning of 2026-10-13 (friction log entry 10);
+  once it booted again the session went to the owed on-device captures (`evidence/vvd/`), not to profiling.
 - **No runtime AWS service** (Bedrock, AgentCore, SageMaker, S3 ...) is called by the app.
 
 Kiro never touched the detector (`src/flipbook/core/detector.ts`, `scan.ts`, `signature.ts`), which is plain arithmetic.
