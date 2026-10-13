@@ -97,6 +97,11 @@ const PlayerScreen = ({
   const player = useRef<ShakaPlayer | null>(null);
   const bifFrameImagesRef = useRef<FrameImageSource | null>(null);
   const flipbookAttachRef = useRef<((buffer: ArrayBuffer, fetchMs: number, durationMs?: number) => void) | null>(null);
+  /**
+   * One BIF download per open: the video surface is created twice per open (every Vega Virtual Device run logged
+   * "Parsing BIF" twice), so a second setSurface reuses the in-flight download. A failed download is not kept.
+   */
+  const bifFetchRef = useRef<{ url: string; file: ReturnType<typeof getBifFile> } | null>(null);
 
   const TIME_TO_GO_BACK_IF_VIDEO_ENDS = 2300;
   const BACK_NAVIGATION_DELAY = 700;
@@ -370,8 +375,19 @@ const PlayerScreen = ({
       // or stalled BIF download never holds the video back.
       const played = playVideo();
       if (data?.bifUrl) {
+        const url = data.bifUrl;
+        let inFlight = bifFetchRef.current;
+        if (inFlight?.url !== url) {
+          const entry = { url, file: getBifFile(url) };
+          bifFetchRef.current = inFlight = entry;
+          entry.file.catch(() => {
+            if (bifFetchRef.current === entry) {
+              bifFetchRef.current = null; // a later surface may try again
+            }
+          });
+        }
         // Attach only once play() has settled, so a first-time calibration pause cannot race the pending play().
-        Promise.all([getBifFile(data.bifUrl), played])
+        Promise.all([inFlight.file, played])
           .then(([bif]) => {
             bifFrameImagesRef.current = bif.frameImageSource;
             // Flipbook reads the same BIF as a corpus (scan runs alongside playback).

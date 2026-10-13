@@ -389,8 +389,8 @@ export const FlipbookProvider = ({
         return;
       }
       if (bifRef.current) {
-        // The player can recreate its surface; the BIF for this title is already attached.
-        log('bif already attached — ignoring a second fetch');
+        // The player creates its surface twice per open; both share one download and the BIF is already attached.
+        log('bif already attached — ignoring a second surface');
         return;
       }
       log(`bif fetched bytes=${buffer.byteLength} ms=${Math.round(fetchMs)}`);
