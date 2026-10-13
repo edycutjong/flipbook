@@ -80,6 +80,11 @@ const Seekbar = ({
           flipbook.geometry.height,
         )
       : null;
+  // Flipbook's status line sits where the seek preview opens; it steps aside while the viewer scrubs.
+  const setFlipbookScrubbing = flipbook.setScrubbing;
+  useEffect(() => {
+    setFlipbookScrubbing(isSkipping);
+  }, [isSkipping, setFlipbookScrubbing]);
   // Give TV focus back to the seek bar when Flipbook's calibration / panel releases the keys.
   const wasCapturing = useRef(false);
   useEffect(() => {
@@ -403,9 +408,16 @@ const Seekbar = ({
             {progress ? formatTime(progress) : DEFAULT_TIME_TEXT}
           </Text>
         </View>
+        {/* While Flipbook takes every key, focus must not leave the seek bar: an arrow press could otherwise
+            move it to the captions button, and SELECT (delivered only as a press on the focused view) would
+            open captions instead of reaching Flipbook. */}
         <TVFocusGuideView
           hasTVPreferredFocus={true}
           autoFocus
+          trapFocusUp={flipbook.capturesKeys}
+          trapFocusDown={flipbook.capturesKeys}
+          trapFocusLeft={flipbook.capturesKeys}
+          trapFocusRight={flipbook.capturesKeys}
           style={styles.seekbar}>
           <ScanStrip fb={flipbook} durationMs={(totalValue || 0) * 1000} />
           <KUICSeekbar
@@ -440,7 +452,7 @@ const Seekbar = ({
             onSlidingEnd={handleOnSlidingEnd}
             onFastForwardPress={onFastForwardPressHandler}
             onRewindPress={onRewindPressHandler}
-            onPress={flipbook.capturesKeys ? undefined : onPressSelectButtonHandler}
+            onPress={flipbook.capturesKeys ? flipbook.select : onPressSelectButtonHandler}
             onPlayPause={flipbook.capturesKeys ? undefined : onPressPlayPauseButtonHandler}
             testID={testID || 'kui-seekbar'}
           />

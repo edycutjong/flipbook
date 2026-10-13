@@ -16,10 +16,14 @@ jest.mock('@amazon-devices/kepler-ui-components', () => {
   };
 });
 
-// The Jest environment renders TVFocusGuideView as nothing; pass its children through.
+// The Jest environment renders TVFocusGuideView as nothing; pass its children through and keep its props.
+const mockGuideProps: Record<string, any> = {};
 jest.mock('@amazon-devices/react-native-kepler', () => {
   const actual = jest.requireActual('@amazon-devices/react-native-kepler') as Record<string, unknown>;
-  const passThrough = ({ children }: { children: unknown }) => children;
+  const passThrough = ({ children, ...props }: { children: unknown }) => {
+    Object.assign(mockGuideProps, props);
+    return children;
+  };
   return new Proxy(actual, { get: (t, k) => (k === 'TVFocusGuideView' ? passThrough : t[k as string]) });
 });
 
@@ -47,6 +51,7 @@ const base = {
   progress: null,
   result: null,
   log: () => {},
+  setScrubbing: () => {},
 };
 
 let mockLastTree: any = null;
@@ -58,7 +63,9 @@ afterEach(() => {
 function render(state: any) {
   mockFbState = state;
   for (const k of Object.keys(mockCaptured)) delete mockCaptured[k];
-  const videoRef = { current: { currentTime: 0, duration: 5168, paused: false } } as any;
+  const videoRef = {
+    current: { currentTime: 0, duration: 5168, paused: false, pause: jest.fn(), play: jest.fn(), fastSeek: jest.fn() },
+  } as any;
   let tree: any;
   act(() => {
     tree = create(
@@ -84,18 +91,28 @@ describe('Seekbar ↔ KUI SeekBar wiring for Flipbook titles', () => {
   it('while Flipbook owns ⏩/⏪ the SeekBar ignores exactly those two keys', () => {
     render(base);
     expect(mockCaptured.partialDisablingConfiguration).toEqual({ skipForward: true, skipBackward: true });
+    // outside calibration and the panel, focus moves freely (e.g. to the captions button)
+    expect(mockGuideProps.trapFocusDown).toBe(false);
   });
 
   it('while calibrating / in the panel the SeekBar ignores EVERY key (KUI ignores `disabled` once a partial config exists)', () => {
-    render({ ...base, phase: 'calibrating', capturesKeys: true });
+    const select = jest.fn();
+    render({ ...base, phase: 'calibrating', capturesKeys: true, select });
     const p = mockCaptured.partialDisablingConfiguration;
     for (const k of ['back', 'playPause', 'skipForward', 'skipBackward', 'left', 'right']) {
       expect(p[k]).toBe(true);
     }
-    // select stays focusable; its handlers are removed instead
+    // select stays focusable: on the device SELECT arrives only as a press on the focused seek bar, so the press
+    // goes to Flipbook (resize / panel item) and never to the sample's play/pause or seek
     expect(p.select).toBeUndefined();
-    expect(mockCaptured.onPress).toBeUndefined();
+    expect(mockCaptured.onPress).toBe(select);
     expect(mockCaptured.onPlayPause).toBeUndefined();
+    mockCaptured.onPress(123);
+    expect(select).toHaveBeenCalledTimes(1);
+    // ...and focus cannot leave the seek bar in any direction meanwhile (an arrow could reach the captions button)
+    for (const d of ['Up', 'Down', 'Left', 'Right']) {
+      expect(mockGuideProps[`trapFocus${d}`]).toBe(true);
+    }
   });
 
   it('thumbnails are disabled (not skipping) and stretched; the above-thumb renderer carries the mask', () => {
@@ -110,8 +127,26 @@ describe('Seekbar ↔ KUI SeekBar wiring for Flipbook titles', () => {
     expect(mockCaptured.disableThumbnail).toBe(true);
   });
 
+  it('tells Flipbook while the viewer scrubs, so its status line steps aside for the preview', () => {
+    const setScrubbing = jest.fn();
+    render({ ...base, setScrubbing });
+    expect(setScrubbing).toHaveBeenLastCalledWith(false);
+    act(() => mockCaptured.onSlidingStart());
+    expect(setScrubbing).toHaveBeenLastCalledWith(true);
+    act(() => mockCaptured.onPlayPause(600));
+    expect(setScrubbing).toHaveBeenLastCalledWith(false);
+  });
+
   it('non-Flipbook titles keep the sample behaviour', () => {
-    render({ enabled: false, markers: [], capturesKeys: false, ownsSkipKeys: false, thumbnailsAllowed: true, log: () => {} });
+    render({
+      enabled: false,
+      markers: [],
+      capturesKeys: false,
+      ownsSkipKeys: false,
+      thumbnailsAllowed: true,
+      log: () => {},
+      setScrubbing: () => {},
+    });
     expect(mockCaptured.markers).toBeUndefined();
     expect(mockCaptured.partialDisablingConfiguration).toBeUndefined();
     expect(mockCaptured.thumbnailImageResizeMode).toBeUndefined();

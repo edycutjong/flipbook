@@ -88,6 +88,9 @@ const CalibrationBackdrop = ({ bd }: { bd: NonNullable<FlipbookApi['backdrop']> 
   return <Image source={{ uri }} resizeMode="stretch" style={style} testID="flipbook-backdrop" />;
 };
 
+/** The instructions card sits on the half of the screen away from the box, so it never covers the graphic being boxed. */
+export const calCardAtTop = (r: { y: number; h: number }) => r.y + r.h / 2 > 0.5;
+
 const Calibration = ({ fb }: { fb: FlipbookApi }) => {
   const r = fb.rect;
   if (!r) {
@@ -111,7 +114,7 @@ const Calibration = ({ fb }: { fb: FlipbookApi }) => {
           },
         ]}
       />
-      <View style={styles.calCard}>
+      <View style={[styles.calCard, calCardAtTop(r) ? styles.calCardTop : styles.calCardBottom]} testID="flipbook-calcard">
         <Text style={styles.calHead}>PUT THE BOX ON THE SCORE</Text>
         <Text style={styles.calBody}>Keep the clock outside it. Once per broadcaster graphic.</Text>
         <Text style={styles.calKeys}>
@@ -134,7 +137,7 @@ export const FlipbookOverlay = ({ controlsVisible }: { controlsVisible: boolean 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill} testID="flipbook-overlay">
       {fb.phase === 'calibrating' && <Calibration fb={fb} />}
-      {status && (controlsVisible || fb.phase === 'scanning' || fb.phase === 'no-index') && (
+      {status && !fb.scrubbing && (controlsVisible || fb.phase === 'scanning' || fb.phase === 'no-index') && (
         <View style={styles.statusRow} testID="flipbook-status">
           <Text style={styles.statusHead}>{status.head}</Text>
           <Text style={styles.statusDetail}>{status.detail}</Text>
@@ -180,13 +183,14 @@ const styles = StyleSheet.create({
     elevation: 11,
     left: '5%',
     right: '5%',
-    bottom: '6%',
     backgroundColor: FB.scrim,
     paddingVertical: scaleUxToDp(24),
     paddingHorizontal: scaleUxToDp(36),
     borderLeftWidth: scaleUxToDp(6),
     borderLeftColor: FB.rule,
   },
+  calCardTop: { top: '6%' },
+  calCardBottom: { bottom: '6%' },
   calHead: { color: FB.ink, fontSize: scaleUxToDp(48), fontWeight: '800', letterSpacing: 2 },
   calBody: { color: FB.ink, fontSize: scaleUxToDp(32), marginTop: scaleUxToDp(6) },
   calKeys: { color: FB.muted, fontSize: scaleUxToDp(28), marginTop: scaleUxToDp(10), fontFamily: 'monospace' },

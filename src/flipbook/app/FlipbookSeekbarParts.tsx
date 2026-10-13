@@ -78,7 +78,7 @@ export function thumbnailDisabled(isSkipping: boolean, fb: Pick<FlipbookApi, 'en
 export function seekbarKeyPolicy(fb: Pick<FlipbookApi, 'capturesKeys' | 'ownsSkipKeys'>) {
   if (fb.capturesKeys) {
     // `select` stays enabled: blocking it disables the KUI's inner Pressable, which then cannot hold TV focus.
-    // SELECT is neutralised instead by passing no onPress/onPlayPause handler while capturing (Seekbar.tsx).
+    // While capturing, Seekbar.tsx routes the press to Flipbook (fb.select) and passes no onPlayPause handler.
     return { back: true, playPause: true, skipForward: true, skipBackward: true, left: true, right: true };
   }
   return fb.ownsSkipKeys ? { skipForward: true, skipBackward: true } : undefined;

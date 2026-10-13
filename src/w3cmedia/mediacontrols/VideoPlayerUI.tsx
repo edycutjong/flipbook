@@ -69,6 +69,18 @@ export const VideoPlayerUI = React.memo(
     const flipbook = useFlipbook();
     const { handleShowControls, handleShowControlsOnKeyEvent, cancelTimer } =
       useMediaControls(showMediaControls, setShowMediaControls);
+    // While Flipbook's calibration box or options panel takes every key, no key re-shows the controls, so they would
+    // time out and unmount the seek bar that holds TV focus; an arrow press then walks focus into the screen
+    // underneath (seen on the Vega Virtual Device: SELECT opened a related title). Keep them mounted meanwhile —
+    // the calibration backdrop draws over them — and show them again, with a fresh timer, when Flipbook lets go.
+    const controlsMounted = showMediaControls || flipbook.capturesKeys;
+    const wasCapturing = useRef(false);
+    useEffect(() => {
+      if (wasCapturing.current && !flipbook.capturesKeys) {
+        handleShowControls();
+      }
+      wasCapturing.current = flipbook.capturesKeys;
+    }, [flipbook.capturesKeys, handleShowControls]);
 
     useEffect(() => {
       handleShowControls();
@@ -198,7 +210,7 @@ export const VideoPlayerUI = React.memo(
 
     return (
       <View style={styles.uiContainer} testID="video-player-ui-view">
-        {showMediaControls && (
+        {controlsMounted && (
           <LinearGradient
             colors={[
               COLORS.SEMI_TRANSPARENT,
@@ -234,7 +246,7 @@ export const VideoPlayerUI = React.memo(
             />
           </LinearGradient>
         )}
-        <FlipbookOverlay controlsVisible={showMediaControls} />
+        <FlipbookOverlay controlsVisible={controlsMounted} />
       </View>
     );
   },

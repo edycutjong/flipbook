@@ -65,6 +65,8 @@ export function visibleLog(lines: string[], mode: FlipbookMode): string[] {
 }
 const PREVIEW_FRAMES = 30;
 const LOG_LINES = 8;
+/** One SELECT can arrive twice (seek-bar press and key event) on platforms that deliver both. */
+export const SELECT_DEDUPE_MS = 300;
 
 export interface FlipbookApi {
   enabled: boolean;
@@ -92,6 +94,11 @@ export interface FlipbookApi {
   geometry: { area: PictureArea; width: number; height: number } | null;
   /** True while Flipbook takes every key (calibration, options panel). */
   capturesKeys: boolean;
+  /** SELECT while Flipbook takes the keys: resize toggle in calibration, the focused item in the panel. */
+  select: () => void;
+  /** True while the viewer scrubs the seek bar (its preview opens where the status line sits). */
+  scrubbing: boolean;
+  setScrubbing: (scrubbing: boolean) => void;
   /** True when Flipbook owns ⏩/⏪ (the SeekBar must ignore them). */
   ownsSkipKeys: boolean;
   /** Thumbnails stay off until a mask exists (calibrated box). */
@@ -123,6 +130,9 @@ const disabledApi: FlipbookApi = {
   backdrop: null,
   geometry: null,
   capturesKeys: false,
+  select: () => {},
+  scrubbing: false,
+  setScrubbing: () => {},
   ownsSkipKeys: false,
   thumbnailsAllowed: true,
   attachBif: () => {},
@@ -191,6 +201,7 @@ export const FlipbookProvider = ({
   const [persistence, setPersistence] = useState<'saved' | 'session' | null>(null);
   const [backdrop, setBackdrop] = useState<FlipbookApi['backdrop']>(null);
   const [geometry, setGeometry] = useState<FlipbookApi['geometry']>(null);
+  const [scrubbing, setScrubbing] = useState(false);
 
   const leadInMs = config?.leadInMs ?? DEFAULT_LEAD_IN_MS;
   const params = useMemo<DetectorParams>(() => ({ ...DEFAULT_PARAMS, ...(config?.params || {}) }), [config]);
@@ -486,6 +497,23 @@ export const FlipbookProvider = ({
 
   const capturesKeys = enabled && (phase === 'calibrating' || panelOpen);
 
+  // On the Vega Virtual Device SELECT never reaches useTVEventHandler: the platform consumes it as a press on the
+  // focused view (the seek bar), which forwards it here while Flipbook takes the keys. The key-event path stays for
+  // platforms that deliver SELECT; if both arrive, the first one wins.
+  const lastSelectAt = useRef(0);
+  const select = useCallback(() => {
+    const now = Date.now();
+    if (now - lastSelectAt.current < SELECT_DEDUPE_MS) {
+      return;
+    }
+    lastSelectAt.current = now;
+    if (phase === 'calibrating') {
+      setResizing(r => !r);
+    } else if (panelOpen) {
+      activatePanelItem(PANEL_ITEMS[panelIndex]);
+    }
+  }, [activatePanelItem, panelIndex, panelOpen, phase]);
+
   useTVEventHandler((evt: HWEvent) => {
     if (!enabled || !evt || evt.eventKeyAction !== EVENT_KEY_UP) {
       return;
@@ -496,14 +524,14 @@ export const FlipbookProvider = ({
       else if (k === 'down') nudge(0, STEP);
       else if (k === 'left') nudge(-STEP, 0);
       else if (k === 'right') nudge(STEP, 0);
-      else if (k === 'select') setResizing(r => !r);
+      else if (k === 'select') select();
       else if (k === 'playpause' || k === 'play' || k === 'pause') confirmBox();
       return;
     }
     if (panelOpen) {
       if (k === 'up') setPanelIndex(i => (i + PANEL_ITEMS.length - 1) % PANEL_ITEMS.length);
       else if (k === 'down') setPanelIndex(i => (i + 1) % PANEL_ITEMS.length);
-      else if (k === 'select') activatePanelItem(PANEL_ITEMS[panelIndex]);
+      else if (k === 'select') select();
       else if (k === 'menu') setPanelOpen(false);
       return;
     }
@@ -561,6 +589,9 @@ export const FlipbookProvider = ({
         backdrop,
         geometry,
         capturesKeys,
+        select,
+        scrubbing,
+        setScrubbing,
         ownsSkipKeys: phase === 'scanning' || phase === 'ready' || phase === 'calibrating',
         thumbnailsAllowed: !!rect && !!geometry && phase !== 'calibrating' && phase !== 'loading',
         attachBif,
