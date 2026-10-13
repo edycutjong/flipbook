@@ -1,0 +1,70 @@
+# R4 Witness title: Amazon-hosted tv-webinar-hd.bif on the v2 build (take r4, 07:12 WIB)
+Oct 13 00:12:02.715643 Parsing BIF with 428 images and a timestamp multiplier of 4294957296
+Oct 13 00:12:02.716015 [flipbook] bif fetched bytes=4343604 ms=1134
+Oct 13 00:12:02.716431 [flipbook] bif frames=428 interval=9962.934579439228ms (duration)
+Oct 13 00:12:02.849606 [flipbook] picture area rows 12-162 cols 0-239 of 240x180
+Oct 13 00:12:03.106089 Parsing BIF with 428 images and a timestamp multiplier of 4294957296
+Oct 13 00:12:03.106274 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:12:03.892203 [flipbook] calibrate on frame=21 (3:39)
+Oct 13 00:12:11.229335 [flipbook] scan start frames=428 rect=0.050,0.050,0.900,0.900
+Oct 13 00:12:11.523250 [flipbook] box saved for witness-amazon-tv-webinar
+Oct 13 00:12:12.752141 [flipbook] marker anchor=19926ms change=29889ms d=157.1 pass=1
+Oct 13 00:12:12.891428 [flipbook] marker anchor=229147ms change=239110ms d=89.4 pass=1
+Oct 13 00:12:13.021250 [flipbook] marker anchor=298888ms change=308851ms d=153.8 pass=1
+Oct 13 00:12:13.180455 [flipbook] marker anchor=398517ms change=408480ms d=159.0 pass=1
+Oct 13 00:12:13.319292 [flipbook] marker anchor=458295ms change=468258ms d=177.2 pass=1
+Oct 13 00:12:13.594662 [flipbook] marker anchor=637628ms change=647591ms d=153.8 pass=1
+Oct 13 00:12:13.727297 [flipbook] marker anchor=697405ms change=707368ms d=156.5 pass=1
+Oct 13 00:12:13.880943 [flipbook] marker anchor=886701ms change=896664ms d=199.0 pass=1
+Oct 13 00:12:14.042855 [flipbook] marker anchor=1085960ms change=1095923ms d=173.7 pass=1
+Oct 13 00:12:14.183266 [flipbook] marker anchor=1454588ms change=1464551ms d=173.7 pass=1
+Oct 13 00:12:14.359951 [flipbook] marker anchor=1524329ms change=1534292ms d=173.4 pass=1
+Oct 13 00:12:14.507627 [flipbook] marker anchor=1623958ms change=1633921ms d=157.7 pass=1
+Oct 13 00:12:14.648199 [flipbook] marker anchor=1693699ms change=1703662ms d=249.4 pass=1
+Oct 13 00:12:14.817094 [flipbook] marker anchor=1763439ms change=1773402ms d=159.4 pass=1
+Oct 13 00:12:14.950159 [flipbook] marker anchor=1932809ms change=1942772ms d=226.8 pass=1
+Oct 13 00:12:15.095837 [flipbook] marker anchor=2042402ms change=2052365ms d=106.9 pass=1
+Oct 13 00:12:15.219812 [flipbook] marker anchor=2142031ms change=2151994ms d=147.9 pass=1
+Oct 13 00:12:15.350387 [flipbook] marker anchor=2211771ms change=2221734ms d=183.2 pass=1
+Oct 13 00:12:15.507943 [flipbook] marker anchor=2321364ms change=2331327ms d=165.3 pass=1
+Oct 13 00:12:15.644472 [flipbook] marker anchor=2411030ms change=2420993ms d=100.9 pass=1
+Oct 13 00:12:15.809602 [flipbook] marker anchor=2510660ms change=2520622ms d=100.0 pass=1
+Oct 13 00:12:15.975065 [flipbook] marker anchor=2600326ms change=2610289ms d=157.2 pass=1
+Oct 13 00:12:16.143617 [flipbook] marker anchor=2839436ms change=2849399ms d=159.0 pass=1
+Oct 13 00:12:16.275789 [flipbook] marker anchor=2929103ms change=2939066ms d=20.4 pass=1
+Oct 13 00:12:16.438817 [flipbook] marker anchor=3018769ms change=3028732ms d=71.2 pass=1
+Oct 13 00:12:16.571928 [flipbook] marker anchor=3098473ms change=3108436ms d=159.0 pass=1
+Oct 13 00:12:16.680241 [flipbook] marker anchor=3138324ms change=3148287ms d=114.8 pass=1
+Oct 13 00:12:16.827936 [flipbook] marker anchor=3297731ms change=3307694ms d=158.7 pass=1
+Oct 13 00:12:16.936539 [flipbook] marker anchor=4244210ms change=4254173ms d=164.8 pass=1
+Oct 13 00:12:16.936617 [flipbook] ref frame=336 mask kept=100% area=12,163,0,240
+Oct 13 00:12:16.936629 [flipbook] pass1 done n=212/428 markers=29 ms=5707
+Oct 13 00:12:18.607910 [flipbook] seek from=15183ms currentTime=199.1 anchor=229147ms
+Oct 13 00:12:20.348336 [flipbook] after seek currentTime=199.1
+Oct 13 00:12:23.838002 [flipbook] marker anchor=39852ms change=49815ms d=72.1 pass=2
+Oct 13 00:12:23.838069 [flipbook] marker anchor=59778ms change=69741ms d=87.3 pass=2
+Oct 13 00:12:23.838081 [flipbook] marker anchor=259036ms change=268999ms d=79.8 pass=2
+Oct 13 00:12:23.838100 [flipbook] marker anchor=298888ms change=308851ms d=153.8 pass=2
+Oct 13 00:12:23.838113 [flipbook] marker anchor=358666ms change=368629ms d=153.1 pass=2
+Oct 13 00:12:23.838124 [flipbook] marker anchor=428406ms change=438369ms d=72.8 pass=2
+Oct 13 00:12:23.838134 [flipbook] marker anchor=488184ms change=498147ms d=208.5 pass=2
+Oct 13 00:12:23.838144 [flipbook] marker anchor=1066034ms change=1075997ms d=171.0 pass=2
+Oct 13 00:12:23.838155 [flipbook] marker anchor=1474514ms change=1484477ms d=180.7 pass=2
+Oct 13 00:12:23.838166 [flipbook] marker anchor=1494440ms change=1504403ms d=66.7 pass=2
+Oct 13 00:12:23.838526 [flipbook] marker anchor=1574144ms change=1584107ms d=144.2 pass=2
+Oct 13 00:12:23.838554 [flipbook] marker anchor=1663810ms change=1673773ms d=147.8 pass=2
+Oct 13 00:12:23.838567 [flipbook] marker anchor=1713625ms change=1723588ms d=96.1 pass=2
+Oct 13 00:12:23.838657 [flipbook] marker anchor=1733551ms change=1743514ms d=97.2 pass=2
+Oct 13 00:12:23.838717 [flipbook] marker anchor=1793328ms change=1803291ms d=149.8 pass=2
+Oct 13 00:12:23.838812 [flipbook] marker anchor=1952735ms change=1962698ms d=34.9 pass=2
+Oct 13 00:12:23.838835 [flipbook] marker anchor=1972661ms change=1982624ms d=91.5 pass=2
+Oct 13 00:12:23.838845 [flipbook] marker anchor=1992587ms change=2002550ms d=82.3 pass=2
+Oct 13 00:12:23.838856 [flipbook] marker anchor=2570437ms change=2580400ms d=135.6 pass=2
+Oct 13 00:12:23.838869 [flipbook] marker anchor=2968955ms change=2978917ms d=70.2 pass=2
+Oct 13 00:12:23.838956 [flipbook] marker anchor=3038695ms change=3048658ms d=35.6 pass=2
+Oct 13 00:12:23.838977 [flipbook] marker anchor=3307694ms change=3317657ms d=158.6 pass=2
+Oct 13 00:12:23.838987 [flipbook] marker anchor=3337583ms change=3347546ms d=58.2 pass=2
+Oct 13 00:12:23.839077 [flipbook] pass2 done n=216 added=23 lost=0 absent=0 ms=6902
+Oct 13 00:12:23.839207 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+Oct 13 00:12:27.568665 [flipbook] seek from=206058ms currentTime=229.0 anchor=259036ms
+Oct 13 00:12:29.071771 [flipbook] after seek currentTime=229.0

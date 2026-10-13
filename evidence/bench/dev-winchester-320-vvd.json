@@ -1,0 +1,184 @@
+{
+  "bif": "winchester-2023-320.bif",
+  "frames": 517,
+  "intervalMs": 10000,
+  "intervalSource": "header",
+  "rect": {
+    "x": 0.15,
+    "y": 0.87,
+    "w": 0.5,
+    "h": 0.06
+  },
+  "params": {
+    "tau": 20,
+    "tauCand": 12,
+    "tauAbs": 20,
+    "topK": 3,
+    "window": 3,
+    "jitterMax": 2.5,
+    "movingKeptMin": 0.4,
+    "stride": 8,
+    "reach": 12
+  },
+  "pass2Reach": 90,
+  "maskKept": 0.55,
+  "markers": [
+    {
+      "changeAt": "17:00",
+      "anchorAt": "16:50",
+      "changeMs": 1020000,
+      "anchorMs": 1010000,
+      "D": 37.6,
+      "pass": 1
+    },
+    {
+      "changeAt": "49:30",
+      "anchorAt": "49:20",
+      "changeMs": 2970000,
+      "anchorMs": 2960000,
+      "D": 30.1,
+      "pass": 1
+    }
+  ],
+  "pass1": {
+    "decodes": 77,
+    "decodeFraction": 0.149
+  },
+  "pass2": {
+    "added": 0
+  },
+  "lostFromPass1": 0,
+  "skippedAbsent": 5,
+  "videoBytesDecoded": 0,
+  "nodeTimings": {
+    "label": "Node (tsx) on Apple M-series — NOT device timings",
+    "runs": 20,
+    "pass1Ms": {
+      "p50": 226.4,
+      "p95": 244
+    },
+    "pass2Ms": {
+      "p50": 1323.6,
+      "p95": 1386.2
+    }
+  },
+  "labels": {
+    "file": "winchester-2023.devlabels.json",
+    "status": "DEVELOPMENT LABELS — made by the detector's author (agent) from 2-second stills, used only to develop and tune thresholds. NOT ground truth; never reported as a result."
+  },
+  "score": {
+    "changesLabelled": 2,
+    "changesFound": 2,
+    "recall": 1,
+    "recallCI95": [
+      0.158,
+      1
+    ],
+    "matchToleranceMs": 12000,
+    "falseMarkers": 0,
+    "falseMarkersPer90min": 0,
+    "goalJumps": 2,
+    "goalJumpsBeforePlay": 2,
+    "goalJumpsSpoiled": 0,
+    "goalJumpsBeforePlayCI95": [
+      0.158,
+      1
+    ],
+    "graphicLagS": [
+      10,
+      4
+    ],
+    "medianLeadS": 28,
+    "jumps": [
+      {
+        "playMs": 1008000,
+        "targetMs": 980000,
+        "beforePlay": true,
+        "spoiled": false,
+        "leadMs": 28000
+      },
+      {
+        "playMs": 2960000,
+        "targetMs": 2930000,
+        "beforePlay": true,
+        "spoiled": false,
+        "leadMs": 30000
+      }
+    ]
+  },
+  "vvdTimings": {
+    "label": "Vega virtual device on Apple M-series (logged runs)",
+    "runs": 19,
+    "pass1Ms": {
+      "p50": 2771,
+      "p95": 3422,
+      "all": [
+        2932,
+        2908,
+        2771,
+        2700,
+        2645,
+        2873,
+        2746,
+        2693,
+        2820,
+        2843,
+        2893,
+        3039,
+        2765,
+        2934,
+        3422,
+        2618,
+        2590,
+        2727,
+        2591
+      ]
+    },
+    "pass2Ms": {
+      "p50": 14294,
+      "p95": 17796,
+      "all": [
+        14610,
+        14055,
+        14905,
+        14294,
+        14346,
+        14213,
+        14148,
+        14021,
+        14569,
+        14662,
+        14088,
+        14710,
+        14156,
+        14187,
+        17796,
+        14367,
+        14322,
+        13930,
+        14209
+      ]
+    },
+    "pass1DecodeFraction": [
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595,
+      0.14893617021276595
+    ]
+  }
+}

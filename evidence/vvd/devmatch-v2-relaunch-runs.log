@@ -1,0 +1,288 @@
+# Relaunch runs on the Vega Virtual Device (Apple M-series Mac), 2026-10-13 07:14-07:28 WIB: app terminated and launched,
+# Matches tile opened, box restored from AsyncStorage, scan of the development match BIF (517 frames). A 20th run whose
+# log capture began mid-scan (no box-restored / scan-start lines captured) is excluded.
+# run 1
+Oct 13 00:14:46.338834 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:14:46.339586 [flipbook] bif fetched bytes=6575564 ms=1282
+Oct 13 00:14:46.341600 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:14:46.483428 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:14:46.492827 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:14:46.492847 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:14:47.191600 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:14:47.191667 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:14:49.223439 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:14:49.414822 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:14:49.424811 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:14:49.424838 [flipbook] pass1 done n=77/517 markers=2 ms=2932
+Oct 13 00:15:04.035211 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14610
+Oct 13 00:15:04.035286 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 2
+Oct 13 00:15:28.349769 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:15:28.355276 [flipbook] bif fetched bytes=6575564 ms=1390
+Oct 13 00:15:28.355349 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:15:28.507824 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:15:28.532386 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:15:28.532675 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:15:29.308602 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:15:29.308673 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:15:31.188242 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:15:31.423250 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:15:31.441444 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:15:31.441647 [flipbook] pass1 done n=77/517 markers=2 ms=2908
+Oct 13 00:15:45.496974 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14055
+Oct 13 00:15:45.497070 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 3
+Oct 13 00:16:08.903696 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:16:08.906771 [flipbook] bif fetched bytes=6575564 ms=1266
+Oct 13 00:16:08.907548 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:16:09.049972 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:16:09.056696 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:16:09.056973 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:16:09.820594 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:16:09.820654 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:16:11.623792 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:16:11.820436 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:16:11.825036 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:16:11.825055 [flipbook] pass1 done n=77/517 markers=2 ms=2771
+Oct 13 00:16:26.730038 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14905
+Oct 13 00:16:26.730107 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 4
+Oct 13 00:16:48.681883 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:16:48.683310 [flipbook] bif fetched bytes=6575564 ms=937
+Oct 13 00:16:48.687057 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:16:48.953298 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:16:48.987189 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:16:48.989371 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:16:49.785115 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:16:49.785196 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:16:51.499978 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:16:51.683302 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:16:51.689855 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:16:51.689876 [flipbook] pass1 done n=77/517 markers=2 ms=2700
+Oct 13 00:17:05.983740 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14294
+Oct 13 00:17:05.983761 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 5
+Oct 13 00:17:29.595759 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:17:29.595830 [flipbook] bif fetched bytes=6575564 ms=1284
+Oct 13 00:17:29.615434 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:17:29.879147 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:17:29.911353 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:17:29.911853 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:17:30.646954 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:17:30.647041 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:17:32.368972 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:17:32.550507 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:17:32.557092 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:17:32.557114 [flipbook] pass1 done n=77/517 markers=2 ms=2645
+Oct 13 00:17:46.903870 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14346
+Oct 13 00:17:46.903951 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 6
+Oct 13 00:18:10.422124 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:18:10.426755 [flipbook] bif fetched bytes=6575564 ms=1227
+Oct 13 00:18:10.430261 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:18:10.570656 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:18:10.581118 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:18:10.581416 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:18:11.285481 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:18:11.285558 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:18:13.261433 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:18:13.445278 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:18:13.455332 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:18:13.455373 [flipbook] pass1 done n=77/517 markers=2 ms=2873
+Oct 13 00:18:27.667025 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14213
+Oct 13 00:18:27.667128 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 7
+Oct 13 00:18:51.512532 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:18:51.513896 [flipbook] bif fetched bytes=6575564 ms=1472
+Oct 13 00:18:51.517660 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:18:51.656715 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:18:51.662258 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:18:51.662307 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:18:52.444435 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:18:52.444604 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:18:54.211410 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:18:54.402717 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:18:54.412279 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:18:54.412308 [flipbook] pass1 done n=77/517 markers=2 ms=2746
+Oct 13 00:19:08.559905 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14148
+Oct 13 00:19:08.560035 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 8
+Oct 13 00:19:31.429694 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:19:31.431766 [flipbook] bif fetched bytes=6575564 ms=1110
+Oct 13 00:19:31.454077 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:19:31.654289 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:19:31.718432 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:19:31.718454 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:19:32.497868 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:19:32.498039 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:19:34.213665 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:19:34.399769 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:19:34.410571 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:19:34.410601 [flipbook] pass1 done n=77/517 markers=2 ms=2693
+Oct 13 00:19:48.431197 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14021
+Oct 13 00:19:48.431269 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 9
+Oct 13 00:20:12.333316 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:20:12.333404 [flipbook] bif fetched bytes=6575564 ms=1272
+Oct 13 00:20:12.334376 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:20:12.535180 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:20:12.546621 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:20:12.547253 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:20:12.571475 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:20:12.572034 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:20:15.174270 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:20:15.376347 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:20:15.383136 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:20:15.383165 [flipbook] pass1 done n=77/517 markers=2 ms=2820
+Oct 13 00:20:29.952118 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14569
+Oct 13 00:20:29.952225 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 10
+Oct 13 00:20:52.699217 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:20:52.699304 [flipbook] bif fetched bytes=6575564 ms=981
+Oct 13 00:20:52.699317 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:20:52.891583 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:20:52.896544 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:20:52.896617 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:20:53.728216 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:20:53.728274 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:20:55.532719 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:20:55.731960 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:20:55.738932 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:20:55.738966 [flipbook] pass1 done n=77/517 markers=2 ms=2843
+Oct 13 00:21:10.401046 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14662
+Oct 13 00:21:10.401279 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 11
+Oct 13 00:21:33.490070 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:21:33.491789 [flipbook] bif fetched bytes=6575564 ms=1273
+Oct 13 00:21:33.492473 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:21:33.663904 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:21:33.665244 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:21:33.665255 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:21:34.411849 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:21:34.412072 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:21:36.375092 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:21:36.554298 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:21:36.558696 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:21:36.558749 [flipbook] pass1 done n=77/517 markers=2 ms=2893
+Oct 13 00:21:50.647182 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14088
+Oct 13 00:21:50.647282 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 12
+Oct 13 00:22:15.522718 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:22:15.525150 [flipbook] bif fetched bytes=6575564 ms=1411
+Oct 13 00:22:15.527522 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:22:15.688086 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:22:15.731610 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:22:15.731625 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:22:16.650550 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:22:16.650726 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:22:18.564944 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:22:18.761874 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:22:18.770779 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:22:18.770818 [flipbook] pass1 done n=77/517 markers=2 ms=3039
+Oct 13 00:22:33.480971 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14710
+Oct 13 00:22:33.481212 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 13
+Oct 13 00:22:57.813964 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:22:57.826247 [flipbook] bif fetched bytes=6575564 ms=1162
+Oct 13 00:22:57.826349 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:22:58.026989 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:22:58.038133 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:22:58.038470 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:22:58.827006 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:22:58.827079 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:23:00.575151 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:23:00.797271 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:23:00.805169 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:23:00.805187 [flipbook] pass1 done n=77/517 markers=2 ms=2765
+Oct 13 00:23:14.961563 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14156
+Oct 13 00:23:14.961600 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 14
+Oct 13 00:23:38.593442 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:23:38.597471 [flipbook] bif fetched bytes=6575564 ms=1057
+Oct 13 00:23:38.599874 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:23:38.792443 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:23:38.794997 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:23:38.795008 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:23:39.318341 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:23:39.318358 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:23:41.519164 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:23:41.723417 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:23:41.728899 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:23:41.728928 [flipbook] pass1 done n=77/517 markers=2 ms=2934
+Oct 13 00:23:55.915671 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14187
+Oct 13 00:23:55.915743 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 15
+Oct 13 00:24:19.554602 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:24:19.567947 [flipbook] bif fetched bytes=6575564 ms=1155
+Oct 13 00:24:19.569045 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:24:19.800282 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:24:19.804700 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:24:19.804772 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:24:20.694094 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:24:20.694358 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:24:23.001633 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:24:23.219465 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:24:23.226555 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:24:23.226590 [flipbook] pass1 done n=77/517 markers=2 ms=3422
+Oct 13 00:24:41.022846 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=17796
+Oct 13 00:24:41.024622 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 16
+Oct 13 00:25:04.256751 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:25:04.256803 [flipbook] bif fetched bytes=6575564 ms=980
+Oct 13 00:25:04.265157 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:25:04.565534 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:25:04.616823 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:25:04.616876 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:25:05.336157 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:25:05.336277 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:25:07.026846 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:25:07.229182 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:25:07.236138 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:25:07.236203 [flipbook] pass1 done n=77/517 markers=2 ms=2618
+Oct 13 00:25:21.601948 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14367
+Oct 13 00:25:21.602756 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 17
+Oct 13 00:25:46.191311 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:25:46.205936 [flipbook] bif fetched bytes=6575564 ms=1194
+Oct 13 00:25:46.210992 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:25:46.369215 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:25:46.386821 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:25:46.386832 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:25:47.113448 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:25:47.113666 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:25:48.780639 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:25:48.965806 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:25:48.971248 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:25:48.971268 [flipbook] pass1 done n=77/517 markers=2 ms=2590
+Oct 13 00:26:03.293158 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14322
+Oct 13 00:26:03.293246 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 18
+Oct 13 00:26:26.916570 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:26:26.923293 [flipbook] bif fetched bytes=6575564 ms=1594
+Oct 13 00:26:26.926379 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:26:27.091709 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:26:27.103008 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:26:27.103020 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:26:27.852769 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:26:27.852822 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:26:29.647115 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:26:29.823159 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:26:29.829809 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:26:29.829863 [flipbook] pass1 done n=77/517 markers=2 ms=2727
+Oct 13 00:26:43.759684 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=13930
+Oct 13 00:26:43.761820 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+# run 19
+Oct 13 00:27:07.450585 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:27:07.451452 [flipbook] bif fetched bytes=6575564 ms=1205
+Oct 13 00:27:07.458111 [flipbook] bif frames=517 interval=10000ms (header)
+Oct 13 00:27:07.637542 [flipbook] picture area rows 0-179 cols 0-319 of 320x180
+Oct 13 00:27:07.645690 [flipbook] box restored for belmont-media-center-2023
+Oct 13 00:27:07.645767 [flipbook] scan start frames=517 rect=0.150,0.870,0.500,0.060
+Oct 13 00:27:08.308411 Parsing BIF with 517 images and a timestamp multiplier of 10000
+Oct 13 00:27:08.308509 [flipbook] bif already attached — ignoring a second fetch
+Oct 13 00:27:10.043195 [flipbook] marker anchor=1010000ms change=1020000ms d=37.6 pass=1
+Oct 13 00:27:10.229212 [flipbook] marker anchor=2960000ms change=2970000ms d=30.1 pass=1
+Oct 13 00:27:10.234044 [flipbook] ref frame=480 mask kept=55% area=0,180,0,320
+Oct 13 00:27:10.234068 [flipbook] pass1 done n=77/517 markers=2 ms=2591
+Oct 13 00:27:24.443359 [flipbook] pass2 done n=440 added=0 lost=0 absent=5 ms=14209
+Oct 13 00:27:24.443636 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
