@@ -59,6 +59,17 @@ describe('scanBif end to end on real JPEG frames (letterboxed like Amazon’s 24
     expect(r.maskKept).toBeLessThan(0.4);
   });
 
+  it('no JS turn decodes more than batchDecodes JPEGs, bar probes included', async () => {
+    let at = decodeStats.frames;
+    let maxTurn = 0;
+    const yieldFn = async () => {
+      maxTurn = Math.max(maxTurn, decodeStats.frames - at);
+      at = decodeStats.frames;
+    };
+    await scanBif({ buffer: bif, index: parsed.index, rect, refFrame: 'auto', yieldFn });
+    expect(Math.max(maxTurn, decodeStats.frames - at)).toBeLessThanOrEqual(8);
+  });
+
   it('can be cancelled between batches', async () => {
     let calls = 0;
     const r = await scanBif({

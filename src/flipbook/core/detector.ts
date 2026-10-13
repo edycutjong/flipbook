@@ -66,6 +66,10 @@ export interface Marker {
   pass: 1 | 2;
 }
 
+/** Thrown by FrameOracle.sig() when a paced step has used its fresh-decode budget (see `paced`). */
+class NeedTurn extends Error {}
+const NEED_TURN = new NeedTurn('flipbook: paced step needs a JS turn');
+
 /** Decodes and caches frame signatures on demand; counts decodes. */
 export class FrameOracle {
   readonly n: number;
@@ -74,6 +78,8 @@ export class FrameOracle {
   private ref: Sig | null = null;
   mask: CellMask | null = null;
   decodes = 0;
+  /** Fresh decodes still allowed in the current paced step (Infinity outside one). */
+  budget = Infinity;
   constructor(
     n: number,
     private decodeSig: (i: number) => Sig,
@@ -94,6 +100,10 @@ export class FrameOracle {
   sig(i: number): Sig {
     let s = this.sigs[i];
     if (!s) {
+      if (this.budget <= 0) {
+        throw NEED_TURN;
+      }
+      this.budget--;
       s = this.decodeSig(i);
       this.sigs[i] = s;
       this.decodes++;
@@ -257,35 +267,11 @@ export function* sprocketPass(
     const a = present[k - 1];
     const b = present[k];
     if (topKDistance(o.sig(a), o.sig(b), mask, p.topK) > p.tauCand) {
-      const sa = o.sig(a);
-      const sb = o.sig(b);
-      let lo = a;
-      let hi = b;
-      let linear = false;
-      while (hi - lo > 1) {
-        const mid = Math.floor((lo + hi) / 2);
-        if (!o.present(mid)) {
-          linear = true;
-          break;
-        }
-        if (closerToNew(o, mid, sa, sb, p)) {
-          hi = mid;
-        } else {
-          lo = mid;
-        }
-      }
-      if (linear) {
-        hi = b;
-        for (let j = lo + 1; j <= b; j++) {
-          if (o.present(j) && closerToNew(o, j, sa, sb, p)) {
-            hi = j;
-            break;
-          }
-        }
-      }
-      const found = confirmAt(o, hi, p);
+      // One fresh decode per generator step (see `paced`): the bisect, hold test and anchor walk-back never decode
+      // a burst inside one step, so the caller's batch counter really bounds each JS turn.
+      const found = yield* paced(o, b, () => bisectAndConfirm(o, a, b, p));
       if (found && !markers.some(m => Math.abs(m.frameIndex - found.c) <= p.window)) {
-        const m = markerAt(o, found.c, found.d, 1, p.reach);
+        const m = yield* paced(o, b, () => markerAt(o, found.c, found.d, 1, p.reach));
         markers.push(m);
         sink?.(m);
       }
@@ -293,6 +279,58 @@ export function* sprocketPass(
     yield { pass: 1, readTo: b, decodes: o.decodes };
   }
   return { markers, mask, kept, ref };
+}
+
+/** Pass-1 phase B for one candidate pair: bisect (linear fallback across absent frames), then the hold test. Pure. */
+function bisectAndConfirm(o: FrameOracle, a: number, b: number, p: DetectorParams) {
+  const sa = o.sig(a);
+  const sb = o.sig(b);
+  let lo = a;
+  let hi = b;
+  let linear = false;
+  while (hi - lo > 1) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (!o.present(mid)) {
+      linear = true;
+      break;
+    }
+    if (closerToNew(o, mid, sa, sb, p)) {
+      hi = mid;
+    } else {
+      lo = mid;
+    }
+  }
+  if (linear) {
+    hi = b;
+    for (let j = lo + 1; j <= b; j++) {
+      if (o.present(j) && closerToNew(o, j, sa, sb, p)) {
+        hi = j;
+        break;
+      }
+    }
+  }
+  return confirmAt(o, hi, p);
+}
+
+/**
+ * Runs a pure, memoised step with at most ONE fresh decode per generator step: when it needs a second frame the
+ * oracle throws NEED_TURN, we yield, and the step re-runs from the top (cached frames cost nothing) — same read
+ * order, same decode count, same result. Scheduling only.
+ */
+function* paced<T>(o: FrameOracle, readTo: number, step: () => T): Generator<PassProgress, T, void> {
+  for (;;) {
+    o.budget = 1;
+    try {
+      return step();
+    } catch (e) {
+      if (e !== NEED_TURN) {
+        throw e;
+      }
+    } finally {
+      o.budget = Infinity;
+    }
+    yield { pass: 1, readTo, decodes: o.decodes };
+  }
 }
 
 /**

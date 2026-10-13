@@ -130,7 +130,8 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
   const params2: DetectorParams = { ...params, reach: Math.max(params.reach, Math.ceil(REACH_MS / Math.max(1, opts.index.intervalMs))) };
   const now = opts.now || defaultNow;
   const yieldFn = opts.yieldFn || defaultYield;
-  // Small batches: one decode is ~20 ms on the VVD, so 8 keeps each JS turn under ~200 ms.
+  // Small batches: one decode is ~20 ms on the VVD, so 8 keeps each JS turn under ~200 ms. Both passes yield after
+  // every fresh decode and one counter spans the whole scan, so no turn decodes more than `batch` frames.
   const batch = opts.batchDecodes ?? 8;
   const log = opts.log || (() => {});
   const { index, buffer } = opts;
@@ -139,11 +140,13 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
 
   const t0 = now();
   const src = makeSigSource(buffer, index, opts.rect, params.stride);
+  await yieldFn(); // the bar-probe decodes are a JS turn of their own, outside the batch count
   const oracle = new FrameOracle(n, src.sigOf, params.tauAbs);
   let cancelled = false;
 
+  // One batch counter for both passes (it used to restart inside each drive call).
+  let lastYieldAt = oracle.decodes;
   const drive = async <R>(gen: Generator<PassProgress, R, void>, onStep: (p: PassProgress) => void): Promise<R | null> => {
-    let lastYieldAt = oracle.decodes;
     for (;;) {
       const r = gen.next();
       if (r.done) {

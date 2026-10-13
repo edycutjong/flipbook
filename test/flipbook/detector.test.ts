@@ -64,6 +64,18 @@ describe('detector — change and hold (v2: masked top-K distance, 3-frame media
     expect(r.markers.map(m => [m.anchorIndex, m.frameIndex])).toEqual([[99, 160]]);
   });
 
+  it('pass 1 reads one fresh frame per step too: a replay before the update never decodes a burst', () => {
+    const o = oracleFor(seq([[0, 101], ['absent', 9], [1, 50]]), P.tauAbs);
+    const gen = sprocketPass(o, P);
+    let last = o.decodes;
+    let maxBurst = 0;
+    for (let r = gen.next(); !r.done; r = gen.next()) {
+      maxBurst = Math.max(maxBurst, o.decodes - last);
+      last = o.decodes;
+    }
+    expect(maxBurst).toBeLessThanOrEqual(1);
+  });
+
   it('pass 2 reads ahead one frame per step: no step decodes a burst through a long absent run', () => {
     const sigs = seq([[0, 100], ['absent', 80], [1, 60]]);
     const o = oracleFor(sigs, P.tauAbs);
