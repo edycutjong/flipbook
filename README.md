@@ -9,6 +9,7 @@
   [![Built for Amazon Developer Hackathon](https://img.shields.io/badge/Devpost-Amazon_Developer_Hackathon-8b5cf6?style=for-the-badge)](https://amazonappdev2026.devpost.com/)
   [![Landing page](https://img.shields.io/badge/Landing-page-D9A441?style=for-the-badge)](https://flipbook.edycu.dev/)
   [![Pitch deck](https://img.shields.io/badge/Pitch-deck-F2EBDD?style=for-the-badge)](https://flipbook.edycu.dev/pitch/)
+  [![Demo video](https://img.shields.io/badge/🎬_Demo-Video-ef4444?style=for-the-badge)](https://youtu.be/AnNfzBMS6Vs)
 
   <br/>
 
@@ -192,6 +193,12 @@ test/flipbook/         Jest invariants
 - [x] Calibrated on-device recording of the development match
 - [ ] Upstream the BIF parser fixes to `vega-video-sample`
 - [ ] A packaging-time scan, so a provider can run the detector once where the BIF is made
+
+## 📽️ Demo Materials
+
+- **Demo video (2:54):** https://youtu.be/AnNfzBMS6Vs — recorded on the Vega Virtual Device: calibrate, scan, jump, in Blind and Highlights mode
+- **Landing page:** https://flipbook.edycu.dev/
+- **Pitch deck:** https://flipbook.edycu.dev/pitch/
 
 ## 📄 License
 
