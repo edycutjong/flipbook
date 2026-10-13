@@ -45,7 +45,7 @@ For the tests and the benchmark alone, `npm ci --ignore-scripts` is enough (it s
 
 | Claim | Command | Evidence file it must match |
 |---|---|---|
-| Tests (420 passing, 69 Flipbook, 4 upstream skipped) | `npm test` | — |
+| Tests (444 passing + 4 skipped, 93 Flipbook) | `npm test` | — |
 | Types clean | `npm run typecheck` | — |
 | Development-match result, ablations, Node timings (20 runs) | `npm run bench` | `evidence/bench/dev-winchester-320.json` |
 | The scan's read order, which the landing page replays | `npm run trace` | `evidence/bench/dev-winchester-320-trace.json` |
@@ -59,7 +59,6 @@ For the tests and the benchmark alone, `npm ci --ignore-scripts` is enough (it s
 - **The held-out headline** (goal jumps that land before the play on match B). It is computed only from a committed,
   human-labelled truth file; `bench` and `visibility` refuse to run on matches A and B without one. Parameters are frozen
   in `fixtures/PREREG.json`. Until then no such number is claimed anywhere.
-- On-device captures of a calibrated scan of the development match, 20 relaunch timings, a 100-frame decode median and
-  the AsyncStorage restore after a relaunch (see README, honest limit 8).
+- A dedicated 100-frame decode median on the device. (The calibrated scan, 19 relaunch timings and the AsyncStorage restore after a relaunch are captured for the development match; see `evidence/vvd/README.md` and README, honest limit 8.)
 - Everything above on the development match was labelled by the detector's author, an AI agent (Claude Code) (`fixtures/winchester-2023.devlabels.json`)
   and is evidence that the pipeline works, not how well it generalises.

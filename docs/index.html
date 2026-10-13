@@ -12,13 +12,13 @@
 <meta property="og:site_name" content="Flipbook">
 <meta property="og:title" content="Flipbook — skip to the goal, not the score">
 <meta property="og:description" content="Chapters for a recorded match on Fire TV, read from the trickplay thumbnails the player already has. No feed, no video decode, no spoiler.">
-<meta property="og:url" content="https://edycutjong.github.io/flipbook/">
-<meta property="og:image" content="https://edycutjong.github.io/flipbook/assets/og-image.png">
+<meta property="og:url" content="https://flipbook.edycu.dev/">
+<meta property="og:image" content="https://flipbook.edycu.dev/assets/og-image.png">
 <meta property="og:image:width" content="2400">
 <meta property="og:image:height" content="1260">
 <meta property="og:image:alt" content="Flipbook, built for Fire TV: no event feed, no video decode; a strip of frames and red ticks on a seek bar">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://edycutjong.github.io/flipbook/assets/og-image.png">
+<meta name="twitter:image" content="https://flipbook.edycu.dev/assets/og-image.png">
 <script>document.documentElement.className+=' js';</script>
 <link rel="preload" href="assets/fonts/big-shoulders-display-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-400.woff2" as="font" type="font/woff2" crossorigin>
@@ -621,7 +621,7 @@ footer.site .small a{text-decoration:underline;text-decoration-color:var(--rule)
       <article class="card c2">
         <svg class="ico" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="34" height="22" rx="5"/><path d="M11 14v12l8-6zM20 14v12l8-6z" fill="currentColor"/></svg>
         <h3>Fast-forward is ours</h3>
-        <p><code>useTVEventHandler</code> takes the skip keys and sets <code>currentTime</code> to anchor&nbsp;−&nbsp;30&nbsp;s. On the VVD Flipbook's target was 199.1&nbsp;s (anchor 229.1&nbsp;s − 30&nbsp;s), and 1.5&nbsp;s later the player still reported 199.1&nbsp;s — no second 30&nbsp;s seek stacked on top.</p>
+        <p><code>useTVEventHandler</code> takes the ⏩ fast-forward and ⏪ rewind keys and sets <code>currentTime</code> to anchor&nbsp;−&nbsp;30&nbsp;s. On the VVD Flipbook's target was 199.1&nbsp;s (anchor 229.1&nbsp;s − 30&nbsp;s), and 1.5&nbsp;s later the player still reported 199.1&nbsp;s — no second 30&nbsp;s seek stacked on top.</p>
         <div class="chips"><span class="chip">useTVEventHandler</span><span class="chip">partialDisablingConfiguration</span></div>
       </article>
       <article class="card c3">
@@ -636,7 +636,7 @@ footer.site .small a{text-decoration:underline;text-decoration-color:var(--rule)
         <ul class="vega">
           <li><span><code>VideoPlayer</code> (W3C media) — playback; the jump sets <code>currentTime</code></span></li>
           <li><span>KUI <code>SeekBar</code> — <code>markers</code> for ticks, <code>displayAboveThumb</code> for the mask</span></li>
-          <li><span><code>useTVEventHandler</code> — skip keys and calibration; <code>TVFocusGuideView</code> — seek-bar focus</span></li>
+          <li><span><code>useTVEventHandler</code> — ⏩ ⏪ keys and calibration; <code>TVFocusGuideView</code> — seek-bar focus</span></li>
           <li><span>Vega Virtual Device + CLI — build, run, on-device logs and captures</span></li>
         </ul>
       </article>

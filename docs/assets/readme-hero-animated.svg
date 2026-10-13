@@ -437,7 +437,7 @@
 <!-- beat-4: the skip key, the jump arc, the toast -->
 <g data-story="beat-4" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.555;0.57;0.79;0.81;1" dur="8s" repeatCount="indefinite"/>
   <path d="M581.3 210 C 641.3 156, 888.7 156, 958.7 210" fill="none" stroke="#F2EBDD" stroke-opacity=".7" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/>
-  <g class="key"><rect x="1004.7" y="140" width="54" height="40" rx="10" fill="#141110" stroke="#F2EBDD" stroke-width="2"/><path transform="translate(1015.7 146) scale(1.25)" d="M0 5L10 12L0 19Z M10 5L20 12L10 19Z M21 5h2.2v14H21Z" fill="#F2EBDD"/></g>
+  <g class="key"><rect x="1004.7" y="140" width="54" height="40" rx="10" fill="#141110" stroke="#F2EBDD" stroke-width="2"/><path transform="translate(1015.7 146) scale(1.25)" d="M1.6 5L11.6 12L1.6 19Z M11.6 5L21.6 12L11.6 19Z" fill="#F2EBDD"/></g>
   <text x="1070.7" y="157" fill="#F2EBDD" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13">→ 1:54:30</text>
   <text x="1070.7" y="174" fill="#D9A441" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12">(−0:30 lead-in)</text>
 </g>
