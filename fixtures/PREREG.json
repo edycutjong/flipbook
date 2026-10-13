@@ -44,6 +44,7 @@
   "pass2Reach": "ceil(15 min / BIF interval) frames (90 at 10 s) \u2014 scan.ts REACH_MS",
   "revisions": [
     "2026-10-13 00:37 WIB (commit aa4a4f6): reach split (pass 1 = 12 frames, pass 2 = 15 min) after QA round 2, for responsiveness; no A/B data had been seen or run.",
-    "2026-10-13 08:02 WIB: pass-1 phase B yields after every fresh decode and one batch counter spans both passes (responsiveness); scheduling only \u2014 read order, decode counts and markers identical on the development fixtures (trace JSON byte-identical); no A/B data seen or run."
+    "2026-10-13 08:02 WIB: pass-1 phase B yields after every fresh decode and one batch counter spans both passes (responsiveness); scheduling only \u2014 read order, decode counts and markers identical on the development fixtures (trace JSON byte-identical); no A/B data seen or run.",
+    "2026-10-13 08:52 WIB: paced steps may spend what is left of the current JS turn (scanBif sets FrameOracle.turnLimit), so a step re-runs at most once per turn instead of once per decode; scheduling only \u2014 read order, decode counts and markers identical (trace JSON byte-identical); no A/B data seen or run."
   ]
 }

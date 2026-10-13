@@ -149,6 +149,7 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
   let lastYieldAt = oracle.decodes;
   const drive = async <R>(gen: Generator<PassProgress, R, void>, onStep: (p: PassProgress) => void): Promise<R | null> => {
     for (;;) {
+      oracle.turnLimit = lastYieldAt + batch; // a paced step may spend what is left of this JS turn, no more
       const r = gen.next();
       if (r.done) {
         return r.value;

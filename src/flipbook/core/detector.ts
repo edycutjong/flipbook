@@ -79,6 +79,12 @@ export class FrameOracle {
   decodes = 0;
   /** Fresh decodes still allowed in the current paced step (Infinity outside one). */
   budget = Infinity;
+  /**
+   * Decode count at which the caller's current JS turn must end (scanBif sets it before every generator step).
+   * Unset (tests, trace, visibility), a paced step gets one fresh decode per generator step; set, it may spend what
+   * is left of the turn, so it re-runs at most once per JS turn instead of once per decode.
+   */
+  turnLimit = -Infinity;
   constructor(
     n: number,
     private decodeSig: (i: number) => Sig,
@@ -312,13 +318,15 @@ function bisectAndConfirm(o: FrameOracle, a: number, b: number, p: DetectorParam
 }
 
 /**
- * Runs a pure, memoised step with at most ONE fresh decode per generator step: when it needs a second frame the
- * oracle throws NEED_TURN, we yield, and the step re-runs from the top (cached frames cost nothing) — same read
- * order, same decode count, same result. Scheduling only.
+ * Runs a pure, memoised step with a bounded number of fresh decodes per generator step — ONE, or what is left of
+ * the current JS turn when scanBif has set `FrameOracle.turnLimit`. When the step needs one more frame the oracle
+ * throws NEED_TURN, we yield, and the step re-runs from the top: cached frames cost no decode, but the step's own
+ * arithmetic re-runs (at most once per JS turn when turnLimit is set). Same read order, same decode count, same
+ * result. Scheduling only.
  */
 function* paced<T>(o: FrameOracle, readTo: number, step: () => T): Generator<PassProgress, T, void> {
   for (;;) {
-    o.budget = 1;
+    o.budget = o.turnLimit === -Infinity ? 1 : Math.max(0, o.turnLimit - o.decodes);
     try {
       return step();
     } catch (e) {
