@@ -16,12 +16,15 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 | 7 | 2026-10-12 | Sample BIF parser | medium | — |
 | 8 | 2026-10-12 | KUI SeekBar | medium | — |
 | 9 | 2026-10-12 | Logs | medium | every device run |
-| 10 | 2026-10-12 | VVD | blocker | still open |
+| 10 | 2026-10-12 | VVD | blocker | resolved 2026-10-13 |
 | 11 | 2026-10-12 | Kiro Crew | high | ≈ 40 min |
 | 12 | 2026-10-12 | Vega CLI | low | every new shell |
 | 13 | 2026-10-12 | Shaka postinstall | medium | — |
 | 14 | 2026-10-13 | Release build | medium | — |
 | 15 | 2026-10-13 | Builder Tools MCP | low | — |
+| 16 | 2026-10-13 | Remote input (`useTVEventHandler`) | high | — |
+| 17 | 2026-10-13 | Focus / controls timeout | high | — |
+| 18 | 2026-10-13 | VVD | medium | restart between long sessions |
 
 ---
 
@@ -102,7 +105,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Steps:** the Mac's screen locked at 22:36 WIB with the VVD running; kept working; restarted the VVD at 23:27.
 - **Expected:** the VVD keeps running, or restarts.
 - **Actual:** the running VVD kept working for a while; from about 23:13 one title's React Native overlay stopped drawing; the restarted VVD never booted (QEMU "hanging thread 'QEMU2 main loop'" after GPU init, also with `--no-gui` and on a fresh instance). The lock is the most likely cause; it is not proven.
-- **Workaround:** unlock the Mac and keep the display awake before using the VVD. Confirmed 2026-10-13: with the screen unlocked and the display held awake (`caffeinate -dimsu`), `vega virtual-device start --gui` reported "Virtual device ready" in about 40 s and the owed captures were recorded (`evidence/vvd/README.md`).
+- **Workaround:** unlock the Mac and keep the display awake before using the VVD. Confirmed 2026-10-13: with the screen unlocked and the display held awake (`caffeinate -dimsu`), `vega virtual-device start --gui` reported "Virtual device ready" within about 40 s and the owed captures were recorded (`evidence/vvd/README.md`).
 - **Suggestion:** detect a locked or asleep host display and say so; offer a software-GL fallback on macOS.
 
 ### 11 · `kirocrew run` produced nothing unattended — 2026-10-12 · high

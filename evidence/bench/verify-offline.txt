@@ -1,0 +1,2 @@
+PASS fixtures/winchester-2023-320.bif sha256=match markers=[1020000,2970000] jpegBytesDecoded=6571356 of 6575564 BIF bytes
+PASS fixtures/winchester-2023-240lb.bif sha256=match markers=[1020000,2970000] jpegBytesDecoded=4414853 of 4419061 BIF bytes

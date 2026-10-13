@@ -37,7 +37,7 @@ python3 <path to this repo>/scripts/serve-media.py ~/flipbook-serve 8765
 
 Step 2's SHA-256 is in `fixtures/winchester-2023-320.bif.json` (`bifSha256`). The step-3 command is the stream-copy recipe we used
 in spirit; our own HLS cut has slightly different segment boundaries, and we have not re-played this exact output on the device
-since the virtual device stopped booting, so if the player complains, adjust `-hls_time`. The "Witness" row needs none of this.
+(the device runs used our own earlier HLS cut), so if the player complains, adjust `-hls_time`. The "Witness" row needs none of this.
 
 ## 2. Re-run the numbers (no credentials, no device)
 

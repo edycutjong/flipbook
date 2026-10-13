@@ -96,14 +96,14 @@ The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core
 | Metric | Value | Source |
 |---|---|---|
 | Tests | 444 passing + 4 skipped (76 suites + 1 skipped), 93 of them Flipbook; `tsc` clean | `npm test`, `npm run typecheck` |
-| Video bytes decoded | 0, by construction (the scan only opens BIF JPEGs); `videoBytesDecoded` is fixed at 0 by the result type, and `verify:offline` checks that the JPEG bytes decoded stay within the BIF's size (6,571,356 of 6,575,564 bytes at 320 px) | `src/flipbook/core/scan.ts`; `scripts/verify_offline.ts`; `evidence/bench/*.json` |
+| Video bytes decoded | 0, by construction (the scan only opens BIF JPEGs); `videoBytesDecoded` is fixed at 0 by the result type, and `verify:offline` checks that the JPEG bytes decoded stay within the BIF's size (6,571,356 of 6,575,564 bytes at 320 px, output kept in `evidence/bench/verify-offline.txt`) | `src/flipbook/core/scan.ts`; `scripts/verify_offline.ts`; `evidence/bench/verify-offline.txt`; `evidence/bench/*.json` |
 | On the Vega Virtual Device, pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame); that run used a box over most of a webinar frame with no score graphic, so its 34 pass-1 markers are not detections | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
 | On the Vega Virtual Device, jump without stacked seek | `seek from=50572ms currentTime=199.1`, then `currentTime=199.1` 1.5 s later | `evidence/vvd/witness-v1-flipbook-lines.log` |
 | Development match (agent dev labels, **not ground truth**) | 2/2 changes found, 0 false markers, 2/2 jumps land before the play (leads 28 s and 30 s); pass 1 reads 14.9 % of frames | `evidence/bench/dev-winchester-320.json` |
 | Visibility margin (dev labels) | 2.64× at 320 px, 2.04× at 240×180 letterboxed | `evidence/bench/visibility-dev-winchester-*.json` |
 | Fair baseline | a plain frame differ finds 2/2 only at τ ≤ 30 (of the 8–80 we swept; τ = 40 finds none); at τ = 30, the best of those, it fires 237 false markers | `evidence/bench/dev-winchester-320.json` → `ablationBaseline` |
 | On the Vega Virtual Device, development match (detector v2, calibrated with the D-pad), 19 relaunch runs | pass 1 reads 77 of 517 frames: p50 2,771 ms, p95 3,422 ms; pass 2 p50 14,294 ms, p95 17,796 ms; the box is restored from AsyncStorage after each relaunch; same two markers as the Node run | `evidence/vvd/README.md`, `evidence/bench/dev-winchester-320-vvd.json` |
-| Node timings (not device) | pass 1 p50 210.8 ms, pass 2 p50 1,229.6 ms over 20 runs, labelled "Node (tsx) on Apple M-series" | same file |
+| Node timings (not device) | pass 1 p50 210.8 ms, pass 2 p50 1,229.6 ms over 20 runs, labelled "Node (tsx) on Apple M-series" | `evidence/bench/dev-winchester-320.json` |
 
 Always read pass 1 and pass 2 together: pass 1 reads 14.9 % of frames only to put the first ticks up quickly; pass 2 still reads every frame.
 
@@ -166,7 +166,7 @@ GitHub Actions runs on every push to `main` and every pull request (`.github/wor
 
 - **CI**: `npm ci --ignore-scripts`, typecheck, lint, Jest with the coverage thresholds, `verify:offline`, and `actionlint` on the workflows
 - **Security**: gitleaks over the full history, plus a report-only `npm audit` of production dependencies (the open advisories are in the sample's dependencies — its React Native CLI chain, `xmldom` and others — not in Flipbook's own code)
-- **CodeQL**: JavaScript/TypeScript analysis; results upload to code scanning once the repository is public, and are kept as an artifact until then
+- **CodeQL**: JavaScript/TypeScript analysis; results upload to code scanning
 
 Dependabot is limited to patch and security updates because the dependency set is pinned to the Vega toolchain. See [SECURITY.md](SECURITY.md).
 
