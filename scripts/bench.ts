@@ -6,7 +6,8 @@
  *        [--params '{"tau":20}'] [--runs 20] [--lead-in 30] [--ablate hold,anchor]
  *        [--vvd-log <file> ...] [--out <results.json>]
  *
- * Every number it prints is measured here. Timings from Node are labelled "Node, Apple M-series" and are NOT
+ * Every number it prints is measured here, except `videoBytesDecoded`, which the result type fixes at 0 (the scanner's
+ * only input is the BIF buffer; `npm run verify:offline` bounds the JPEG bytes decoded by the BIF's size). Timings from Node are labelled "Node, Apple M-series" and are NOT
  * device timings; device timings come only from `[flipbook] pass1 done … ms=` lines in Vega virtual device logs
  * passed with --vvd-log, labelled "Vega virtual device on Apple M-series".
  */

@@ -6,7 +6,7 @@
  */
 import * as fs from 'node:fs';
 import { createHash } from 'node:crypto';
-import { readBif, scanBif } from '../src/flipbook/core';
+import { decodeStats, readBif, scanBif } from '../src/flipbook/core';
 
 (globalThis as { fetch?: unknown }).fetch = () => {
   throw new Error('network disabled in verify_offline');
@@ -27,11 +27,18 @@ const checks = [
     const buf = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
     const r = readBif(buf);
     if (!r.ok) throw new Error(`${c.bif}: ${JSON.stringify(r.error)}`);
+    const before = decodeStats.jpegBytes;
     const res = await scanBif({ buffer: buf, index: r.index, rect: c.rect, refFrame: 'auto', yieldFn: async () => {} });
+    // Measured: every decode is a JPEG view into this BIF's buffer, each frame decoded at most once, so the bytes the
+    // decoder consumed are bounded by the BIF's size (res.videoBytesDecoded is a type-level 0, not a measurement).
+    const jpegBytes = decodeStats.jpegBytes - before;
+    const bytesOk = jpegBytes > 0 && jpegBytes <= b.byteLength;
     const got = res.markers.map(m => m.changeMs);
     const same = JSON.stringify(got) === JSON.stringify(c.expectChangeMs);
-    ok = ok && shaOk && same && res.videoBytesDecoded === 0;
-    console.log(`${shaOk && same ? 'PASS' : 'FAIL'} ${c.bif} sha256=${shaOk ? 'match' : 'MISMATCH'} markers=${JSON.stringify(got)}`);
+    ok = ok && shaOk && same && bytesOk;
+    console.log(
+      `${shaOk && same && bytesOk ? 'PASS' : 'FAIL'} ${c.bif} sha256=${shaOk ? 'match' : 'MISMATCH'} markers=${JSON.stringify(got)} jpegBytesDecoded=${jpegBytes} of ${b.byteLength} BIF bytes${bytesOk ? '' : ' OUT OF BOUND'}`,
+    );
   }
   process.exit(ok ? 0 : 1);
 })();
