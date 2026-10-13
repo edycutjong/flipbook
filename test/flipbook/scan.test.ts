@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { decodeStats, readBif, scanBif, writeBif } from '../../src/flipbook/core';
+import { decodeLuma, decodeStats, readBif, scanBif, writeBif } from '../../src/flipbook/core';
 import { frameJpeg, toArrayBuffer } from './helpers';
 
 /** A synthetic letterboxed 240×180 match: score 0 → 1 at frame 60, a replay without the graphic before it. */
@@ -84,5 +84,13 @@ describe('scanBif end to end on real JPEG frames (letterboxed like Amazon’s 24
       isCancelled: () => calls >= 2,
     });
     expect(r.cancelled).toBe(true);
+  });
+});
+
+describe('JPEG decode limits (single JS thread)', () => {
+  it('refuses a frame over 1 MP at its header; a thumbnail still decodes', () => {
+    expect(() => decodeLuma(frameJpeg(0, { w: 1100, h: 1000 }))).toThrow(/maxResolutionInMP/);
+    const small = decodeLuma(frameJpeg(0, { w: 320, h: 180 }));
+    expect([small.width, small.height]).toEqual([320, 180]);
   });
 });

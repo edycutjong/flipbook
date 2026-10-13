@@ -32,7 +32,15 @@ export interface PictureArea {
 export const decodeStats = { frames: 0, jpegBytes: 0 };
 
 export function decodeLuma(jpeg: Uint8Array): LumaFrame {
-  const img = decodeJpeg(jpeg, { useTArray: true, formatAsRGBA: false, tolerantDecoding: true, maxMemoryUsageInMB: 64 });
+  const img = decodeJpeg(jpeg, {
+    useTArray: true,
+    formatAsRGBA: false,
+    tolerantDecoding: true,
+    // A BIF thumbnail is ~0.06 MP. Past 1 MP it is not a thumbnail: refuse it at the frame header (before any pixel
+    // is decoded) instead of pinning the single JS thread for seconds. jpeg-js's default is 100 MP.
+    maxResolutionInMP: 1,
+    maxMemoryUsageInMB: 64,
+  });
   decodeStats.frames++;
   decodeStats.jpegBytes += jpeg.byteLength;
   const n = img.width * img.height;
