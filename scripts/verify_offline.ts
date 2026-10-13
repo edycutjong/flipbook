@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * verify_offline — reruns the detector over the committed fixtures with the network disabled and checks the
- * committed results still hold (the detector needs no network; only the app's stream does).
+ * verify_offline — reruns the detector over the committed fixtures with `fetch` stubbed to throw (the detector has no
+ * network path; only the app's stream does) and checks the committed results still hold.
  *   npx tsx scripts/verify_offline.ts
  */
 import * as fs from 'node:fs';

@@ -65,7 +65,7 @@ export interface ScanOptions {
   buffer: ArrayBuffer;
   index: BifIndex;
   rect: NormRect;
-  /** Presence reference frame, or 'auto' = medoid of 9 frames spread over the file (see reference.ts). */
+  /** Presence reference frame, or 'auto' = medoid of at most 24 evenly spaced pass-1 samples (detector.ts, sprocketPass). */
   refFrame: number | 'auto';
   params?: Partial<DetectorParams>;
   batchDecodes?: number;
