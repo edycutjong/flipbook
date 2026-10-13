@@ -30,10 +30,16 @@ exactly as the sample does. Not redistributed.
 
 ## Demo video
 - Recorded on the Vega Virtual Device (Apple M-series Mac) with the emulator console's `screenrecord`; device audio
-  dropped, original match commentary never used, school crests blurred, time skips labelled on screen.
+  dropped, original match commentary never used. The school crests inside the broadcast's score graphic are blurred,
+  and the match's opening school-logo frame (it flashes for ~0.15 s while the player starts) is blacked out.
+  Painted field markings in wide shots are not masked.
+- The video is edited from several real takes. Within a scene, time skips are labelled on screen (the skipped
+  seconds) and speed-ups are labelled (×2, ×4); scenes are joined with a wipe.
 - The Internet Archive item for the development match carries the video files, thumbnails and metadata only — no
   chapters and no event data (`https://archive.org/metadata/snafuinfinitysoccer-girls_091923-vs-winchester`).
 - The Witness title and its BIF are Amazon's own `vega-video-sample` assets, streamed from the sample's CDN (not
   redistributed); slide logos and webcam tiles are blurred in the video.
-- Narration: synthetic voice generated with ElevenLabs. Music: our own Suno generation (instrumental). Fonts: Big
-  Shoulders Display, Atkinson Hyperlegible, IBM Plex Mono (SIL OFL 1.1, as on the landing page).
+- Narration: synthetic voice, ElevenLabs text-to-speech (voice "Daniel", model `eleven_multilingual_v2`), generated
+  2026-10-13. Music: an instrumental we generated earlier with Suno (model V4_5ALL, 2026-06-28) for another of our
+  projects and reused here because no Suno credits were left; no third-party music. Fonts: Big Shoulders Display,
+  Atkinson Hyperlegible, IBM Plex Mono (SIL OFL 1.1, as on the landing page).
