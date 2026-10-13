@@ -49,15 +49,21 @@ Two modes, **blind by default**: the seek bar shows only your position and how f
 
 ## 🏗️ Architecture & Tech Stack
 
+<img src="docs/images/architecture.png" alt="Flipbook architecture. Open: Amazon's sample BIF service hands the same trickplay bytes, via PlayerScreen, to core/bifIndex.ts. Scan: luma.ts (jpeg-js) → signature.ts (64×5 grid) → detector.ts (a change must hold; anchor = last old-score frame) → scan.ts (≤ 8 decodes per JS turn); pass 1 reads every 8th frame and bisects, pass 2 reads all. Jump: FlipbookContext asks core/jump.ts for anchor − 30 s and sets currentTime on the W3C VideoPlayer; seek-bar parts give the KUI SeekBar the score-box mask (always) and ticks (highlights only)." width="100%">
+
+<details>
+<summary>Text version</summary>
+
 ```
-BIF file ──► BifIndex ──► jpeg-js decode, box crop ────────► 64×5 signature
-                                   │                              │
-                                   ▼                              ▼
-                       pass 1 (stride 8)  ──►  pass 2 (all frames)  ──►  markers (anchor = last old-score frame)
-                                                                              │
-                  KUI SeekBar (ticks, masked thumbnails)  ◄───────────────────┤
-                  JumpController (owns ⏩/⏪, sets currentTime)  ◄─────────────┘
+BIF service (sample) ──same bytes, via PlayerScreen──► core/bifIndex.ts (validated reader)
+  ──► luma.ts (jpeg-js) ──► signature.ts (64×5 grid) ──► detector.ts (change must hold)
+  ──► scan.ts (pass 1: every 8th + bisect · pass 2: all · ≤ 8 decodes per JS turn) ──► markers
+
+markers ──► FlipbookContext ──► KUI SeekBar: score-box mask (always) · ticks (highlights only)
+⏩/⏪ ──► FlipbookContext ──► core/jump.ts (anchor − 30 s) ──► VideoPlayer.currentTime
 ```
+
+</details>
 
 | Layer | Choice |
 |---|---|
@@ -81,7 +87,7 @@ The judged path uses **four platform surfaces**, plus Amazon's reference BIF ser
 | Vega Virtual Device + CLI | build, run, on-device logs and recordings |
 | Amazon's BIF service in the sample (`src/services/bif/*`) | downloads the BIF; one added call (`getBifFile`) hands Flipbook the same bytes, which its own validated parser reads (`src/flipbook/core/bifIndex.ts`); its header and parser defects are entries 6–7 of [`FRICTION_LOG.md`](FRICTION_LOG.md) (15 entries in all) |
 
-Found while verifying: Amazon's own `tv-webinar-hd.bif` has 428 frames (the first checked at 240×180) and a timestamp-multiplier field of `0xFFFFD8F0`, so a binary search by `positionMillis` would break Amazon's file. Flipbook sanity-checks the header and falls back to a 10 s interval.
+Found while verifying: Amazon's own `tv-webinar-hd.bif` has 428 frames (the first checked at 240×180) and a timestamp-multiplier field of `0xFFFFD8F0`, so a binary search by `positionMillis` would break Amazon's file. Flipbook sanity-checks the header and derives the interval from the video's duration instead, or 10 s per frame when no duration is known.
 
 The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core/bifWriter.ts` and their tests (18) headless (see the commit history). A `kirocrew run` attempt produced nothing (approval policy and rate limits); that is recorded, not claimed. The Amazon Devices Builder Tools MCP was installed into Kiro (`init-context --agent kiro`) and Kiro called its `list_documents`, `set_project_context` and `search_documentation` tools to return the SeekBar `markers` and `partialDisablingConfiguration` docs; no perfetto trace was analysed (the VVD has not booted since the host screen locked). Details and logs: [`docs/KIRO.md`](docs/KIRO.md). All 15 friction-log entries are in [`FRICTION_LOG.md`](FRICTION_LOG.md).
 
