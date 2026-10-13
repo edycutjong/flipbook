@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { FlipbookApi, visibleLog } from '../../src/flipbook/app/FlipbookContext';
+import { FlipbookApi, thumbnailsAllowedFor, visibleLog } from '../../src/flipbook/app/FlipbookContext';
 import { statusText } from '../../src/flipbook/app/FlipbookOverlay';
 import { maskRectOnThumbnail, thumbnailDisabled } from '../../src/flipbook/app/FlipbookSeekbarParts';
 
@@ -108,5 +108,19 @@ describe('ThumbnailMask — no unmasked thumbnail', () => {
         expect(m.y + m.h).toBeGreaterThanOrEqual(Math.min(1, by1) - 1e-9);
       }
     }
+  });
+});
+
+describe('seek thumbnails never show over a box the scan rejected', () => {
+  it('a rejected box (moving / not found) or a failed scan turns thumbnails off', () => {
+    const ok = { rect: { x: 0.1, y: 0.8, w: 0.5, h: 0.08 }, geometry: {}, failure: null, phase: 'ready' as const };
+    expect(thumbnailsAllowedFor(ok)).toBe(true);
+    expect(thumbnailsAllowedFor({ ...ok, failure: 'Box is moving — shrink it off the clock (MENU)' })).toBe(false);
+    expect(thumbnailsAllowedFor({ ...ok, failure: 'Score graphic not found for most of this match — redraw the box (MENU)' })).toBe(false);
+    expect(thumbnailsAllowedFor({ ...ok, phase: 'no-index', failure: 'Scan failed — playback unaffected' })).toBe(false);
+    expect(thumbnailsAllowedFor({ ...ok, phase: 'calibrating' })).toBe(false);
+    expect(thumbnailsAllowedFor({ ...ok, phase: 'loading' })).toBe(false);
+    expect(thumbnailsAllowedFor({ ...ok, rect: null })).toBe(false);
+    expect(thumbnailsAllowedFor({ ...ok, geometry: null })).toBe(false);
   });
 });

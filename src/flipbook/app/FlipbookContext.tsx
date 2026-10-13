@@ -101,7 +101,7 @@ export interface FlipbookApi {
   setScrubbing: (scrubbing: boolean) => void;
   /** True when Flipbook owns ⏩/⏪ (the SeekBar must ignore them). */
   ownsSkipKeys: boolean;
-  /** Thumbnails stay off until a mask exists (calibrated box). */
+  /** Thumbnails stay off until a mask exists (calibrated box) and while the scan has rejected the box. */
   thumbnailsAllowed: boolean;
   attachBif: (buffer: ArrayBuffer, fetchMs: number, durationMs?: number) => void;
   log: (line: string) => void;
@@ -173,6 +173,19 @@ export function clampRect(r: NormRect): NormRect {
   return { x: clamp01(Math.min(r.x, 1 - w)), y: clamp01(Math.min(r.y, 1 - h)), w, h };
 }
 
+/**
+ * Thumbnails show only when every one can be drawn with the score box covered — never over a box the scan rejected
+ * (moving / not found) or after a failed scan: the mask would then cover the wrong place.
+ */
+export function thumbnailsAllowedFor(s: {
+  rect: NormRect | null;
+  geometry: unknown;
+  failure: string | null;
+  phase: FlipbookPhase;
+}): boolean {
+  return !!s.rect && !!s.geometry && !s.failure && s.phase !== 'calibrating' && s.phase !== 'loading';
+}
+
 export const FlipbookProvider = ({
   config,
   videoRef,
@@ -225,6 +238,14 @@ export const FlipbookProvider = ({
     }
     toastTimer.current = setTimeout(() => setToast(null), ms);
   }, []);
+
+  /** The scan showed the box is not on the score graphic: do not auto-load it next session. */
+  const forgetBox = useCallback(() => {
+    if (config) {
+      AsyncStorage.removeItem(rectKey(config.source)).catch(() => {});
+      setPersistence(null);
+    }
+  }, [config]);
 
   useEffect(
     () => () => {
@@ -284,10 +305,7 @@ export const FlipbookProvider = ({
                 // F3 after the fact: the box sits mostly on moving content — say so, and do not keep it.
                 setFailure('Box is moving — shrink it off the clock (MENU)');
                 log(`box moving: ${(p.maskKept * 100).toFixed(0)}% of cells steady`);
-                if (config) {
-                  AsyncStorage.removeItem(rectKey(config.source)).catch(() => {});
-                  setPersistence(null);
-                }
+                forgetBox();
               }
             }
           },
@@ -303,6 +321,7 @@ export const FlipbookProvider = ({
         if (res.absentFraction > 0.5) {
           // Over half the match "without the graphic" means the box is off the graphic; reveals nothing about goals.
           setFailure('Score graphic not found for most of this match — redraw the box (MENU)');
+          forgetBox();
         }
         log(`scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)`);
       } catch (e) {
@@ -311,7 +330,7 @@ export const FlipbookProvider = ({
         setPhase('no-index');
       }
     },
-    [config, log, params],
+    [forgetBox, log, params],
   );
 
   const enterCalibration = useCallback(
@@ -593,7 +612,7 @@ export const FlipbookProvider = ({
         scrubbing,
         setScrubbing,
         ownsSkipKeys: phase === 'scanning' || phase === 'ready' || phase === 'calibrating',
-        thumbnailsAllowed: !!rect && !!geometry && phase !== 'calibrating' && phase !== 'loading',
+        thumbnailsAllowed: thumbnailsAllowedFor({ rect, geometry, failure, phase }),
         attachBif,
         log,
       }
