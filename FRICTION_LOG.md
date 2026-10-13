@@ -97,12 +97,12 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Workaround:** `loggingctl log -f -o short_precise` piped through grep for `[flipbook]`.
 - **Suggestion:** a per-app log tail (`vega logs <pkg>`) with history.
 
-### 10 · The VVD stops drawing, then never boots, after the host screen locks — 2026-10-12 · blocker (open)
+### 10 · The VVD stops drawing, then never boots, after the host screen locks — 2026-10-12 · blocker (resolved 2026-10-13)
 - **Task:** record the calibrated scan of our development match.
 - **Steps:** the Mac's screen locked at 22:36 WIB with the VVD running; kept working; restarted the VVD at 23:27.
 - **Expected:** the VVD keeps running, or restarts.
 - **Actual:** the running VVD kept working for a while; from about 23:13 one title's React Native overlay stopped drawing; the restarted VVD never booted (QEMU "hanging thread 'QEMU2 main loop'" after GPU init, also with `--no-gui` and on a fresh instance). The lock is the most likely cause; it is not proven.
-- **Workaround:** unlock the Mac and keep the display awake before using the VVD (not yet re-tried; the on-device captures that need it are listed as owed in the README).
+- **Workaround:** unlock the Mac and keep the display awake before using the VVD. Confirmed 2026-10-13: with the screen unlocked and the display held awake (`caffeinate -dimsu`), `vega virtual-device start --gui` reported "Virtual device ready" in about 40 s and the owed captures were recorded (`evidence/vvd/README.md`).
 - **Suggestion:** detect a locked or asleep host display and say so; offer a software-GL fallback on macOS.
 
 ### 11 · `kirocrew run` produced nothing unattended — 2026-10-12 · high
@@ -146,6 +146,30 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Suggestion:** make `check-status` look at the `-p` path (or print where it looked), and bring the docs page in line with `--help`.
 
 ---
+
+### 16 · SELECT never reaches `useTVEventHandler` while a view has focus — 2026-10-13 · high
+- **Task:** use SELECT to toggle the calibration box between move and resize, and to pick an item in Flipbook's options panel.
+- **Steps:** registered `useTVEventHandler` in the player (it receives the arrows, PLAY/PAUSE, MENU and fast-forward); pressed SELECT with the KUI SeekBar focused.
+- **Expected:** a `select` event in the handler, like the other keys.
+- **Actual:** no `select` event: the platform consumes SELECT as a press on the focused view (the device log shows `Consumed key:Return`). Resize mode and the panel never reacted.
+- **Workaround:** while Flipbook takes the keys, the seek bar's own `onPress` is routed to Flipbook (`src/components/Seekbar.tsx`, `FlipbookContext.select`), de-duplicated in case a platform delivers both; tests in `test/flipbook/selectRouting.test.tsx`.
+- **Suggestion:** document which keys reach `useTVEventHandler` when a focusable view has focus, or deliver SELECT to the handler as well.
+
+### 17 · Controls that time out unmount the focused view, and focus walks into the screen behind — 2026-10-13 · high
+- **Task:** draw the score box with the D-pad while the player's controls are hidden by the sample's 5-second timer.
+- **Steps:** opened a title, entered calibration (Flipbook takes every key, so no key re-shows the controls), pressed DOWN seven times, then SELECT.
+- **Expected:** the arrows move the box; nothing else happens.
+- **Actual:** when the controls timed out the seek bar that held TV focus unmounted; DOWN moved focus into the details screen underneath and SELECT opened a related title.
+- **Workaround:** keep the controls mounted while Flipbook takes the keys and trap focus on the seek bar (`src/w3cmedia/mediacontrols/VideoPlayerUI.tsx`, `TVFocusGuideView trapFocus*`); tests in `test/flipbook/playerFocus.test.tsx`.
+- **Suggestion:** when the focused view unmounts, keep focus inside the current screen instead of the one underneath.
+
+### 18 · After ~20 minutes the VVD stops drawing text and plain views — 2026-10-13 · medium
+- **Task:** record several takes of the app on the VVD in one session.
+- **Steps:** VVD up for about 20 minutes with repeated installs, relaunches and screen recordings.
+- **Expected:** the app keeps drawing normally.
+- **Actual:** text and plain views stopped drawing while icons still drew; it survived an app relaunch; no error in the app's log.
+- **Workaround:** `vega virtual-device stop`, then `vega virtual-device start --gui` (about 40 s); everything drew again.
+- **Suggestion:** log a renderer or texture-cache error when drawing stops, or recover without a VVD restart.
 
 ## Feature requests
 

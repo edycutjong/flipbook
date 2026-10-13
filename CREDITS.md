@@ -33,8 +33,9 @@ exactly as the sample does. Not redistributed.
   dropped, original match commentary never used. The school crests inside the broadcast's score graphic are blurred,
   and the match's opening school-logo frame (it flashes for ~0.15 s while the player starts) is blacked out.
   Painted field markings in wide shots are not masked.
-- The video is edited from several real takes. Within a scene, time skips are labelled on screen (the skipped
-  seconds) and speed-ups are labelled (×2, ×4); scenes are joined with a wipe.
+- The video is edited from several real takes. Where a scene skips time inside one recording, the skipped seconds are
+  shown on screen; speed-ups are labelled (×2, ×4); scenes are joined with a wipe. One scene (blind mode) joins two
+  takes: the scan status, then the masked scrub. Provenance of the voice and music: `evidence/video/PROVENANCE.md`.
 - The Internet Archive item for the development match carries the video files, thumbnails and metadata only — no
   chapters and no event data (`https://archive.org/metadata/snafuinfinitysoccer-girls_091923-vs-winchester`).
 - The Witness title and its BIF are Amazon's own `vega-video-sample` assets, streamed from the sample's CDN (not
