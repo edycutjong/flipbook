@@ -17,6 +17,7 @@ import {
 import { decodeLuma, LumaFrame, medianPictureArea, PictureArea, pictureAreaOf } from './luma';
 import { DEFAULT_GRID, NormRect, Sig, signature } from './signature';
 
+/** A detector Marker with its times: the only place milliseconds live. */
 export interface TimedMarker extends Marker {
   /** Anchor time, ms (jump target = ms − leadIn). */
   ms: number;
@@ -136,7 +137,7 @@ export async function scanBif(opts: ScanOptions): Promise<ScanResult> {
   const log = opts.log || (() => {});
   const { index, buffer } = opts;
   const n = index.frameCount;
-  const toTimed = (m: Marker): TimedMarker => ({ ...m, ms: index.timeMs[m.anchorIndex], changeMs: index.timeMs[m.frameIndex] });
+  const toTimed = (m: Marker): TimedMarker => ({ ms: index.timeMs[m.anchorIndex], changeMs: index.timeMs[m.frameIndex], ...m });
 
   const t0 = now();
   const src = makeSigSource(buffer, index, opts.rect, params.stride);

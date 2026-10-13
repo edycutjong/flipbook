@@ -50,15 +50,14 @@ export const DEFAULT_PARAMS: DetectorParams = {
   reach: 12,
 };
 
-/** Detector output. `ms`/`changeMs` hold frame INDICES inside the passes; `scan.ts` converts them to ms. */
+/**
+ * Detector output: frame INDICES only. Milliseconds exist only on `TimedMarker` (scan.ts), so a missed index → ms
+ * conversion is a compile error, not a silent unit mix-up.
+ */
 export interface Marker {
-  /** Anchor: time of the last frame still showing the old score (E1). The jump goes to ms − leadIn. */
-  ms: number;
-  /** Time of the first frame showing the new score. */
-  changeMs: number;
-  /** Frame index of the change. */
+  /** Frame index of the change (first frame showing the new score). */
   frameIndex: number;
-  /** Frame index of the anchor. */
+  /** Frame index of the anchor: the last frame still showing the old score (E1). */
   anchorIndex: number;
   /** D(c), the windowed change distance. */
   delta: number;
@@ -188,7 +187,7 @@ function markerAt(o: FrameOracle, c: number, d: number, pass: 1 | 2, reach: numb
   // E1 walk-back over the absent run, bounded by reach (pass 2's reach covers 15 min; pass 1 stays short).
   const prev = presentBefore(o, c, 1, reach);
   const anchor = prev.length ? prev[0] : c;
-  return { ms: anchor, changeMs: c, frameIndex: c, anchorIndex: anchor, delta: d, pass };
+  return { frameIndex: c, anchorIndex: anchor, delta: d, pass };
 }
 
 export interface PassProgress {
