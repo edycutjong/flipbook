@@ -366,26 +366,27 @@ const PlayerScreen = ({
     if (surfaceHandle.current) {
       videoRef.current?.setSurfaceHandle(surfaceHandle.current);
 
-      //Get bif file if apply
+      // Start playback first: the seek thumbnails and Flipbook's corpus arrive with the BIF, whenever it lands. A slow
+      // or stalled BIF download never holds the video back.
+      const played = playVideo();
       if (data?.bifUrl) {
-        try {
-          const bif = await getBifFile(data.bifUrl);
-          bifFrameImagesRef.current = bif.frameImageSource;
-          // Flipbook reads the same BIF as a corpus (scan runs alongside playback).
-          const videoDuration = videoRef.current?.duration;
-          flipbookAttachRef.current?.(
-            bif.arrayBuffer,
-            bif.fetchMs,
-            videoDuration && isFinite(videoDuration) ? videoDuration * 1000 : undefined,
-          );
-        } catch (e) {
-          console.error('[PlayerScreen.tsx] - BIF unavailable', e);
-          flipbookAttachRef.current?.(new ArrayBuffer(0), 0);
-        }
+        // Attach only once play() has settled, so a first-time calibration pause cannot race the pending play().
+        Promise.all([getBifFile(data.bifUrl), played])
+          .then(([bif]) => {
+            bifFrameImagesRef.current = bif.frameImageSource;
+            // Flipbook reads the same BIF as a corpus (scan runs alongside playback).
+            const videoDuration = videoRef.current?.duration;
+            flipbookAttachRef.current?.(
+              bif.arrayBuffer,
+              bif.fetchMs,
+              videoDuration && isFinite(videoDuration) ? videoDuration * 1000 : undefined,
+            );
+          })
+          .catch(e => {
+            console.error('[PlayerScreen.tsx] - BIF unavailable', e);
+            flipbookAttachRef.current?.(new ArrayBuffer(0), 0);
+          });
       }
-
-      // Play video once surface has created and set to media reference
-      playVideo();
     }
   }, [data.bifUrl, playVideo]);
 
