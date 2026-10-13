@@ -186,6 +186,16 @@ export function thumbnailsAllowedFor(s: {
   return !!s.rect && !!s.geometry && !s.failure && s.phase !== 'calibrating' && s.phase !== 'loading';
 }
 
+/** Pass 2 can still ADD a change until the result exists (same rule as the overlay's "still reading"). */
+export const stillReading = (phase: FlipbookPhase, result: ScanResult | null) =>
+  phase === 'scanning' || (phase === 'ready' && !result);
+
+/** Toast when ⏩/⏪ has no target: never stated as final while pass 2 can still add a change. */
+export function noTargetToast(dir: 1 | -1, reading: boolean): string {
+  const which = dir > 0 ? 'later' : 'earlier';
+  return reading ? `Still reading — no ${which} change yet` : `No ${which} change`;
+}
+
 export const FlipbookProvider = ({
   config,
   videoRef,
@@ -469,8 +479,7 @@ export const FlipbookProvider = ({
       const cur = (v.currentTime || 0) * 1000;
       const t = dir > 0 ? nextJump(anchors, cur, leadInMs) : prevJump(anchors, cur, leadInMs);
       if (!t) {
-        const scanning = phase === 'scanning';
-        showToast(dir > 0 ? (scanning ? 'Still reading — no later change yet' : 'No later change') : 'No earlier change');
+        showToast(noTargetToast(dir, stillReading(phase, result)));
         log(`${dir > 0 ? 'next' : 'prev'}: none from ${Math.round(cur)}ms`);
         return;
       }
@@ -486,7 +495,7 @@ export const FlipbookProvider = ({
         }
       }, 1500);
     },
-    [leadInMs, log, phase, showToast, videoRef],
+    [leadInMs, log, phase, result, showToast, videoRef],
   );
 
   const activatePanelItem = useCallback(

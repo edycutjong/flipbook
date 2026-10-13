@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { FlipbookApi, thumbnailsAllowedFor, visibleLog } from '../../src/flipbook/app/FlipbookContext';
+import { FlipbookApi, noTargetToast, stillReading, thumbnailsAllowedFor, visibleLog } from '../../src/flipbook/app/FlipbookContext';
 import { statusText } from '../../src/flipbook/app/FlipbookOverlay';
 import { maskRectOnThumbnail, thumbnailDisabled } from '../../src/flipbook/app/FlipbookSeekbarParts';
 
@@ -122,5 +122,15 @@ describe('seek thumbnails never show over a box the scan rejected', () => {
     expect(thumbnailsAllowedFor({ ...ok, phase: 'loading' })).toBe(false);
     expect(thumbnailsAllowedFor({ ...ok, rect: null })).toBe(false);
     expect(thumbnailsAllowedFor({ ...ok, geometry: null })).toBe(false);
+  });
+});
+
+describe('skip keys never state "no change" as final while pass 2 can still add one', () => {
+  it('says "still reading" in both directions until the result exists', () => {
+    expect(noTargetToast(1, stillReading('scanning', null))).toBe('Still reading — no later change yet');
+    expect(noTargetToast(1, stillReading('ready', null))).toBe('Still reading — no later change yet');
+    expect(noTargetToast(-1, stillReading('ready', null))).toBe('Still reading — no earlier change yet');
+    expect(noTargetToast(1, stillReading('ready', {} as never))).toBe('No later change');
+    expect(noTargetToast(-1, stillReading('ready', {} as never))).toBe('No earlier change');
   });
 });
