@@ -144,7 +144,8 @@ export const FlipbookOverlay = ({ controlsVisible }: { controlsVisible: boolean 
         </View>
       )}
       {fb.toast && (
-        <View style={styles.toast} testID="flipbook-toast">
+        // While the options panel is open (right side, same height) the toast moves left so the panel never covers it.
+        <View style={[styles.toast, fb.panelOpen && styles.toastBesidePanel]} testID="flipbook-toast">
           <Text style={styles.toastText}>{fb.toast}</Text>
         </View>
       )}
@@ -217,6 +218,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scaleUxToDp(32),
     paddingVertical: scaleUxToDp(14),
   },
+  toastBesidePanel: { alignSelf: 'flex-start', left: '5%' },
   toastText: { color: FB.ink, fontSize: scaleUxToDp(36), fontFamily: 'monospace' },
   panel: {
     position: 'absolute',

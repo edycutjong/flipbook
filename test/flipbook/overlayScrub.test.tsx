@@ -4,6 +4,7 @@
  */
 import { describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { act, create, ReactTestRenderer } from 'react-test-renderer';
 
 let mockFb: Record<string, unknown> = {};
@@ -39,6 +40,29 @@ const statusShown = (scrubbing: boolean) => {
   act(() => tree.unmount());
   return shown;
 };
+
+const toastStyle = (panelOpen: boolean) => {
+  mockFb = { ...ready, toast: 'HIGHLIGHTS — changes marked on the bar', panelOpen, panelItems: [], panelIndex: 0 };
+  let tree!: ReactTestRenderer;
+  act(() => {
+    tree = create(<FlipbookOverlay controlsVisible />);
+  });
+  const node = tree.root.findAll((n) => n.props.testID === 'flipbook-toast')[0];
+  const style = StyleSheet.flatten(node.props.style);
+  act(() => tree.unmount());
+  return style;
+};
+
+describe('mode toast vs the options panel', () => {
+  it('is centred when the panel is closed', () => {
+    expect(toastStyle(false).alignSelf).toBe('center');
+  });
+  it('moves to the left edge while the panel (right side, same height) is open, so it is never covered', () => {
+    const s = toastStyle(true);
+    expect(s.alignSelf).toBe('flex-start');
+    expect(s.left).toBe('5%');
+  });
+});
 
 describe('status line vs the seek preview', () => {
   it('shows with the controls when nobody is scrubbing', () => {
