@@ -27,3 +27,13 @@ no close-ups. CC0 covers the recordings, not trademarks.
 ## Witness BIF
 Amazon's own `tv-webinar-hd.bif` and `tv-webinar.mp4`, fetched at run time from the sample's CloudFront domain,
 exactly as the sample does. Not redistributed.
+
+## Demo video
+- Recorded on the Vega Virtual Device (Apple M-series Mac) with the emulator console's `screenrecord`; device audio
+  dropped, original match commentary never used, school crests blurred, time skips labelled on screen.
+- The Internet Archive item for the development match carries the video files, thumbnails and metadata only — no
+  chapters and no event data (`https://archive.org/metadata/snafuinfinitysoccer-girls_091923-vs-winchester`).
+- The Witness title and its BIF are Amazon's own `vega-video-sample` assets, streamed from the sample's CDN (not
+  redistributed); slide logos and webcam tiles are blurred in the video.
+- Narration: synthetic voice generated with ElevenLabs. Music: our own Suno generation (instrumental). Fonts: Big
+  Shoulders Display, Atkinson Hyperlegible, IBM Plex Mono (SIL OFL 1.1, as on the landing page).
