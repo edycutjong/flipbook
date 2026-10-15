@@ -34,7 +34,8 @@ import {
 } from '../core';
 
 export type FlipbookMode = 'blind' | 'highlights';
-export type FlipbookPhase = 'off' | 'loading' | 'no-index' | 'calibrating' | 'scanning' | 'ready';
+/** 'no-box': the viewer cancelled the first calibration; Flipbook stays off until MENU → Redraw score box. */
+export type FlipbookPhase = 'off' | 'loading' | 'no-index' | 'no-box' | 'calibrating' | 'scanning' | 'ready';
 export type BoxState = 'steady' | 'moving';
 
 /** Per-title Flipbook settings (TitleData.flipbook). */
@@ -235,6 +236,8 @@ export const FlipbookProvider = ({
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previewRef = useRef<((r: NormRect) => BoxState) | null>(null);
   const lastProgressAt = useRef(0);
+  /** The last box the viewer confirmed (or that was restored): what BACK in calibration goes back to. */
+  const committedRectRef = useRef<NormRect | null>(null);
   /** False once the provider has unmounted: a BIF (or a saved box) that lands after the viewer left starts nothing. */
   const aliveRef = useRef(true);
 
@@ -423,6 +426,7 @@ export const FlipbookProvider = ({
           if (isValidRect(savedRect)) {
             const parsed = clampRect(savedRect);
             setRect(parsed);
+            committedRectRef.current = parsed;
             setPersistence('saved');
             log(`box restored for ${config.source}`);
             startScan(parsed);
@@ -441,6 +445,7 @@ export const FlipbookProvider = ({
     }
     previewRef.current = null;
     setBoxState(null);
+    committedRectRef.current = rect;
     AsyncStorage.setItem(rectKey(config.source), JSON.stringify(rect))
       .then(() => {
         setPersistence('saved');
@@ -455,6 +460,33 @@ export const FlipbookProvider = ({
       videoRef.current.play();
     }
   }, [config, log, rect, startScan, videoRef]);
+
+  /**
+   * BACK in calibration cancels (the TV convention), it never confirms. With a confirmed box the viewer gets it back,
+   * with its markers if that scan had finished; on a first calibration Flipbook stays off ('no-box') and saves nothing.
+   */
+  const cancelCalibration = useCallback(() => {
+    previewRef.current = null;
+    setBoxState(null);
+    setResizing(false);
+    const prev = committedRectRef.current;
+    if (prev) {
+      setRect(prev);
+      log('calibration cancelled — previous box kept');
+      if (result) {
+        setPhase('ready'); // markers and result were left untouched by enterCalibration
+      } else {
+        startScan(prev); // enterCalibration cancelled the unfinished scan
+      }
+    } else {
+      setRect(null); // no mask without a confirmed box, so thumbnails stay off
+      setPhase('no-box');
+      log('calibration cancelled — no box; MENU → Redraw score box');
+    }
+    if (videoRef.current?.paused) {
+      videoRef.current.play();
+    }
+  }, [log, result, startScan, videoRef]);
 
   const nudge = useCallback(
     (dx: number, dy: number) => {
@@ -586,7 +618,7 @@ export const FlipbookProvider = ({
     }
   });
 
-  // BACK closes the panel / leaves calibration instead of leaving the player.
+  // BACK closes the panel / cancels calibration instead of leaving the player.
   useEffect(() => {
     if (!capturesKeys) {
       return;
@@ -595,12 +627,12 @@ export const FlipbookProvider = ({
       if (panelOpen) {
         setPanelOpen(false);
       } else if (phase === 'calibrating') {
-        confirmBox();
+        cancelCalibration();
       }
       return true;
     });
     return () => sub.remove();
-  }, [capturesKeys, confirmBox, panelOpen, phase]);
+  }, [capturesKeys, cancelCalibration, panelOpen, phase]);
 
   const api: FlipbookApi = enabled
     ? {

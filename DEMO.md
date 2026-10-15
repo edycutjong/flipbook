@@ -13,8 +13,8 @@ vega run-app build/aarch64-release/keplervideoapp_aarch64.vpkg
 
 Two rows on the home screen: **Matches** (the development match: local HLS + the BIF in `fixtures/`) and **Witness**
 (Amazon's own `tv-webinar-hd.bif`, streamed from the sample's CDN). Open a title, press MENU for the Flipbook panel
-(mode, redraw box, engine log), calibrate the box once (arrows move, SELECT toggles resize, PLAY/PAUSE or BACK
-confirms), then ⏩ jumps to the next change minus the lead-in. Blind mode is the default; Highlights adds ticks.
+(mode, redraw box, engine log), calibrate the box once (arrows move, SELECT toggles resize, PLAY/PAUSE confirms,
+BACK cancels), then ⏩ jumps to the next change minus the lead-in. Blind mode is the default; Highlights adds ticks.
 Never build from a path containing a directory named `assets` (the packager embeds host paths).
 
 ### The "Matches" row needs its media on a local server
@@ -45,7 +45,7 @@ For the tests and the benchmark alone, `npm ci --ignore-scripts` is enough (it s
 
 | Claim | Command | Evidence file it must match |
 |---|---|---|
-| Tests (444 passing + 4 skipped, 93 Flipbook) | `npm test` | — |
+| Tests (448 passing + 4 skipped, 97 Flipbook) | `npm test` | — |
 | Types clean | `npm run typecheck` | — |
 | Development-match result, ablations, Node timings (20 runs) | `npm run bench` | `evidence/bench/dev-winchester-320.json` |
 | The scan's read order, which the landing page replays | `npm run trace` | `evidence/bench/dev-winchester-320-trace.json` |

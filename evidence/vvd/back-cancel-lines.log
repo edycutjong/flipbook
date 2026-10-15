@@ -1,0 +1,12 @@
+Oct 15 03:20:17.825998 [flipbook] calibrate on frame=10 (1:40)
+Oct 15 03:20:50.084653 [flipbook] calibration cancelled — no box; MENU → Redraw score box
+Oct 15 03:21:14.294324 [flipbook] calibrate on frame=10 (1:40)
+Oct 15 03:21:23.021490 [flipbook] scan start frames=517 rect=0.100,0.800,0.500,0.080
+Oct 15 03:21:23.205271 [flipbook] box saved for belmont-media-center-2023
+Oct 15 03:21:25.430294 [flipbook] ref frame=0 mask kept=0% area=0,180,0,320
+Oct 15 03:21:25.430373 [flipbook] pass1 done n=66/517 markers=0 ms=2410
+Oct 15 03:21:25.430384 [flipbook] box moving: 0% of cells steady
+Oct 15 03:21:40.374175 [flipbook] pass2 done n=451 added=0 lost=0 absent=0 ms=14944
+Oct 15 03:21:40.374264 [flipbook] scan done — only BIF thumbnails decoded (video bytes decoded: 0, by construction)
+Oct 15 03:21:53.566515 [flipbook] calibrate on frame=10 (1:40)
+Oct 15 03:22:00.492479 [flipbook] calibration cancelled — previous box kept

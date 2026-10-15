@@ -28,6 +28,9 @@ export function statusText(fb: FlipbookApi): { head: string; detail: string } | 
   if (fb.phase === 'no-index') {
     return { head: 'NO INDEX', detail: fb.failure || 'No trickplay index for this title' };
   }
+  if (fb.phase === 'no-box') {
+    return { head: 'NO BOX', detail: 'MENU → Redraw score box to turn Flipbook on' };
+  }
   if (fb.phase === 'loading') {
     return { head: 'FLIPBOOK', detail: 'reading trickplay index…' };
   }
@@ -118,7 +121,7 @@ const Calibration = ({ fb }: { fb: FlipbookApi }) => {
         <Text style={styles.calHead}>PUT THE BOX ON THE SCORE</Text>
         <Text style={styles.calBody}>Keep the clock outside it. Once per broadcaster graphic.</Text>
         <Text style={styles.calKeys}>
-          {fb.resizing ? 'arrows: resize' : 'arrows: move'} · SELECT: {fb.resizing ? 'move' : 'resize'} · PLAY/PAUSE: confirm
+          {fb.resizing ? 'arrows: resize' : 'arrows: move'} · SELECT: {fb.resizing ? 'move' : 'resize'} · PLAY/PAUSE: confirm · BACK: cancel
         </Text>
         <Text style={[styles.calState, { color: moving ? FB.after : FB.rule }]}>
           {fb.boxState === null ? '' : moving ? 'Box is moving — shrink it off the clock' : 'steady'}
@@ -137,7 +140,7 @@ export const FlipbookOverlay = ({ controlsVisible }: { controlsVisible: boolean 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill} testID="flipbook-overlay">
       {fb.phase === 'calibrating' && <Calibration fb={fb} />}
-      {status && !fb.scrubbing && (controlsVisible || fb.phase === 'scanning' || fb.phase === 'no-index') && (
+      {status && !fb.scrubbing && (controlsVisible || fb.phase === 'scanning' || fb.phase === 'no-index' || fb.phase === 'no-box') && (
         <View style={styles.statusRow} testID="flipbook-status">
           <Text style={styles.statusHead}>{status.head}</Text>
           <Text style={styles.statusDetail}>{status.detail}</Text>

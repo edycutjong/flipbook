@@ -24,7 +24,7 @@ export const MASK_MARGIN = 0.15;
 export const STRIP_BOTTOM = 44;
 
 export const ScanStrip = ({ fb, durationMs }: { fb: FlipbookApi; durationMs: number }) => {
-  if (!fb.enabled || fb.phase === 'off' || fb.phase === 'loading' || fb.phase === 'no-index' || !durationMs) {
+  if (!fb.enabled || fb.phase === 'off' || fb.phase === 'loading' || fb.phase === 'no-index' || fb.phase === 'no-box' || !durationMs) {
     return null;
   }
   const p = fb.progress;

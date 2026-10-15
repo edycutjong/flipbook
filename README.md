@@ -84,7 +84,7 @@ The judged path uses **four platform surfaces** at runtime, plus Amazon's refere
 |---|---|
 | W3C `VideoPlayer` (`@amazon-devices/react-native-w3cmedia`) | playback; `currentTime` set by the jump |
 | KUI `SeekBar` | blind/highlights seek bar: `markers` prop for ticks, `displayAboveThumb` overlay masking the score area; `partialDisablingConfiguration` hands ⏩/⏪ to Flipbook |
-| TV input and focus (`useTVEventHandler`, `TVFocusGuideView`) | `useTVEventHandler`: ⏩/⏪ fast-forward and rewind keys and calibration (arrows move, PLAY/PAUSE or BACK confirms, MENU opens the panel); SELECT is read through the focused seek bar, because the platform consumes it before `useTVEventHandler` (friction #16); `TVFocusGuideView`: keeps focus on the seek bar. While Flipbook is on, ⏩/⏪ jump between changes instead of skipping; LEFT/RIGHT on the focused seek bar are left to the KUI SeekBar |
+| TV input and focus (`useTVEventHandler`, `TVFocusGuideView`) | `useTVEventHandler`: ⏩/⏪ fast-forward and rewind keys and calibration (arrows move, PLAY/PAUSE confirms, BACK cancels, MENU opens the panel); SELECT is read through the focused seek bar, because the platform consumes it before `useTVEventHandler` (friction #16); `TVFocusGuideView`: keeps focus on the seek bar. While Flipbook is on, ⏩/⏪ jump between changes instead of skipping; LEFT/RIGHT on the focused seek bar are left to the KUI SeekBar |
 | AsyncStorage (`@amazon-devices/react-native-async-storage__async-storage`) | remembers the calibration box per broadcaster across relaunches |
 | Vega Virtual Device + CLI (tooling, not runtime) | build, run, on-device logs and recordings |
 | Amazon's BIF service in the sample (`src/services/bif/*`) | downloads the BIF; one added call (`getBifFile`) hands Flipbook the same bytes, which its own validated parser reads (`src/flipbook/core/bifIndex.ts`); its header and parser defects are entries 6–7 of [`FRICTION_LOG.md`](FRICTION_LOG.md) (18 entries in all) |
@@ -97,7 +97,7 @@ The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core
 
 | Metric | Value | Source |
 |---|---|---|
-| Tests | 444 passing + 4 skipped (76 suites + 1 skipped), 93 of them Flipbook; `tsc` clean | `npm test`, `npm run typecheck` |
+| Tests | 448 passing + 4 skipped (77 suites + 1 skipped), 97 of them Flipbook; `tsc` clean | `npm test`, `npm run typecheck` |
 | Video bytes decoded | 0, by construction (the scan only opens BIF JPEGs); `videoBytesDecoded` is fixed at 0 by the result type, and `verify:offline` checks that the JPEG bytes decoded stay within the BIF's size (6,571,356 of 6,575,564 bytes at 320 px, output kept in `evidence/bench/verify-offline.txt`) | `src/flipbook/core/scan.ts`; `scripts/verify_offline.ts`; `evidence/bench/verify-offline.txt`; `evidence/bench/*.json` |
 | On the Vega Virtual Device, pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame); that run used a box over most of a webinar frame with no score graphic, so its 34 pass-1 markers are not detections | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
 | On the Vega Virtual Device, jump without stacked seek | `seek from=50572ms currentTime=199.1`, then `currentTime=199.1` 1.5 s later | `evidence/vvd/witness-v1-flipbook-lines.log` |
@@ -157,7 +157,7 @@ The "Matches" row plays development media from a local static server (rebuild st
 
 ```bash
 npm run typecheck
-npm test                                  # 444 passing + 4 skipped (93 Flipbook)
+npm test                                  # 448 passing + 4 skipped (97 Flipbook)
 npm run test:flipbook                     # Flipbook only
 npm run bench                             # development-match benchmark, 20 runs, with ablations
 npm run trace                             # the scan's read order and per-frame change distance (the landing page replays it)
