@@ -1,0 +1,165 @@
+{
+  "bif": "match-a-320.bif",
+  "frames": 566,
+  "intervalMs": 10000,
+  "intervalSource": "header",
+  "rect": {
+    "x": 0.155,
+    "y": 0.868,
+    "w": 0.497,
+    "h": 0.058
+  },
+  "params": {
+    "tau": 20,
+    "tauCand": 12,
+    "tauAbs": 20,
+    "topK": 3,
+    "window": 3,
+    "jitterMax": 2.5,
+    "movingKeptMin": 0.4,
+    "stride": 8,
+    "reach": 12
+  },
+  "pass2Reach": 90,
+  "maskKept": 0.54375,
+  "markers": [
+    {
+      "changeAt": "6:30",
+      "anchorAt": "6:20",
+      "changeMs": 390000,
+      "anchorMs": 380000,
+      "D": 38.9,
+      "pass": 1
+    },
+    {
+      "changeAt": "52:10",
+      "anchorAt": "52:00",
+      "changeMs": 3130000,
+      "anchorMs": 3120000,
+      "D": 30.8,
+      "pass": 1
+    },
+    {
+      "changeAt": "1:16:30",
+      "anchorAt": "1:16:20",
+      "changeMs": 4590000,
+      "anchorMs": 4580000,
+      "D": 39.5,
+      "pass": 1
+    },
+    {
+      "changeAt": "1:33:30",
+      "anchorAt": "1:33:20",
+      "changeMs": 5610000,
+      "anchorMs": 5600000,
+      "D": 46.9,
+      "pass": 2
+    },
+    {
+      "changeAt": "1:33:50",
+      "anchorAt": "1:33:40",
+      "changeMs": 5630000,
+      "anchorMs": 5620000,
+      "D": 78.6,
+      "pass": 2
+    }
+  ],
+  "pass1": {
+    "decodes": 100,
+    "decodeFraction": 0.177
+  },
+  "pass2": {
+    "added": 2
+  },
+  "lostFromPass1": 0,
+  "skippedAbsent": 3,
+  "videoBytesDecoded": 0,
+  "nodeTimings": {
+    "label": "Node (tsx) on Apple M-series — NOT device timings",
+    "runs": 20,
+    "pass1Ms": {
+      "p50": 248.4,
+      "p95": 277.6
+    },
+    "pass2Ms": {
+      "p50": 1224.5,
+      "p95": 1259.9
+    }
+  },
+  "labels": {
+    "file": "match-a.truth.json",
+    "status": "GROUND TRUTH (AI-labelled, not human) — labelled from the full-frame-rate video BEFORE any detector run on this match, by an independent AI agent session that was forbidden to open the detector code, fixtures, BIFs or any detector output. Not verified frame-by-frame by a person."
+  },
+  "score": {
+    "changesLabelled": 6,
+    "changesFound": 4,
+    "recall": 0.6666666666666666,
+    "recallCI95": [
+      0.223,
+      0.957
+    ],
+    "matchToleranceMs": 11000,
+    "falseMarkers": 1,
+    "falseMarkersPer90min": 0.9540636042402827,
+    "goalJumps": 6,
+    "goalJumpsBeforePlay": 4,
+    "goalJumpsSpoiled": 0,
+    "goalJumpsBeforePlayCI95": [
+      0.223,
+      0.957
+    ],
+    "graphicLagS": [
+      12.279,
+      99.566,
+      3.804,
+      8.775,
+      10.644,
+      10.11
+    ],
+    "medianLeadS": 17.077,
+    "jumps": [
+      {
+        "playMs": 377077,
+        "targetMs": 360000,
+        "beforePlay": true,
+        "spoiled": false,
+        "leadMs": 17077
+      },
+      {
+        "playMs": 913513,
+        "targetMs": null,
+        "beforePlay": false,
+        "spoiled": false,
+        "leadMs": null
+      },
+      {
+        "playMs": 2365897,
+        "targetMs": null,
+        "beforePlay": false,
+        "spoiled": false,
+        "leadMs": null
+      },
+      {
+        "playMs": 3122353,
+        "targetMs": 3100000,
+        "beforePlay": true,
+        "spoiled": false,
+        "leadMs": 22353
+      },
+      {
+        "playMs": 4583546,
+        "targetMs": 4560000,
+        "beforePlay": true,
+        "spoiled": false,
+        "leadMs": 23546
+      },
+      {
+        "playMs": 5595090,
+        "targetMs": 5580000,
+        "beforePlay": true,
+        "spoiled": false,
+        "leadMs": 15090
+      }
+    ]
+  }
+}

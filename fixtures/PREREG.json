@@ -15,7 +15,9 @@
   "detectorParamsSha256": "6f21e4171cb880792624c1a032599dfebec389257ef213cbe509bef62f3995e3",
   "leadInMs": {
     "default": 30000,
-    "rule": "tuned on match A only from {20000, 30000, 45000, 60000} ms as the smallest value where every labelled goal jump lands before playMs; frozen before match B is run"
+    "rule": "tuned on match A only from {20000, 30000, 45000, 60000} ms as the smallest value where every labelled goal jump lands before playMs; frozen before match B is run",
+    "frozen": 20000,
+    "frozenBy": "2026-10-15, on match A (evidence/bench/match-a-320.json): every candidate 20/30/45/60 s gave 4 of 6 goal jumps before the play (the same 4 markers found), none gave 6 of 6, so the tie-break picks the smallest, 20000 ms. Frozen before match B is run."
   },
   "boxes": {
     "match-a": {

@@ -1,0 +1,22 @@
+{
+  "bif": "match-a-320.bif",
+  "rect": {
+    "x": 0.155,
+    "y": 0.868,
+    "w": 0.497,
+    "h": 0.058
+  },
+  "labels": "match-a.truth.json",
+  "changeD": [
+    38.9,
+    19.4,
+    15.2,
+    30.8,
+    39.5,
+    46.9
+  ],
+  "noiseMaxD": 8,
+  "noiseMaxAtFrame": 554,
+  "margin": 1.9,
+  "pass": false
+}
