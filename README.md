@@ -26,13 +26,24 @@
 
 ## 📸 See it in Action
 
-Running on the **Vega Virtual Device** (Apple M-series Mac). These stills use Amazon's own webinar trickplay file (the "witness"), not a match: it is the title the sample app itself streams, so it shows the engine without any footage of ours.
+<img src="docs/images/flipbook-jump.webp" alt="On the Vega Virtual Device: the seek bar reads READY, one press of fast-forward, the toast reads '→ 16:20 (−30 s lead-in)', the match plays on, the goal goes in, and only then does the score graphic change to 1" width="100%">
+
+*One press of ⏩ on a match you haven't seen: Flipbook lands 30 s before the last frame with the old score, so the goal plays before the score changes. Recorded on the **Vega Virtual Device** (Apple M-series Mac): the first 10 s of the [demo video](https://youtu.be/AnNfzBMS6Vs); the on-screen "+24 s" and "+5 s" mark where the clip was shortened.*
+
+![Calibration on the development match: the box drawn once with the D-pad around the broadcaster's score graphic, marked steady](docs/images/vvd-calibration-devmatch.jpg)
+
+*Calibration: draw the box once around the score graphic with the D-pad; it is saved per broadcaster ("steady" = nothing inside the box is moving, so the running clock is outside it). School crests are blurred, as in the video.*
+
+<details>
+<summary>Earlier build (v1) on Amazon's own webinar trickplay file</summary>
+
+These stills use Amazon's own webinar trickplay file (the "witness"), not a match: it is the title the sample app itself streams. That run used the first detector (v1) with a box over most of the frame and no score graphic, so its markers are not detections; it shows the jump and the mask mechanics only.
 
 | Jump | Scrub: the mask over the thumbnail |
 |---|---|
 | ![Press ⏩: jump to 30 s before the next change's anchor, the last frame with the old score](docs/images/vvd-jump-toast.png) | ![Scrubbing: the black block is the scrub preview with the calibrated box masked; on this title the box was set to most of the frame, so the whole preview is covered](docs/images/vvd-scrub-mask.png) |
 
-![Calibration: draw the box once around the broadcaster's score graphic](docs/images/vvd-calibration.png)
+</details>
 
 ## 💡 The Problem & Solution
 
