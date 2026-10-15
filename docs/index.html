@@ -622,7 +622,7 @@ footer.site .small a{text-decoration:underline;text-decoration-color:var(--rule)
       <article class="card c2">
         <svg class="ico" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="34" height="22" rx="5"/><path d="M11 14v12l8-6zM20 14v12l8-6z" fill="currentColor"/></svg>
         <h3>Fast-forward is ours</h3>
-        <p><code>useTVEventHandler</code> takes the ⏩ fast-forward and ⏪ rewind keys and sets <code>currentTime</code> to anchor&nbsp;−&nbsp;30&nbsp;s. On the VVD Flipbook's target was 199.1&nbsp;s (anchor 229.1&nbsp;s − 30&nbsp;s), and 1.5&nbsp;s later the player still reported 199.1&nbsp;s — no second 30&nbsp;s seek stacked on top.</p>
+        <p><code>useTVEventHandler</code> takes the ⏩ fast-forward and ⏪ rewind keys and sets <code>currentTime</code> to anchor&nbsp;−&nbsp;30&nbsp;s. On the VVD, on the development match, the jump set 980.0&nbsp;s (anchor 1,010&nbsp;s − 30&nbsp;s), and 1.5&nbsp;s later the player still reported 980.0&nbsp;s — no second 30&nbsp;s seek stacked on top.</p>
         <div class="chips"><span class="chip">useTVEventHandler</span><span class="chip">partialDisablingConfiguration</span></div>
       </article>
       <article class="card c3">
@@ -638,8 +638,9 @@ footer.site .small a{text-decoration:underline;text-decoration-color:var(--rule)
           <li><span><code>VideoPlayer</code> (W3C media) — playback; the jump sets <code>currentTime</code></span></li>
           <li><span>KUI <code>SeekBar</code> — <code>markers</code> for ticks, <code>displayAboveThumb</code> for the mask</span></li>
           <li><span><code>useTVEventHandler</code> — ⏩ ⏪ keys and calibration; <code>TVFocusGuideView</code> — seek-bar focus</span></li>
-          <li><span>Vega Virtual Device + CLI — build, run, on-device logs and captures</span></li>
+          <li><span>AsyncStorage — the score box, remembered per broadcaster</span></li>
         </ul>
+        <p class="small">Tooling, not runtime: the Vega Virtual Device + CLI — build, run, on-device logs and captures.</p>
       </article>
     </div>
   </div>
