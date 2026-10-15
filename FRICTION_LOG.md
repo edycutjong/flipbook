@@ -72,8 +72,8 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Task:** read the sample's own BIF as the witness for our parser.
 - **Steps:** parse `tv-webinar-hd.bif`; compare the header with the parser's use of it.
 - **Expected:** a timestamp multiplier of 1000 or similar, and a catalogue `duration` that matches the video.
-- **Actual:** the multiplier field is `0xFFFFD8F0`; the sample parser multiplies it in (about 4.29e9 ms per frame) and works only because `getEndIndex` ignores the parsed times and assumes 10 s. The catalogue entry says `duration: 190` for a 71-minute video. A "binary-search by `positionMillis`" fix would have broken Amazon's own file.
-- **Workaround:** Flipbook's `readBif` treats multipliers outside 1 ms–60 s as corrupt and takes the unit from the asset duration, else 10 s (evidence: `evidence/witness-tv-webinar-header.txt`).
+- **Actual:** the multiplier field is `0xFFFFD8F0` — exactly −10,000 if read as a signed 32-bit integer, i.e. 10 s with the wrong sign (the writer's cause is not known to us); the sample parser multiplies it in (about 4.29e9 ms per frame) and works only because `getEndIndex` ignores the parsed times and assumes 10 s. The catalogue entry says `duration: 190` for a 71-minute video. A "binary-search by `positionMillis`" fix would have broken Amazon's own file.
+- **Workaround:** Flipbook's `readBif` treats multipliers outside 1 ms–60 s as corrupt and takes the unit from the player's video duration, else 10 s (evidence: `evidence/witness-tv-webinar-header.txt`).
 - **Suggestion:** fix the hosted file's header; make the sample's lookup use the parsed interval when it is sane.
 
 ### 7 · The sample's BIF parser accepts a file with no terminator — 2026-10-12 · medium

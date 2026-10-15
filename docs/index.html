@@ -509,7 +509,7 @@ footer.site .small a{text-decoration:underline;text-decoration-color:var(--rule)
     <div class="rc"><div class="n" data-count="0">0</div><p>bytes of video decoded, by construction: the scan only opens trickplay JPEGs</p><a href="https://github.com/edycutjong/flipbook/blob/main/src/flipbook/core/scan.ts">src · scan.ts</a></div>
     <div class="rc"><div class="n"><span data-count="2">2</span><small>/</small>2</div><p>jumps landed before the play on the development match — our labels, not ground truth</p><a href="https://github.com/edycutjong/flipbook/blob/main/evidence/bench/dev-winchester-320.json">bench · goalJumpsBeforePlay</a></div>
     <div class="rc"><div class="n"><span class="amber">0</span> <small>vs</small> <span class="dim" data-count="237">237</span></div><p>false markers: Flipbook vs a plain frame differ at its best threshold for the same two goals</p><a href="https://github.com/edycutjong/flipbook/blob/main/evidence/bench/dev-winchester-320.json">bench · ablationBaseline</a></div>
-    <div class="rc"><div class="n"><span class="fixw" data-count="4085" data-sep="1">4,085</span><small>ms</small></div><p>pass 1 on the Vega virtual device: Amazon's own 428-frame BIF, 203 decoded, detector v1 build</p><a href="https://github.com/edycutjong/flipbook/blob/main/evidence/vvd/witness-v1-flipbook-lines.log">VVD log · pass1 done</a></div>
+    <div class="rc"><div class="n"><span class="fixw" data-count="2771" data-sep="1">2,771</span><small>ms</small></div><p>pass 1 on the Vega virtual device, development match: p50 of 19 relaunch runs, 77 of 517 frames decoded</p><a href="https://github.com/edycutjong/flipbook/blob/main/evidence/bench/dev-winchester-320-vvd.json">VVD · vvdTimings.pass1Ms</a></div>
   </div>
 </section>
 
@@ -598,7 +598,7 @@ footer.site .small a{text-decoration:underline;text-decoration-color:var(--rule)
       <article class="card c4">
         <svg class="ico" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="32" height="22" rx="1.5"/><path d="M4 13h32M4 27h32"/><path d="M8 11h2M14 11h2M20 11h2M26 11h2M32 11h1M8 29h2M14 29h2M20 29h2M26 29h2M32 29h1"/><path d="M15 15v8M25 15v8"/></svg>
         <h3>The file the player already has</h3>
-        <p>A BIF is a contact sheet of the whole match — one JPEG roughly every 10&nbsp;s, downloaded so the seek bar can preview. The sample's BIF service fetches it; one added call hands Flipbook the same bytes, and Flipbook's own parser reads them as a corpus. Amazon's <code>tv-webinar-hd.bif</code> has 428 frames at 240×180 and a timestamp-multiplier field of <code>0xFFFFD8F0</code>, so that parser sanity-checks the header and falls back to a 10&nbsp;s interval.</p>
+        <p>A BIF is a contact sheet of the whole match — one JPEG roughly every 10&nbsp;s, downloaded so the seek bar can preview. The sample's BIF service fetches it; one added call hands Flipbook the same bytes, and Flipbook's own parser reads them as a corpus. Amazon's <code>tv-webinar-hd.bif</code> has 428 frames (the first is 240×180) and a timestamp-multiplier field of <code>0xFFFFD8F0</code> — −10,000 read as a signed number — so Flipbook's parser sanity-checks the header and takes the frame interval from the player's video duration (10&nbsp;s only when no duration is known).</p>
         <div class="chips"><span class="chip">getBifFile</span><span class="chip">readBif</span><span class="chip">0xFFFFD8F0</span></div>
       </article>
       <article class="card c2">
@@ -661,7 +661,7 @@ footer.site .small a{text-decoration:underline;text-decoration-color:var(--rule)
         <h3>A plain differ cannot do it</h3>
         <p class="src">bench · ablationBaseline: consecutive frames, every cell, no hold</p>
         <ol class="bars" aria-label="False markers by threshold"><li class="us" style="--w:0.004"><span>Flipbook · τ 20</span><i class="b"></i><span class="r">0 false · 2/2</span></li><li style="--w:1.000"><span>differ · τ 8</span><i class="b"></i><span class="r">496 false · 2/2</span></li><li style="--w:0.917"><span>differ · τ 12</span><i class="b"></i><span class="r">455 false · 2/2</span></li><li style="--w:0.784"><span>differ · τ 16</span><i class="b"></i><span class="r">389 false · 2/2</span></li><li style="--w:0.702"><span>differ · τ 20</span><i class="b"></i><span class="r">348 false · 2/2</span></li><li style="--w:0.571"><span>differ · τ 25</span><i class="b"></i><span class="r">283 false · 2/2</span></li><li style="--w:0.478"><span>differ · τ 30</span><i class="b"></i><span class="r">237 false · 2/2</span></li><li style="--w:0.300"><span>differ · τ 40</span><i class="b"></i><span class="r miss">149 false · 0/2</span></li><li style="--w:0.192"><span>differ · τ 50</span><i class="b"></i><span class="r miss">95 false · 0/2</span></li><li style="--w:0.111"><span>differ · τ 60</span><i class="b"></i><span class="r miss">55 false · 0/2</span></li><li style="--w:0.038"><span>differ · τ 80</span><i class="b"></i><span class="r miss">19 false · 0/2</span></li></ol>
-        <p class="note">To keep both goals the differ fires <b>237</b> false markers; raise its threshold to 40 and it misses both and still fires 149. Without the hold and the jitter mask, Flipbook itself would mark 350 times.</p>
+        <p class="note">To keep both goals the differ fires <b>237</b> false markers; raise its threshold to 40 and it misses both and still fires 149. Without the hold and the jitter mask, Flipbook itself would place 350 markers, 348 of them false.</p>
       </figure>
       <figure class="panel">
         <h3>Where <svg class="kbd" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="fast-forward"><path d="M3.5 6.2v11.6l7.7-5.8z"/><path d="M12.5 6.2v11.6l7.7-5.8z"/></svg> lands</h3>
@@ -686,9 +686,9 @@ footer.site .small a{text-decoration:underline;text-decoration-color:var(--rule)
     <p class="edge">From the README's honest limits</p>
     <h2 class="h2" id="honest-h">Honest by design.</h2>
     <div class="quotes">
-      <blockquote><p>“Virtual device only. No Fire TV hardware was available; every timing is ‘Vega virtual device on Apple M-series’.”</p><footer>README · Honest limits 1</footer></blockquote>
+      <blockquote><p>“Virtual device only. No Fire TV hardware was available; every on-device timing is from the Vega Virtual Device on an Apple M-series Mac; the benchmark timings are Node (tsx), not device.”</p><footer>README · Honest limits 1</footer></blockquote>
       <blockquote><p>“The held-out headline is pending. … Until then no such number is claimed.”</p><footer>README · Honest limits 2</footer></blockquote>
-      <blockquote><p>“The numbers above come from one development match with two labelled changes, labelled by the detector's author from 2 s stills. The 95 % confidence interval on 2/2 is [0.158, 1].”</p><footer>README · Honest limits 3</footer></blockquote>
+      <blockquote><p>“The numbers above come from one development match with two labelled changes, labelled by the detector's author (an AI agent, Claude Code) from 2 s stills. The 95 % confidence interval on 2/2 is [0.158, 1].”</p><footer>README · Honest limits 3</footer></blockquote>
     </div>
   </div>
 </section>
@@ -723,7 +723,7 @@ footer.site .small a{text-decoration:underline;text-decoration-color:var(--rule)
   <div class="wrap">
     <div>
       <a class="brand" href="#top" aria-label="Flipbook — back to top"><img src="assets/icon.svg" alt="" width="32" height="32"><span class="wm">FLIP<i>BOOK</i></span></a>
-      <p class="small">Spoiler-safe chapters for recorded matches, read from trickplay thumbnails. Built for the Amazon Developer Hackathon 2026 — Fire TV track.</p>
+      <p class="small">Spoiler-aware chapters for recorded matches, read from trickplay thumbnails. Built for the Amazon Developer Hackathon 2026 — Fire TV track.</p>
       <p class="ver">pre-release · no tag yet · MIT-0</p>
     </div>
     <div>

@@ -43,7 +43,7 @@ You come home to a full-match replay of a game you haven't seen (a lower-divisio
 A player that shows scrub previews from BIF trickplay — as Amazon's Vega video sample does — already downloads a **BIF** file: one small JPEG per ~10 s of the match. Flipbook reads that file instead of the video:
 
 1. **Calibrate once** — draw a box around the broadcaster's score graphic (it is remembered per broadcaster).
-2. **Scan** — a two-pass change-and-hold detector compares the box across thumbnails. Pass 1 samples sparse frames so the first ticks appear fast; pass 2 reads every frame to fill gaps and refine. Only a change that *holds* counts, so a replay or a brief graphic dropout does not.
+2. **Scan** — a two-pass change-and-hold detector compares the box across thumbnails. Pass 1 samples sparse frames so the first ticks appear fast; pass 2 reads every frame to fill gaps and refine. Only a change that *holds* counts, so a replay or a brief graphic dropout does not (shown in synthetic tests; the development match has no replay).
 3. **Jump** — ⏩ goes to the next change minus a lead-in (default 30 s), anchored on the last frame that still shows the **old** score, so you land before the play.
 
 Two modes, **blind by default**: the seek bar shows only your position and how far the scan has read, and the thumbnails' score rectangle is masked. **Highlights** (user-selected) adds ticks on the seek bar. Either way, no video is decoded, by construction: the scan only opens the BIF's thumbnail JPEGs (the benchmark's `videoBytesDecoded` is fixed at 0 by its result type; `verify:offline` bounds the JPEG bytes decoded by the BIF's size).
@@ -78,17 +78,18 @@ markers ──► FlipbookContext ──► KUI SeekBar: score-box mask (always)
 
 ## 🏆 Fire TV (Vega) Integration
 
-The judged path uses **four platform surfaces**, plus Amazon's reference BIF service — sample code we extended to hand over the raw bytes (not a platform API):
+The judged path uses **four platform surfaces** at runtime, plus Amazon's reference BIF service — sample code we extended to hand over the raw bytes (not a platform API) — and the Vega tooling:
 
 | Surface | Used for |
 |---|---|
 | W3C `VideoPlayer` (`@amazon-devices/react-native-w3cmedia`) | playback; `currentTime` set by the jump |
 | KUI `SeekBar` | blind/highlights seek bar: `markers` prop for ticks, `displayAboveThumb` overlay masking the score area; `partialDisablingConfiguration` hands ⏩/⏪ to Flipbook |
-| TV input and focus (`useTVEventHandler`, `TVFocusGuideView`) | `useTVEventHandler`: ⏩/⏪ fast-forward and rewind keys and calibration (arrows move, PLAY/PAUSE or BACK confirms, MENU opens the panel); SELECT is read through the focused seek bar, because the platform consumes it before `useTVEventHandler` (friction #16); `TVFocusGuideView`: keeps focus on the seek bar |
-| Vega Virtual Device + CLI | build, run, on-device logs and recordings |
+| TV input and focus (`useTVEventHandler`, `TVFocusGuideView`) | `useTVEventHandler`: ⏩/⏪ fast-forward and rewind keys and calibration (arrows move, PLAY/PAUSE or BACK confirms, MENU opens the panel); SELECT is read through the focused seek bar, because the platform consumes it before `useTVEventHandler` (friction #16); `TVFocusGuideView`: keeps focus on the seek bar. While Flipbook is on, ⏩/⏪ jump between changes instead of skipping; LEFT/RIGHT on the focused seek bar are left to the KUI SeekBar |
+| AsyncStorage (`@amazon-devices/react-native-async-storage__async-storage`) | remembers the calibration box per broadcaster across relaunches |
+| Vega Virtual Device + CLI (tooling, not runtime) | build, run, on-device logs and recordings |
 | Amazon's BIF service in the sample (`src/services/bif/*`) | downloads the BIF; one added call (`getBifFile`) hands Flipbook the same bytes, which its own validated parser reads (`src/flipbook/core/bifIndex.ts`); its header and parser defects are entries 6–7 of [`FRICTION_LOG.md`](FRICTION_LOG.md) (18 entries in all) |
 
-Found while verifying: Amazon's own `tv-webinar-hd.bif` has 428 frames (the first checked at 240×180) and a timestamp-multiplier field of `0xFFFFD8F0`, so a binary search by `positionMillis` would break Amazon's file. Flipbook sanity-checks the header and, when the multiplier is not sane, derives the unit from the asset duration, or 10 s per frame when no duration is known.
+Found while verifying: Amazon's own `tv-webinar-hd.bif` has 428 frames (the first checked at 240×180) and a timestamp-multiplier field of `0xFFFFD8F0` (−10,000 if read as a signed 32-bit number), so a binary search by `positionMillis` would break Amazon's file. Flipbook sanity-checks the header and, when the multiplier is not sane, derives the unit from the player's video duration, or 10 s per frame when no duration is known.
 
 The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core/bifWriter.ts` and their tests (18) headless (see the commit history). A `kirocrew run` attempt produced nothing (approval policy and rate limits); that is recorded, not claimed. The Amazon Devices Builder Tools MCP was installed into Kiro (`init-context --agent kiro`) and Kiro called its `list_documents`, `set_project_context` and `search_documentation` tools to return the SeekBar `markers` and `partialDisablingConfiguration` docs; no perfetto trace was analysed. Details and logs: [`docs/KIRO.md`](docs/KIRO.md). All 18 friction-log entries are in [`FRICTION_LOG.md`](FRICTION_LOG.md).
 

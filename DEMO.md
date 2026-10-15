@@ -1,7 +1,7 @@
 # DEMO — see it, then re-run every number
 
 Flipbook runs on the **Vega Virtual Device** (Apple M-series Mac). No Fire TV hardware was available, so no timing here
-is from a real device. The demo video, linked from the Devpost page once it is uploaded, shows the app on the virtual device.
+is from a real device. The demo video (https://youtu.be/AnNfzBMS6Vs) shows the app on the virtual device.
 
 ## 1. See it on the virtual device
 
