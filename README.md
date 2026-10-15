@@ -196,7 +196,7 @@ test/flipbook/         Jest invariants
 - [x] Ground truth for matches A and B (AI-labelled, isolated sessions), then the held-out result on B
 - [ ] A person verifies the A/B labels frame by frame; held-out matches from other producers
 - [x] Calibrated on-device recording of the development match
-- [ ] Upstream the BIF parser fixes to `vega-video-sample`
+- [ ] Upstream the BIF parser fixes to `vega-video-sample` (reported as [issue #12](https://github.com/AmazonAppDev/vega-video-sample/issues/12); no pull request yet)
 - [ ] A packaging-time scan, so a provider can run the detector once where the BIF is made
 
 ## 📽️ Demo Materials
