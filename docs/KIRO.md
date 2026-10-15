@@ -13,6 +13,10 @@ Everything here is first-hand and has a log in [`evidence/kiro/`](../evidence/ki
 - **`kirocrew run`** (Kiro Crew 0.8.0), unattended, on the first task: no files produced in about 40 minutes. Its write and shell
   tools were denied by the approval policy and the backend returned HTTP 429 `CREDIT_CONSUMPTION_RATE_EXCEEDED` repeatedly. We
   gave up on it and used `kiro-cli` instead (the run was left unfinished). Run-level transcript: `evidence/kiro/kirocrew-run-attempt.md`. (Friction log entry 11.)
+- **`kirocrew run`, second attempt (2026-10-15)**, on a small `bif-info` CLI task in a fresh folder: every shell and write call was
+  denied by the approval policy (no one could approve; the gateway was not running), the agent said the repo was never cloned,
+  and the run still ended "✅ Task completed" with all six steps ticked and exit code 0. No file was produced. Log:
+  `evidence/kiro/kirocrew-run-task03-2026-10-15.log`. (Friction log entry 19.)
 - **No performance profiling.** `analyze_perfetto_traces` / `get_app_hot_functions` were not run: no perfetto trace was
   captured. The Vega Virtual Device was down from 23:27 WIB on 2026-10-12 until the morning of 2026-10-13 (friction log entry 10);
   once it booted again the session went to the owed on-device captures (`evidence/vvd/`), not to profiling.

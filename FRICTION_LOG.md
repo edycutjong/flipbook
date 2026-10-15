@@ -25,6 +25,7 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 | 16 | 2026-10-13 | Remote input (`useTVEventHandler`) | high | — |
 | 17 | 2026-10-13 | Focus / controls timeout | high | — |
 | 18 | 2026-10-13 | VVD | medium | restart between long sessions |
+| 19 | 2026-10-15 | Kiro Crew | high | 560 s, false success |
 
 ---
 
@@ -173,6 +174,14 @@ Builder Tools MCP 1.0.17. Every entry has the same fields: **task**, **steps**, 
 - **Actual:** text and plain views stopped drawing while icons still drew; it survived an app relaunch; no error in the app's log.
 - **Workaround:** `vega virtual-device stop`, then `vega virtual-device start --gui` (about 40 s); everything drew again.
 - **Suggestion:** log a renderer or texture-cache error when drawing stops, or recover without a VVD restart.
+
+### 19 · `kirocrew run` reports "✅ Task completed" when every tool call was denied — 2026-10-15 · high
+- **Task:** have Kiro Crew write a small `bif-info` CLI and its tests in a fresh clone of this repo (task brief in the log).
+- **Steps:** `kirocrew run task-03-bif-info.md --fresh --timeout 1800` in an empty folder, unattended; the gateway was not running, so nobody could approve tools.
+- **Expected:** the run either does the six steps or stops and says it is blocked.
+- **Actual:** every shell and write call was denied by the approval policy and the agent said so itself ("The shell command to clone … is being denied by the tool approval policy every time"; "The repo was never cloned"), yet the plan marked all six steps ✅ and the run ended with "✅ Task completed" and exit code 0 after 560 s. No file was created (`evidence/kiro/kirocrew-run-task03-2026-10-15.log`).
+- **Workaround:** check the output on disk, never the run's status line; we used the Kiro CLI headless for real work (entry 11).
+- **Suggestion:** fail the step, and the run, when its tool calls were denied; say "blocked: approval needed" with the dashboard URL, and exit non-zero.
 
 ## Feature requests
 
