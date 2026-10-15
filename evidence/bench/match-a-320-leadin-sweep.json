@@ -1,0 +1,51 @@
+{
+  "bif": "match-a-320.bif",
+  "labels": "match-a.truth.json",
+  "rect": {
+    "x": 0.155,
+    "y": 0.868,
+    "w": 0.497,
+    "h": 0.058
+  },
+  "purpose": "pre-registered lead-in selection on match A (PREREG.leadInMs); each row is `npx tsx scripts/bench.ts fixtures/match-a-320.bif --rect 0.155,0.868,0.497,0.058 --labels fixtures/match-a.truth.json --lead-in <s> --runs 3`, run 2026-10-15 before match B",
+  "rows": [
+    {
+      "leadInS": 20,
+      "changesFound": 4,
+      "changesLabelled": 6,
+      "falseMarkers": 1,
+      "goalJumpsBeforePlay": 4,
+      "goalJumps": 6,
+      "goalJumpsSpoiled": 0
+    },
+    {
+      "leadInS": 30,
+      "changesFound": 4,
+      "changesLabelled": 6,
+      "falseMarkers": 1,
+      "goalJumpsBeforePlay": 4,
+      "goalJumps": 6,
+      "goalJumpsSpoiled": 0
+    },
+    {
+      "leadInS": 45,
+      "changesFound": 4,
+      "changesLabelled": 6,
+      "falseMarkers": 1,
+      "goalJumpsBeforePlay": 4,
+      "goalJumps": 6,
+      "goalJumpsSpoiled": 0
+    },
+    {
+      "leadInS": 60,
+      "changesFound": 4,
+      "changesLabelled": 6,
+      "falseMarkers": 1,
+      "goalJumpsBeforePlay": 4,
+      "goalJumps": 6,
+      "goalJumpsSpoiled": 0
+    }
+  ],
+  "chosen": 20,
+  "rule": "no candidate landed every goal jump before the play; tie-break = most jumps before the play, smallest on a tie"
+}

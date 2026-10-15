@@ -68,14 +68,14 @@ export function clopperPearson(k: number, n: number, alpha = 0.05): [number, num
   return [+lower.toFixed(3), +upper.toFixed(3)];
 }
 
-/** Held-out matches (match-*.bif) are scored only against a committed human truth file. */
+/** Held-out matches (match-*.bif) are scored only against a committed ground-truth file. */
 export function guardHeldOut(bifPath: string, labelsPath: string | undefined) {
   if (!/^match-/.test(path.basename(bifPath))) return;
-  if (!labelsPath) throw new Error(`${path.basename(bifPath)} is a held-out match: a committed human truth file is required (--labels fixtures/<match>.truth.json)`);
+  if (!labelsPath) throw new Error(`${path.basename(bifPath)} is a held-out match: a committed ground-truth file is required (--labels fixtures/<match>.truth.json)`);
   const doc = JSON.parse(fs.readFileSync(labelsPath, 'utf8'));
   const placeholder = /<name>|<YYYY/.test(JSON.stringify(doc));
   if (!/GROUND TRUTH/.test(doc.status || '') || !doc.labelledBy || placeholder) {
-    throw new Error('labels file is not a filled-in human ground-truth file');
+    throw new Error('labels file is not a filled-in ground-truth file');
   }
   if (!(doc.changes || []).some((c: Change) => c.graphicMs > 0)) throw new Error('truth file has no labelled change');
   const match = path.basename(bifPath).replace(/-(320|240lb)\.bif$/, '');

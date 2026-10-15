@@ -10,7 +10,7 @@
  *
  *   npx tsx scripts/trace.ts <file.bif> --rect x,y,w,h [--out evidence/bench/<name>-trace.json]
  *
- * Held-out matches (match-*.bif) are refused: no detector run on them before the human ground-truth commit.
+ * Held-out matches (match-*.bif) are refused: no detector run on them before the ground-truth commit.
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -165,7 +165,7 @@ async function main() {
     throw new Error('usage: trace.ts <file.bif> --rect x,y,w,h [--out file.json]');
   }
   if (/^match-/.test(path.basename(file))) {
-    throw new Error(`${path.basename(file)} is a held-out match: no trace before the human ground-truth commit`);
+    throw new Error(`${path.basename(file)} is a held-out match: no trace before the ground-truth commit`);
   }
   const [x, y, w, h] = (arg('rect') || '').split(',').map(Number);
   if (![x, y, w, h].every(Number.isFinite)) {

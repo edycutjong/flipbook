@@ -1,5 +1,5 @@
 {
-  "purpose": "Pre-registration for the held-out evaluation: detector parameters and calibration boxes are frozen BEFORE the human ground-truth commits for match A and match B, and before any detector run on either match.",
+  "purpose": "Pre-registration for the held-out evaluation: detector parameters and calibration boxes are frozen BEFORE the ground-truth commits for match A and match B, and before any detector run on either match.",
   "frozenAt": "2026-10-13",
   "detectorParams": {
     "tau": 20,
