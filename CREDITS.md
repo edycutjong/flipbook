@@ -17,7 +17,7 @@ Internet Archive under **CC0 1.0** (`https://creativecommons.org/publicdomain/ze
 | Use | Internet Archive item | File | SHA-1 (archive.org) |
 |---|---|---|---|
 | Development match (thresholds tuned here only) | [snafuinfinitysoccer-girls_091923-vs-winchester](https://archive.org/details/snafuinfinitysoccer-girls_091923-vs-winchester) | soccer-girls_091923-vs-winchester.mp4 | e4c3982a1a87840f8f2e64ef538235ee4a1d6ce0 |
-| Match A (tuning of lead-in after human labels) | [snafuinfinitysoccer-boys_102323-vs-woburn](https://archive.org/details/snafuinfinitysoccer-boys_102323-vs-woburn) | soccer-boys_102323-vs-woburn.mp4 | 36845cd5410ce95fc8ee6655676b6a74816163e7 |
+| Match A (lead-in tuned here, after its truth commit) | [snafuinfinitysoccer-boys_102323-vs-woburn](https://archive.org/details/snafuinfinitysoccer-boys_102323-vs-woburn) | soccer-boys_102323-vs-woburn.mp4 | 36845cd5410ce95fc8ee6655676b6a74816163e7 |
 | Match B (held out) | [snafuinfinitysoccer-boys_092124-vs-woburn](https://archive.org/details/snafuinfinitysoccer-boys_092124-vs-woburn) | soccer-boys_092124-vs-woburn.mp4 | 966e9477b6498f5073f73f498c554ede1fb33714 |
 
 Our own obligations (beyond what CC0 requires): the original commentary audio is removed from everything we host

@@ -56,9 +56,10 @@ For the tests and the benchmark alone, `npm ci --ignore-scripts` is enough (it s
 
 ## 3. What is not measured yet
 
-- **The held-out headline** (goal jumps that land before the play on match B). It is computed only from a committed,
-  human-labelled truth file; `bench` and `visibility` refuse to run on matches A and B without one. Parameters are frozen
-  in `fixtures/PREREG.json`. Until then no such number is claimed anywhere.
+- **A person's check of the held-out labels.** The held-out result (match B: 2 of 3 goal jumps before the play, 95 % CI
+  [0.094, 0.992]; `evidence/bench/match-b-320.json`) rests on truth files labelled by isolated AI sessions from the video
+  alone, committed before any detector run. No person has verified them frame by frame. Re-run it with
+  `npx tsx scripts/bench.ts fixtures/match-b-320.bif --rect 0.29,0.858,0.36,0.05 --labels fixtures/match-b.truth.json --lead-in 20`.
 - A dedicated 100-frame decode median on the device. (The calibrated scan, 19 relaunch timings and the AsyncStorage restore after a relaunch are captured for the development match; see `evidence/vvd/README.md` and README, honest limit 8.)
 - Everything above on the development match was labelled by the detector's author, an AI agent (Claude Code) (`fixtures/winchester-2023.devlabels.json`)
   and is evidence that the pipeline works, not how well it generalises.

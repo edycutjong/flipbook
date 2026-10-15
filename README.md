@@ -102,6 +102,9 @@ The [Kiro](https://kiro.dev) CLI wrote `scripts/make-bif.ts`, `src/flipbook/core
 | On the Vega Virtual Device, pass 1 (Amazon's BIF; detector v1 build 5be6a4a, before the v2 signature) | 203 of 428 frames in 4,085 ms (≈ 20 ms per decoded frame); that run used a box over most of a webinar frame with no score graphic, so its 34 pass-1 markers are not detections | `evidence/vvd/README.md`, `witness-v1-flipbook-lines.log` |
 | On the Vega Virtual Device, jump without stacked seek | `seek from=50572ms currentTime=199.1`, then `currentTime=199.1` 1.5 s later | `evidence/vvd/witness-v1-flipbook-lines.log` |
 | Development match (agent dev labels, **not ground truth**) | 2/2 changes found, 0 false markers, 2/2 jumps land before the play (leads 28 s and 30 s); pass 1 reads 14.9 % of frames | `evidence/bench/dev-winchester-320.json` |
+| **Held-out match B** (AI-labelled truth, see limit 2; bench lead-in 20 s frozen on match A) | **2 of 3 goal jumps land before the play** (95 % CI [0.094, 0.992]), 0 false markers, 0 jumps that show the new score; the miss: the third goal's change scored D = 12.3 against τ = 20 | `evidence/bench/match-b-320.json` |
+| Match A (tuning match for the lead-in, AI-labelled truth) | 4 of 6 changes found, 4 of 6 goal jumps before the play, 1 false marker (at 1:33:50, between the last goal and the FINAL card); the same at lead-ins of 20, 30, 45 and 60 s | `evidence/bench/match-a-320.json` |
+| Visibility margin, test matches | match A 1.9× at 320 px and 1.1× at 240×180; match B 1.26× at 320 px — all below the 2× the development match reached | `evidence/bench/visibility-match-*.json` |
 | Visibility margin (dev labels) | 2.64× at 320 px, 2.04× at 240×180 letterboxed | `evidence/bench/visibility-dev-winchester-*.json` |
 | Fair baseline | a plain frame differ finds 2/2 only at τ ≤ 30 (of the 8–80 we swept; τ = 40 finds none); at τ = 30, the best of those, it fires 237 false markers | `evidence/bench/dev-winchester-320.json` → `ablationBaseline` |
 | On the Vega Virtual Device, development match (detector v2, calibrated with the D-pad), 19 relaunch runs | pass 1 reads 77 of 517 frames: p50 2,771 ms, p95 3,422 ms; pass 2 p50 14,294 ms, p95 17,796 ms; the box is restored from AsyncStorage after each relaunch; same two markers as the Node run | `evidence/vvd/README.md`, `evidence/bench/dev-winchester-320-vvd.json` |
@@ -126,10 +129,10 @@ Each control exists because a malformed or hostile input, or a timing slip, woul
 ### Honest limits (9)
 
 1. **Virtual device only.** No Fire TV hardware was available; every on-device timing is from the Vega Virtual Device on an Apple M-series Mac; the benchmark timings are Node (tsx), not device.
-2. **The held-out headline is pending.** The headline metric (goal jumps that land before the play on held-out match B) will be reported only after the human's ground-truth files for matches A and B are committed. Until then no such number is claimed. Detector parameters and calibration boxes are frozen in [`fixtures/PREREG.json`](fixtures/PREREG.json) (detector-params sha256 `6f21e417…`), and `bench`/`visibility` refuse to run on matches A and B without a committed truth file.
+2. **The held-out result is small and AI-labelled.** On match B, 2 of 3 goal jumps landed before the play (95 % CI [0.094, 0.992]): three goals cannot say how well it generalises. The truth for matches A and B was labelled by isolated AI sessions that could open only the video (not the code, fixtures, BIFs or any detector output), **not by a person**, and nobody has verified it frame by frame. It was committed (`427b540`) before any detector run on A or B. Detector parameters and calibration boxes were frozen earlier in [`fixtures/PREREG.json`](fixtures/PREREG.json) (detector-params sha256 `6f21e417…`); the bench lead-in (20 s, by the pre-registered tie-break on match A; the app's default is 30 s) was frozen before match B ran (`68eae81`). `bench`/`visibility` still refuse to run on A and B without a committed truth file.
 3. **The numbers above come from one development match with two labelled changes**, labelled by the detector's author (an AI agent, Claude Code) from 2 s stills. The 95 % confidence interval on 2/2 is [0.158, 1]. It shows the pipeline works, not how well it generalises.
 4. **Same producer.** Matches A, B and the development match are all Belmont Media Center broadcasts; B has a different overlay design. Read it as "tuned on one match, tested on two more from the same producer."
-5. **Disclosure:** to place the calibration boxes the detector's author (the same AI agent) looked at one 2:00 frame of each of A and B; no detector run has been made on either.
+5. **Disclosure:** to place the calibration boxes the detector's author (the same AI agent) looked at one 2:00 frame of each of A and B before the truth commit; the detector first ran on them after it.
 6. **Blind mode still discloses** that a jump reveals a change ahead; "No later change" reveals none; misses are silent.
 7. **Scrubbing is coarse:** one thumbnail per ~10 s. A leaked score in the video itself (not the graphic) is outside what the mask covers.
 8. **On-device scope.** The calibrated scan, 19 relaunch timings and the box restored after a relaunch are captured on the VVD for the development match only (matches A and B were never scanned). Still not measured on the device: a dedicated 100-frame decode median. The VVD stopped drawing text after about 20 minutes of uptime (friction entry 18), and earlier would not boot once the Mac's screen locked (the lock is the most likely cause; not proven); see `evidence/vvd/README.md`.
@@ -180,7 +183,7 @@ src/flipbook/app/      context, overlay (calibration, panel), SeekBar parts
 scripts/               bench, visibility, trace, make-bif, verify_offline
 fixtures/              BIFs for the development match and matches A/B, PREREG.json, truth template
 evidence/              bench JSON and on-device VVD logs behind every number above
-tools/label/           the human ground-truth labelling page
+tools/label/           the ground-truth labelling page (built for a person; the A/B labels came from isolated AI sessions)
 docs/                  the landing page and pitch deck (GitHub Pages), with the media they use
 test/flipbook/         Jest invariants
 ```
@@ -190,7 +193,8 @@ test/flipbook/         Jest invariants
 - [x] BIF → decode → two-pass detector → markers → ⏩ jump on the VVD
 - [x] Blind and highlights modes, masked thumbnails, calibration overlay
 - [x] Pre-registered parameters and held-out guard
-- [ ] Human ground truth for matches A and B, then the held-out result
+- [x] Ground truth for matches A and B (AI-labelled, isolated sessions), then the held-out result on B
+- [ ] A person verifies the A/B labels frame by frame; held-out matches from other producers
 - [x] Calibrated on-device recording of the development match
 - [ ] Upstream the BIF parser fixes to `vega-video-sample`
 - [ ] A packaging-time scan, so a provider can run the detector once where the BIF is made

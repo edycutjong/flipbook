@@ -400,7 +400,7 @@ body.debug-contrast .slide :is(h2,p,li,span,b,em,code,figcaption,time,div.call){
     <div><b>2,771<small>ms</small></b><span>pass 1 on the VVD · p50 of 19 runs · dev match</span></div>
   </div>
   <div class="foot"><span class="wm">FLIP<i>BOOK</i></span><span>pre-release · 07 / 10</span></div>
-  <aside class="speaker-notes">The chart is the change distance at every one of the 517 frames: two spikes above the threshold; outside those two spikes, nothing above twelve. A plain frame differ needs 237 false markers to find the same two goals. These come from a development match we labelled ourselves; the held-out result needs a human's labels.</aside>
+  <aside class="speaker-notes">The chart is the change distance at every one of the 517 frames: two spikes above the threshold; outside those two spikes, nothing above twelve. A plain frame differ needs 237 false markers to find the same two goals. These come from a development match we labelled ourselves; the held-out result is on the next slide: 2 of 3 on match B, with AI-labelled truth.</aside>
 </section>
 
 <!-- 08 BUILT ON VEGA -->
@@ -431,17 +431,17 @@ body.debug-contrast .slide :is(h2,p,li,span,b,em,code,figcaption,time,div.call){
   <aside class="speaker-notes">The judged path uses four Vega platform surfaces, plus the sample's BIF service, which we extended to hand over the raw bytes. Verifying against Amazon's own file we found a timestamp-multiplier value that would break a binary search, so Flipbook's own parser sanity-checks the header. Eighteen friction-log entries document the rest; Kiro's CLI wrote the BIF writer and its tests.</aside>
 </section>
 
-<!-- 09 PENDING -->
-<section class="slide s9" data-title="Pending" aria-label="Slide 9: what is still pending">
+<!-- 09 HELD-OUT -->
+<section class="slide s9" data-title="Held-out" aria-label="Slide 9: the held-out result and its limits">
   <p class="edge">Honest by design</p>
-  <h2 style="max-width:none">What is still pending.</h2>
+  <h2 style="max-width:none">Held out, and small.</h2>
   <div class="rows9">
-    <div><b>Held-out match B</b><span>waits for human labels; params frozen: <code>6f21e417…</code></span></div>
-    <div class="rule"><b>Headline rule</b><span>k/N goal jumps landing before the play, 95&nbsp;% CI</span></div>
+    <div><b>Match B</b><span>2 / 3 goal jumps before the play · 95&nbsp;% CI 0.09–0.99</span></div>
+    <div class="rule"><b>Labels</b><span>AI sessions, video only, committed first · not a person</span></div>
     <div><b>Virtual device only</b><span>no Fire TV hardware</span></div>
   </div>
   <div class="foot"><span class="wm">FLIP<i>BOOK</i></span><span>pre-release · 09 / 10</span></div>
-  <aside class="speaker-notes">What we do not claim yet: the headline — goal jumps that land before the play on held-out match B — waits for a person's labels, and the detector's parameters were frozen before any label exists. There was no Fire TV hardware, so every on-device timing is the virtual device and the benchmark timings are Node; a dedicated 100-frame decode median is not yet measured.</aside>
+  <aside class="speaker-notes">The held-out result: on match B, 2 of 3 goal jumps landed before the play, 95 % CI 0.094 to 0.992, with 0 false markers. Three goals is small. The truth for A and B was labelled by isolated AI sessions that could open only the video, not by a person, and was committed before the detector ever ran on those matches; parameters and boxes were frozen before that, and the 20 s bench lead-in was frozen on match A before B ran. There was no Fire TV hardware, so every on-device timing is the virtual device and the benchmark timings are Node; a dedicated 100-frame decode median is not yet measured.</aside>
 </section>
 
 <!-- 10 THE ASK -->
