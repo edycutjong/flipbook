@@ -1,0 +1,68 @@
+{
+  "match": "match-a",
+  "source": "Internet Archive snafuinfinitysoccer-boys_102323-vs-woburn (Belmont Media Center, CC0 1.0)",
+  "status": "GROUND TRUTH (AI-labelled, not human) — labelled from the full-frame-rate video BEFORE any detector run on this match, by an independent AI agent session that was forbidden to open the detector code, fixtures, BIFs or any detector output. Not verified frame-by-frame by a person.",
+  "labelledBy": "Claude (Anthropic) — an isolated labelling session working only from the video file (2026-10-13); not the maintainer, not a human",
+  "labelledOn": "2026-10-13",
+  "committedOn": "2026-10-15",
+  "precisionMs": 1000,
+  "videoFps": "30000/1001",
+  "changes": [
+    {
+      "graphicMs": 389356,
+      "playMs": 377077,
+      "kind": "goal",
+      "note": "0-1 → 1-0; confidence play medium, graphic high. Belmont goal: long lob from ~35 yds struck ~f11245 (6:15.2) over an advanced keeper; camera catches the ball at the crossbar/left-post corner f11298-11300 and inside the net from f11302. playMs = f11301 (ball at the line plane, perspective ambiguous ±2 frames). SAME FRAME the graphic also flips Woburn 1->0: the graphic showed 0-1 from its first appearance (~0:00:25, clock 40:00, pre-kickoff), so the Woburn '1' looks like a pre-game graphic error being corrected together with the Belmont goal. Human: decide whether to model this as goal+correction."
+    },
+    {
+      "graphicMs": 1013079,
+      "playMs": 913513,
+      "kind": "goal",
+      "note": "1-0 → 2-0; confidence play high, graphic high. Belmont goal: low shot rolls past diving keeper, ball reaches left post base f27377, behind the line f27379; playMs = f27378. Graphic lags ~100 s (team huddle / stoppage 0:15:44-0:16:50; scoreboard clock also re-set 26:26->27:34 at ~0:16:38)."
+    },
+    {
+      "graphicMs": 2369701,
+      "playMs": 2365897,
+      "kind": "goal",
+      "note": "2-0 → 3-0; confidence play medium, graphic high. Belmont goal: shot ~0:39:25.0, camera pans late; ball first seen already in the net behind the far (right) post at f70906. Crossing likely 1-3 frames earlier, not visible (pan blur). playMs = earliest certain frame."
+    },
+    {
+      "graphicMs": 3131128,
+      "playMs": 3122353,
+      "kind": "goal",
+      "note": "3-0 → 3-1; confidence play high, graphic high. Woburn goal: shot ~0:52:01.9, Belmont keeper (green) dives right; ball passes glove f93572-93576 and is in the net by f93578. playMs = f93577."
+    },
+    {
+      "graphicMs": 4594190,
+      "playMs": 4583546,
+      "kind": "goal",
+      "note": "3-1 → 4-1; confidence play high, graphic high. Belmont goal: shot ~1:16:23.3, Woburn keeper (pink) dives; ball passes near post f137367-68, behind post plane f137369. playMs = f137369."
+    },
+    {
+      "graphicMs": 5605200,
+      "playMs": 5595090,
+      "kind": "goal",
+      "note": "4-1 → 5-1; confidence play low, graphic high. Belmont goal from a goalmouth scramble after a set piece, scored with the SCOREBOARD CLOCK ALREADY AT 0:00 (it hit 0:00 at ~1:32:41; play continued on referee time). Ball last seen in the air at the near post f167679-81, then hidden by bodies; crossing not visible. playMs = f167685 is a best guess; earliest CERTAIN evidence is Belmont celebrating ~f167725 (1:33:16.42). Human must scrub 1:33:14.8-1:33:16.5."
+    }
+  ],
+  "outsideTheBox": {
+    "note": "Period-indicator changes seen by the labeller. The pre-registered box (fixtures/PREREG.json) does not cover the period indicator, so these are not scored.",
+    "changes": [
+      {
+        "graphicMs": 2951182,
+        "kind": "period",
+        "note": "Period indicator 1st -> HALF (clock 0:00)."
+      },
+      {
+        "graphicMs": 2954452,
+        "kind": "period",
+        "note": "Period indicator HALF -> 2nd (clock 40:00). Halftime is EDITED OUT: video fades to black ~f88530-88544 and fades back in; f88545 is the first (dim, fading-in) frame showing '2nd'. Fully legible ~f88557."
+      },
+      {
+        "graphicMs": 5634729,
+        "kind": "period",
+        "note": "Period indicator 2nd -> FINAL (clock 0:00). A 'Commentators:' lower-third overlaps the Belmont side of the graphic from here."
+      }
+    ]
+  }
+}

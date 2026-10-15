@@ -1,0 +1,50 @@
+{
+  "match": "match-b",
+  "source": "Internet Archive snafuinfinitysoccer-boys_092124-vs-woburn (Belmont Media Center, CC0 1.0)",
+  "status": "GROUND TRUTH (AI-labelled, not human) — labelled from the full-frame-rate video BEFORE any detector run on this match, by an independent AI agent session that was forbidden to open the detector code, fixtures, BIFs or any detector output. Not verified frame-by-frame by a person.",
+  "labelledBy": "Claude (Anthropic) — an isolated labelling session working only from the video file (2026-10-13); not the maintainer, not a human",
+  "labelledOn": "2026-10-13",
+  "committedOn": "2026-10-15",
+  "precisionMs": 1000,
+  "videoFps": 30,
+  "changes": [
+    {
+      "graphicMs": 1203767,
+      "playMs": 1193400,
+      "kind": "goal",
+      "note": "0-0 → 1-0; confidence play medium, graphic high. Belmont (maroon). Goalmouth scramble at the left-hand goal after a set piece; low shot from close range. Ball not visible at frames 35801-35802 (blurred among legs); first clearly behind the line inside the net at frame 35803 (1193.433 s). playMs = frame 35802; true crossing is within 35800-35803. graphicMs = frame 36113 (hard cut 0→1; frame 36112 still 0). Live play, no REPLAY tag."
+    },
+    {
+      "graphicMs": 1804967,
+      "playMs": 1789300,
+      "kind": "goal",
+      "note": "1-0 → 2-0; confidence play medium, graphic high. Belmont. Breakaway by maroon #9 on the left-hand goal, shot past diving keeper at ~1789.2 s; ball rolls into the net near the left post, partly hidden by keeper/defender. playMs = frame 53679 (ball first appears inside the goal mouth); clearly in the net by frame 53685 (1789.500 s). REPLAY of the goal runs ~1796-1804 s, before the graphic change. graphicMs = frame 54149 (hard cut 1→2)."
+    },
+    {
+      "graphicMs": 3780267,
+      "playMs": 3765567,
+      "kind": "goal",
+      "note": "2-0 → 3-0; confidence play low, graphic high. Belmont. Cross from the right in the air across the far (left-hand on screen) goal, touched near the near/left post at ~3765.37-3765.43 s, ball then travels past the keeper into the net. Ball is small/blurred; it appears behind the line between frames 112966-112968 and is clearly inside the net (rolling along the back) by frame 112971 (3765.700 s). Maroon players celebrate from ~3766.0 s. playMs = frame 112967; uncertainty ±5 frames. REPLAY ~3770-3779 s, LIVE tag ~3780 s. graphicMs = frame 113408 (hard cut 2→3)."
+    }
+  ],
+  "outsideTheBox": {
+    "note": "Period-indicator changes seen by the labeller. The pre-registered box (fixtures/PREREG.json) does not cover the period indicator, so these are not scored.",
+    "changes": [
+      {
+        "graphicMs": 3537833,
+        "kind": "period",
+        "note": "Period text 1st → HALF. Happens across a full-frame fade to black: 1st fades out (black at frames 106133-106134), HALF first visible (faint, fading in) at frame 106135. Could reasonably be labelled 106134-106167 (HALF fully opaque ~106176). Chose first legible frame."
+      },
+      {
+        "graphicMs": 3548467,
+        "kind": "period",
+        "note": "HALF → 2nd, hard cut at frame 106454 (106453 still HALF). Halftime appears to be edited out of the broadcast (HALF shown only ~10 s)."
+      },
+      {
+        "graphicMs": 6188133,
+        "kind": "period",
+        "note": "2nd → F (final), hard cut at frame 185644 (185643 still 2nd)."
+      }
+    ]
+  }
+}
